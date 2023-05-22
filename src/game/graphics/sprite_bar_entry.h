@@ -161,8 +161,8 @@ public:
 
 public:
     virtual bool update(Time time);
-    virtual void setMotionLoopTo(int t);
-    virtual void setMotionStartTimer(IndexTimer t);
+    virtual void setMotionLoopTo(int t) override;
+    virtual void setMotionStartTimer(const std::string& t) override;
     virtual void appendMotionKeyFrame(const MotionKeyFrame& f) override;
     virtual void draw() const;
 

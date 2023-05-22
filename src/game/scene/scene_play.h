@@ -1,8 +1,10 @@
 #pragma once
 #include "scene.h"
-#include "scene_context.h"
 #include "common/chartformat/chartformat.h"
 #include "game/chart/chart.h"
+#include "game/replay/replay_chart.h"
+#include "game/data/data_shared.h"
+#include "game/data/data_select.h"
 
 namespace lunaticvibes
 {
@@ -57,7 +59,8 @@ private:
 
         double savedHispeed = 1.0;
 
-        Option::e_lane_effect_type origLanecoverType = Option::LANE_OFF;
+        PlayModifierLaneEffectType origLanecoverType = PlayModifierLaneEffectType::OFF;
+        PlayModifierHispeedFixType origLockspeedType = PlayModifierHispeedFixType::NONE;
 
         int healthLastTick = 0;
 
@@ -128,8 +131,8 @@ public:
 protected:
     // common
     void loadChart();
-    constexpr double getWavLoadProgress() { return (wavTotal == 0) ? (gChartContext.isSampleLoaded ? 1.0 : 0.0) : (double)wavLoaded / wavTotal; }
-    constexpr double getBgaLoadProgress() { return (bmpTotal == 0) ? (gChartContext.isBgaLoaded ? 1.0 : 0.0) : (double)bmpLoaded / bmpTotal; }
+    constexpr double getWavLoadProgress() { return (wavTotal == 0) ? (SelectData.selectedChart.isSampleLoaded ? 1.0 : 0.0) : (double)wavLoaded / wavTotal; }
+    constexpr double getBgaLoadProgress() { return (bmpTotal == 0) ? (SelectData.selectedChart.isBgaLoaded ? 1.0 : 0.0) : (double)bmpLoaded / bmpTotal; }
 
     void setInputJudgeCallback();
     void removeInputJudgeCallback();
@@ -152,7 +155,6 @@ protected:
     void updateAsyncLanecover(const Time& t);
     void updateAsyncGreenNumber(const Time& t);
     void updateAsyncGaugeUpTimer(const Time& t);
-    void updateAsyncLanecoverDisplay(const Time& t);
     void updateAsyncHSGradient(const Time& t);
     void updateAsyncAbsoluteAxis(const Time& t);
     void updatePrepare();
@@ -171,6 +173,7 @@ protected:
     void spinTurntable(bool startedPlaying);
     void requestExit();
     void toggleLanecover(int slot, bool state);
+    void toggleLockspeed(int slot, bool state);
 
 protected:
     // Register to InputWrapper: judge / keysound

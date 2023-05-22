@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ruleset_bms.h"
-#include "game/scene/scene_context.h"
+#include "game/replay/replay_chart.h"
 
 namespace lunaticvibes
 {

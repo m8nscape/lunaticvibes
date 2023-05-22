@@ -1,9 +1,9 @@
 #include "common/pch.h"
 #include "sprite_bar_entry.h"
-#include "game/scene/scene_context.h"
 #include "common/entry/entry_types.h"
 #include "common/chartformat/chartformat_bms.h"
 #include "game/data/data_select.h"
+#include "game/data/data_play.h"
 
 namespace lunaticvibes
 {
@@ -49,7 +49,7 @@ int SpriteBarEntry::setLevel(BarLevelType type, const SpriteNumber::SpriteNumber
         << " (Line " << srcLine << ")";
 
     SpriteNumber::SpriteNumberBuilder tmpBuilder = builder;
-    tmpBuilder.numberCallback = std::bind([](int index) { return lv::data::SelectData.barLevel[index]; }, index);
+    tmpBuilder.numberCallback = std::bind([](int index) { return SelectData.barLevel[index]; }, index);
     sLevel[static_cast<size_t>(type)] = tmpBuilder.build();
     return 0;
 }
@@ -70,7 +70,7 @@ int SpriteBarEntry::setLamp(BarLampType type, const SpriteAnimated::SpriteAnimat
 int SpriteBarEntry::setTitle(BarTitleType type, const SpriteText::SpriteTextBuilder& builder)
 {
     SpriteText::SpriteTextBuilder tmpBuilder = builder;
-    tmpBuilder.textCallback = std::bind([](int index) { return lv::data::SelectData.barTitle[index]; }, index);
+    tmpBuilder.textCallback = std::bind([](int index) { return SelectData.barTitle[index]; }, index);
     sTitle[static_cast<size_t>(type)] = tmpBuilder.build();
     return 0;
 }
@@ -78,7 +78,7 @@ int SpriteBarEntry::setTitle(BarTitleType type, const SpriteText::SpriteTextBuil
 int SpriteBarEntry::setTitle(BarTitleType type, const SpriteImageText::SpriteImageTextBuilder& builder)
 {
     SpriteImageText::SpriteImageTextBuilder tmpBuilder = builder;
-    tmpBuilder.textCallback = std::bind([](int index) { return lv::data::SelectData.barTitle[index]; }, index);
+    tmpBuilder.textCallback = std::bind([](int index) { return SelectData.barTitle[index]; }, index);
     sTitle[static_cast<size_t>(type)] = tmpBuilder.build();
     return 0;
 }
@@ -168,13 +168,13 @@ bool SpriteBarEntry::update(Time time)
     for (auto& s : sRivalLampRival) if (s) s->setHideInternal(true);
     if (sFlash) sFlash->setHideInternal(true);
 
-    auto& list = gSelectContext.entries;
+    auto& list = SelectData.entries;
     if (!list.empty())
     {
-        size_t listidx = gSelectContext.selectedEntryIndex + index;
-        if (listidx < gSelectContext.highlightBarIndex)
-            listidx += list.size() * ((gSelectContext.highlightBarIndex - listidx) / list.size() + 1);
-        listidx -= gSelectContext.highlightBarIndex;
+        size_t listidx = SelectData.selectedEntryIndex + index;
+        if (listidx < SelectData.highlightBarIndex)
+            listidx += list.size() * ((SelectData.highlightBarIndex - listidx) / list.size() + 1);
+        listidx -= SelectData.highlightBarIndex;
         listidx %= list.size();
 
         _draw = true;
@@ -195,7 +195,7 @@ bool SpriteBarEntry::update(Time time)
         drawRivalLampRivalType = 0;
 
         auto [pEntry, pScore] = list[listidx];
-        drawBodyOn = (index == gSelectContext.highlightBarIndex);
+        drawBodyOn = (index == SelectData.highlightBarIndex);
 
         // check new song
         bool isNewEntry = false;
@@ -205,7 +205,7 @@ bool SpriteBarEntry::update(Time time)
         {
             using namespace std::chrono;
             isNewEntry = (pEntry->_addTime > duration_cast<seconds>(
-                system_clock::now().time_since_epoch()).count() - lv::data::SelectData.newEntrySeconds);
+                system_clock::now().time_since_epoch()).count() - SelectData.newEntrySeconds);
         }
 
         static const std::map<eEntryType, size_t> BAR_TYPE_MAP =
@@ -277,7 +277,7 @@ bool SpriteBarEntry::update(Time time)
             drawTitle = true;
         }
 
-        drawFlash = gSelectContext.highlightBarIndex == index;
+        drawFlash = SelectData.highlightBarIndex == index;
         if (drawFlash && sFlash)
         {
             sFlash->update(time);
@@ -319,31 +319,31 @@ bool SpriteBarEntry::update(Time time)
                     {
                         // lamp
                         // TODO rival entry has two lamps
-                        static const std::map<ScoreBMS::Lamp, BarLampType> BMS_LAMP_TYPE_MAP_OLD =
+                        static const std::map<LampType, BarLampType> BMS_LAMP_TYPE_MAP_OLD =
                         {
-                            {ScoreBMS::Lamp::NOPLAY,        BarLampType::NOPLAY      },
-                            {ScoreBMS::Lamp::FAILED,        BarLampType::FAILED      },
-                            {ScoreBMS::Lamp::ASSIST,        BarLampType::FAILED      },
-                            {ScoreBMS::Lamp::EASY,          BarLampType::EASY        },
-                            {ScoreBMS::Lamp::NORMAL,        BarLampType::NORMAL      },
-                            {ScoreBMS::Lamp::HARD,          BarLampType::HARD        },
-                            {ScoreBMS::Lamp::EXHARD,        BarLampType::HARD        },
-                            {ScoreBMS::Lamp::FULLCOMBO,     BarLampType::FULLCOMBO   },
-                            {ScoreBMS::Lamp::PERFECT,       BarLampType::FULLCOMBO   },
-                            {ScoreBMS::Lamp::MAX,           BarLampType::FULLCOMBO   }
+                            {LampType::NOPLAY,        BarLampType::NOPLAY      },
+                            {LampType::FAILED,        BarLampType::FAILED      },
+                            {LampType::ASSIST,        BarLampType::FAILED      },
+                            {LampType::EASY,          BarLampType::EASY        },
+                            {LampType::NORMAL,        BarLampType::NORMAL      },
+                            {LampType::HARD,          BarLampType::HARD        },
+                            {LampType::EXHARD,        BarLampType::HARD        },
+                            {LampType::FULLCOMBO,     BarLampType::FULLCOMBO   },
+                            {LampType::PERFECT,       BarLampType::FULLCOMBO   },
+                            {LampType::MAX,           BarLampType::FULLCOMBO   }
                         };
-                        static const std::map<ScoreBMS::Lamp, BarLampType> BMS_LAMP_TYPE_MAP =
+                        static const std::map<LampType, BarLampType> BMS_LAMP_TYPE_MAP =
                         {
-                            {ScoreBMS::Lamp::NOPLAY,        BarLampType::NOPLAY      },
-                            {ScoreBMS::Lamp::FAILED,        BarLampType::FAILED      },
-                            {ScoreBMS::Lamp::ASSIST,        BarLampType::ASSIST_EASY },
-                            {ScoreBMS::Lamp::EASY,          BarLampType::EASY        },
-                            {ScoreBMS::Lamp::NORMAL,        BarLampType::NORMAL      },
-                            {ScoreBMS::Lamp::HARD,          BarLampType::HARD        },
-                            {ScoreBMS::Lamp::EXHARD,        BarLampType::EXHARD      }, // FIXME EXHARD
-                            {ScoreBMS::Lamp::FULLCOMBO,     BarLampType::FULLCOMBO   },
-                            {ScoreBMS::Lamp::PERFECT,       BarLampType::FULLCOMBO   }, // FIXME PERFECT
-                            {ScoreBMS::Lamp::MAX,           BarLampType::FULLCOMBO   }  // FIXME MAX
+                            {LampType::NOPLAY,        BarLampType::NOPLAY      },
+                            {LampType::FAILED,        BarLampType::FAILED      },
+                            {LampType::ASSIST,        BarLampType::ASSIST_EASY },
+                            {LampType::EASY,          BarLampType::EASY        },
+                            {LampType::NORMAL,        BarLampType::NORMAL      },
+                            {LampType::HARD,          BarLampType::HARD        },
+                            {LampType::EXHARD,        BarLampType::EXHARD      }, // FIXME EXHARD
+                            {LampType::FULLCOMBO,     BarLampType::FULLCOMBO   },
+                            {LampType::PERFECT,       BarLampType::FULLCOMBO   }, // FIXME PERFECT
+                            {LampType::MAX,           BarLampType::FULLCOMBO   }  // FIXME MAX
                         };
                         size_t lampTypeIdx = (BMS_LAMP_TYPE_MAP.find(score->lamp) != BMS_LAMP_TYPE_MAP.end()) ?
                             (size_t)BMS_LAMP_TYPE_MAP.at(score->lamp) : (size_t)BarLampType::NOPLAY;
@@ -369,19 +369,19 @@ bool SpriteBarEntry::update(Time time)
                         if ((BarType)barTypeIdx == BarType::SONG_RIVAL)
                         {
                             // rank
-                            auto t = Option::getRankType(score->rival_rate);
+                            auto t = getRankType(score->rival_rate);
                             switch (t)
                             {
-                            case Option::RANK_0: drawRankType = (size_t)BarRankType::MAX;  break;
-                            case Option::RANK_1: drawRankType = (size_t)BarRankType::AAA;  break;
-                            case Option::RANK_2: drawRankType = (size_t)BarRankType::AA;   break;
-                            case Option::RANK_3: drawRankType = (size_t)BarRankType::A;    break;
-                            case Option::RANK_4: drawRankType = (size_t)BarRankType::B;    break;
-                            case Option::RANK_5: drawRankType = (size_t)BarRankType::C;    break;
-                            case Option::RANK_6: drawRankType = (size_t)BarRankType::D;    break;
-                            case Option::RANK_7: drawRankType = (size_t)BarRankType::E;    break;
-                            case Option::RANK_8: drawRankType = (size_t)BarRankType::F;    break;
-                            case Option::RANK_NONE: drawRankType = (size_t)BarRankType::NONE; break;
+                            case RankType::MAX:  drawRankType = (size_t)BarRankType::MAX;  break;
+                            case RankType::AAA:  drawRankType = (size_t)BarRankType::AAA;  break;
+                            case RankType::AA:   drawRankType = (size_t)BarRankType::AA;   break;
+                            case RankType::A:    drawRankType = (size_t)BarRankType::A;    break;
+                            case RankType::B:    drawRankType = (size_t)BarRankType::B;    break;
+                            case RankType::C:    drawRankType = (size_t)BarRankType::C;    break;
+                            case RankType::D:    drawRankType = (size_t)BarRankType::D;    break;
+                            case RankType::E:    drawRankType = (size_t)BarRankType::E;    break;
+                            case RankType::F:    drawRankType = (size_t)BarRankType::F;    break;
+                            case RankType::_:    drawRankType = (size_t)BarRankType::NONE; break;
                             }
                             if (sRank[drawRankType])
                             {
@@ -431,31 +431,31 @@ bool SpriteBarEntry::update(Time time)
             auto score = std::dynamic_pointer_cast<ScoreBMS>(pScore);
             if (score)
             {
-                static const std::map<ScoreBMS::Lamp, BarLampType> BMS_LAMP_TYPE_MAP_OLD =
+                static const std::map<LampType, BarLampType> BMS_LAMP_TYPE_MAP_OLD =
                 {
-                    {ScoreBMS::Lamp::NOPLAY,        BarLampType::NOPLAY      },
-                    {ScoreBMS::Lamp::FAILED,        BarLampType::FAILED      },
-                    {ScoreBMS::Lamp::ASSIST,        BarLampType::FAILED      },
-                    {ScoreBMS::Lamp::EASY,          BarLampType::EASY        },
-                    {ScoreBMS::Lamp::NORMAL,        BarLampType::NORMAL      },
-                    {ScoreBMS::Lamp::HARD,          BarLampType::HARD        },
-                    {ScoreBMS::Lamp::EXHARD,        BarLampType::HARD        },
-                    {ScoreBMS::Lamp::FULLCOMBO,     BarLampType::FULLCOMBO   },
-                    {ScoreBMS::Lamp::PERFECT,       BarLampType::FULLCOMBO   },
-                    {ScoreBMS::Lamp::MAX,           BarLampType::FULLCOMBO   }
+                    {LampType::NOPLAY,        BarLampType::NOPLAY      },
+                    {LampType::FAILED,        BarLampType::FAILED      },
+                    {LampType::ASSIST,        BarLampType::FAILED      },
+                    {LampType::EASY,          BarLampType::EASY        },
+                    {LampType::NORMAL,        BarLampType::NORMAL      },
+                    {LampType::HARD,          BarLampType::HARD        },
+                    {LampType::EXHARD,        BarLampType::HARD        },
+                    {LampType::FULLCOMBO,     BarLampType::FULLCOMBO   },
+                    {LampType::PERFECT,       BarLampType::FULLCOMBO   },
+                    {LampType::MAX,           BarLampType::FULLCOMBO   }
                 };
-                static const std::map<ScoreBMS::Lamp, BarLampType> BMS_LAMP_TYPE_MAP =
+                static const std::map<LampType, BarLampType> BMS_LAMP_TYPE_MAP =
                 {
-                    {ScoreBMS::Lamp::NOPLAY,        BarLampType::NOPLAY      },
-                    {ScoreBMS::Lamp::FAILED,        BarLampType::FAILED      },
-                    {ScoreBMS::Lamp::ASSIST,        BarLampType::ASSIST_EASY },
-                    {ScoreBMS::Lamp::EASY,          BarLampType::EASY        },
-                    {ScoreBMS::Lamp::NORMAL,        BarLampType::NORMAL      },
-                    {ScoreBMS::Lamp::HARD,          BarLampType::HARD        },
-                    {ScoreBMS::Lamp::EXHARD,        BarLampType::EXHARD      },
-                    {ScoreBMS::Lamp::FULLCOMBO,     BarLampType::FULLCOMBO   },
-                    {ScoreBMS::Lamp::PERFECT,       BarLampType::FULLCOMBO   }, // FIXME PERFECT
-                    {ScoreBMS::Lamp::MAX,           BarLampType::FULLCOMBO   }  // FIXME MAX
+                    {LampType::NOPLAY,        BarLampType::NOPLAY      },
+                    {LampType::FAILED,        BarLampType::FAILED      },
+                    {LampType::ASSIST,        BarLampType::ASSIST_EASY },
+                    {LampType::EASY,          BarLampType::EASY        },
+                    {LampType::NORMAL,        BarLampType::NORMAL      },
+                    {LampType::HARD,          BarLampType::HARD        },
+                    {LampType::EXHARD,        BarLampType::EXHARD      },
+                    {LampType::FULLCOMBO,     BarLampType::FULLCOMBO   },
+                    {LampType::PERFECT,       BarLampType::FULLCOMBO   }, // FIXME PERFECT
+                    {LampType::MAX,           BarLampType::FULLCOMBO   }  // FIXME MAX
                 };
                 size_t lampTypeIdx = (BMS_LAMP_TYPE_MAP.find(score->lamp) != BMS_LAMP_TYPE_MAP.end()) ?
                     (size_t)BMS_LAMP_TYPE_MAP.at(score->lamp) : (size_t)BarLampType::NOPLAY;
@@ -499,7 +499,7 @@ void SpriteBarEntry::setMotionLoopTo(int t)
     assert(false);
 }
 
-void SpriteBarEntry::setMotionStartTimer(IndexTimer t)
+void SpriteBarEntry::setMotionStartTimer(const std::string& t)
 {
     LOG_ERROR << "[Sprite] setMotionStartTimer(f) of SpriteBarEntry should not be used";
     assert(false);
@@ -578,22 +578,22 @@ bool SpriteBarEntry::OnClick(int x, int y)
     if (_current.rect.x <= x && x < _current.rect.x + _current.rect.w &&
         _current.rect.y <= y && y < _current.rect.y + _current.rect.h)
     {
-        if (gSelectContext.highlightBarIndex == index)
+        if (SelectData.highlightBarIndex == index)
         {
-            gSelectContext.cursorEnterPending = true;
+            SelectData.cursorEnterPending = true;
         }
         else
         {
             if (available)
             {
-                gSelectContext.cursorClick = index;
+                SelectData.cursorClick = index;
             }
             else
             {
-                if (gSelectContext.highlightBarIndex > index)
-                    gSelectContext.cursorClickScroll = (gSelectContext.highlightBarIndex - index);
+                if (SelectData.highlightBarIndex > index)
+                    SelectData.cursorClickScroll = (SelectData.highlightBarIndex - index);
                 else
-                    gSelectContext.cursorClickScroll = -(index - gSelectContext.highlightBarIndex);
+                    SelectData.cursorClickScroll = -(index - SelectData.highlightBarIndex);
             }
         }
         return true;

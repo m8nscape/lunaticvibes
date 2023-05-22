@@ -1,11 +1,13 @@
 #include "common/pch.h"
 #include "ruleset_bms_auto.h"
 #include "game/scene/scene.h"
-#include "game/scene/scene_context.h"
 #include "game/chart/chart_types.h"
+#include "game/data/data_types.h"
 
 namespace lunaticvibes
 {
+
+static const int KEY_PRESS_DURATION_MS = 83;
 
 RulesetBMSAuto::RulesetBMSAuto(
     std::shared_ptr<ChartFormatBase> format,
@@ -26,12 +28,12 @@ RulesetBMSAuto::RulesetBMSAuto(
     {
     case RulesetBMS::PlaySide::AUTO:
     case RulesetBMS::PlaySide::AUTO_DOUBLE:
-        _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
+        _judgeScratch = !(PlayData.player[PLAYER_SLOT_PLAYER].mods.assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
         break;
 
     case RulesetBMS::PlaySide::AUTO_2P:
     case RulesetBMS::PlaySide::RIVAL:
-        _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
+        _judgeScratch = !(PlayData.player[PLAYER_SLOT_TARGET].mods.assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
         break;
     }
 
@@ -166,21 +168,18 @@ void RulesetBMSAuto::update(const Time& t)
 
                         if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_DOUBLE || _side == PlaySide::AUTO_2P)
                         {
-                            State::set(InputGamePressMap[k].tm, t.norm());
-                            State::set(InputGameReleaseMap[k].tm, TIMER_NEVER);
-                            State::set(InputGamePressMap[k].sw, true);
+                            SystemData.timers[InputGamePressMap.at(Input::Pad(k))] = t.norm();
+                            SystemData.timers[InputGameReleaseMap.at(Input::Pad(k))] = TIMER_NEVER;
 
                             if (k == Input::S1L || k == Input::S1R)
                             {
-                                State::set(IndexTimer::S1_DOWN, t.norm());
-                                State::set(IndexTimer::S1_UP, TIMER_NEVER);
-                                State::set(IndexSwitch::S1_DOWN, true);
+                                SystemData.timers["key_on_s_1p"] = t.norm();
+                                SystemData.timers["key_off_s_1p"] = TIMER_NEVER;
                             }
                             if (k == Input::S2L || k == Input::S2R)
                             {
-                                State::set(IndexTimer::S2_DOWN, t.norm());
-                                State::set(IndexTimer::S2_UP, TIMER_NEVER);
-                                State::set(IndexSwitch::S2_DOWN, true);
+                                SystemData.timers["key_on_s_2p"] = t.norm();
+                                SystemData.timers["key_off_s_2p"] = TIMER_NEVER;
                             }
                         }
                     }
@@ -208,25 +207,22 @@ void RulesetBMSAuto::update(const Time& t)
                             {
                                 if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_DOUBLE || _side == PlaySide::AUTO_2P)
                                 {
-                                    State::set(InputGamePressMap[k].tm, t.norm());
-                                    State::set(InputGameReleaseMap[k].tm, TIMER_NEVER);
-                                    State::set(InputGamePressMap[k].sw, true);
+                                    SystemData.timers[InputGamePressMap.at(Input::Pad(k))] = t.norm();
+                                    SystemData.timers[InputGameReleaseMap.at(Input::Pad(k))] = TIMER_NEVER;
 
                                     if (k == Input::S1L || k == Input::S1R)
                                     {
-                                        State::set(IndexTimer::S1_DOWN, t.norm());
-                                        State::set(IndexTimer::S1_UP, TIMER_NEVER);
-                                        State::set(IndexSwitch::S1_DOWN, true);
+                                        SystemData.timers["key_on_s_1p"] = t.norm();
+                                        SystemData.timers["key_off_s_1p"] = TIMER_NEVER;
                                     }
                                     if (k == Input::S2L || k == Input::S2R)
                                     {
-                                        State::set(IndexTimer::S2_DOWN, t.norm());
-                                        State::set(IndexTimer::S2_UP, TIMER_NEVER);
-                                        State::set(IndexSwitch::S2_DOWN, true);
+                                        SystemData.timers["key_on_s_2p"] = t.norm();
+                                        SystemData.timers["key_off_s_2p"] = TIMER_NEVER;
                                     }
 
                                     if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
-                                        State::set(_bombLNTimerMap->at(idx), t.norm());
+                                        PlayData.timers[_bombLNTimerMap->at(idx)] = t.norm();
 
                                     isPressingLN[k] = true;
                                 }
@@ -246,25 +242,22 @@ void RulesetBMSAuto::update(const Time& t)
 
                                 if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_DOUBLE || _side == PlaySide::AUTO_2P)
                                 {
-                                    State::set(InputGamePressMap[k].tm, TIMER_NEVER);
-                                    State::set(InputGameReleaseMap[k].tm, t.norm());
-                                    State::set(InputGameReleaseMap[k].sw, false);
+                                    SystemData.timers[InputGamePressMap.at(Input::Pad(k))] = TIMER_NEVER;
+                                    SystemData.timers[InputGameReleaseMap.at(Input::Pad(k))] = t.norm();
 
                                     if (k == Input::S1L || k == Input::S1R)
                                     {
-                                        State::set(IndexTimer::S1_DOWN, TIMER_NEVER);
-                                        State::set(IndexTimer::S1_UP, t.norm());
-                                        State::set(IndexSwitch::S1_DOWN, false);
+                                        SystemData.timers["key_on_s_1p"] = TIMER_NEVER;
+                                        SystemData.timers["key_off_s_1p"] = t.norm();
                                     }
                                     if (k == Input::S2L || k == Input::S2R)
                                     {
-                                        State::set(IndexTimer::S2_DOWN, TIMER_NEVER);
-                                        State::set(IndexTimer::S2_UP, t.norm());
-                                        State::set(IndexSwitch::S2_DOWN, false);
+                                        SystemData.timers["key_on_s_2p"] = TIMER_NEVER;
+                                        SystemData.timers["key_off_s_2p"] = t.norm();
                                     }
 
                                     if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
-                                        State::set(_bombLNTimerMap->at(idx), TIMER_NEVER);
+                                        PlayData.timers[_bombLNTimerMap->at(idx)] = TIMER_NEVER;
 
                                     isPressingLN[k] = false;
                                 }
@@ -304,23 +297,20 @@ void RulesetBMSAuto::update(const Time& t)
             {
                 if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_DOUBLE || _side == PlaySide::AUTO_2P)
                 {
-                    if (t.norm() - State::get(InputGamePressMap[k].tm) > 83 && !isPressingLN[k])
+                    if (t.norm() - SystemData.timers[InputGamePressMap.at(Input::Pad(k))] > KEY_PRESS_DURATION_MS && !isPressingLN[k])
                     {
-                        State::set(InputGamePressMap[k].tm, TIMER_NEVER);
-                        State::set(InputGameReleaseMap[k].tm, t.norm());
-                        State::set(InputGameReleaseMap[k].sw, false);
+                        SystemData.timers[InputGamePressMap.at(Input::Pad(k))] = TIMER_NEVER;
+                        SystemData.timers[InputGameReleaseMap.at(Input::Pad(k))] = t.norm();
 
                         if (k == Input::S1L || k == Input::S1R)
                         {
-                            State::set(IndexTimer::S1_DOWN, TIMER_NEVER);
-                            State::set(IndexTimer::S1_UP, t.norm());
-                            State::set(IndexSwitch::S1_DOWN, false);
+                            SystemData.timers["key_on_s_1p"] = TIMER_NEVER;
+                            SystemData.timers["key_off_s_1p"] = t.norm();
                         }
                         if (k == Input::S2L || k == Input::S2R)
                         {
-                            State::set(IndexTimer::S2_DOWN, TIMER_NEVER);
-                            State::set(IndexTimer::S2_UP, t.norm());
-                            State::set(IndexSwitch::S2_DOWN, false);
+                            SystemData.timers["key_on_s_2p"] = TIMER_NEVER;
+                            SystemData.timers["key_off_s_2p"] = t.norm();
                         }
                     }
                 }
@@ -335,8 +325,6 @@ void RulesetBMSAuto::update(const Time& t)
     unsigned max = _chart->getNoteTotalCount() * 2;
     _basic.total_acc = 100.0 * exScore / max;
     _basic.acc = notesExpired ? (100.0 * exScore / (notesExpired * 2)) : 0;
-
-    updateGlobals();
 }
 
 void RulesetBMSAuto::fail()

@@ -1,7 +1,7 @@
 #pragma once
 #include "game/skin/skin.h"
-#include "game/runtime/state.h"
 #include "game/input/input_wrapper.h"
+#include "game/data/data_system.h"
 
 namespace lunaticvibes
 {
@@ -39,8 +39,8 @@ protected:
 
     std::shared_ptr<TTFFont> _fNotifications;
     std::shared_ptr<Texture> _texNotificationsBG;
-    std::array<std::shared_ptr<SpriteText>, size_t(IndexText::_OVERLAY_NOTIFICATION_MAX) - size_t(IndexText::_OVERLAY_NOTIFICATION_0) + 1> _sNotifications;
-    std::array<std::shared_ptr<SpriteStatic>, size_t(IndexText::_OVERLAY_NOTIFICATION_MAX) - size_t(IndexText::_OVERLAY_NOTIFICATION_0) + 1> _sNotificationsBG;
+    std::array<std::shared_ptr<SpriteText>, Struct_SystemData::NotificationTextManager::MAX_NOTIFICATIONS> _sNotifications;
+    std::array<std::shared_ptr<SpriteStatic>, Struct_SystemData::NotificationTextManager::MAX_NOTIFICATIONS> _sNotificationsBG;
 
 public:
     bool sceneEnding = false;
@@ -78,7 +78,6 @@ protected:
     void DebugToggle(InputMask& m, const Time& t);
 
     bool isInTextEdit() const;
-    IndexText textEditType() const;
     virtual bool checkAndStartTextEdit() { return false; }
     virtual void startTextEdit(bool clear);
     virtual void stopTextEdit(bool modify);
@@ -89,77 +88,72 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct InputTimerSwitchMap {
-    IndexTimer tm;
-    IndexSwitch sw;
+inline const std::unordered_map<Input::Pad, std::string> InputGamePressMap =
+{
+    { Input::Pad::S1L, "key_on_sl_1p" },
+    { Input::Pad::S1R, "key_on_sr_1p" },
+    { Input::Pad::K11, "key_on_1_1p" },
+    { Input::Pad::K12, "key_on_2_1p" },
+    { Input::Pad::K13, "key_on_3_1p" },
+    { Input::Pad::K14, "key_on_4_1p" },
+    { Input::Pad::K15, "key_on_5_1p" },
+    { Input::Pad::K16, "key_on_6_1p" },
+    { Input::Pad::K17, "key_on_7_1p" },
+    { Input::Pad::K18, "key_on_8_1p" },
+    { Input::Pad::K19, "key_on_9_1p" },
+    { Input::Pad::K1START, "key_on_start_1p" },
+    { Input::Pad::K1SELECT, "key_on_select_1p" },
+    { Input::Pad::K1SPDUP, "key_on_spdup_1p" },
+    { Input::Pad::K1SPDDN, "key_on_spddn_1p" },
+    { Input::Pad::S2L, "key_on_sl_2p" },
+    { Input::Pad::S2R, "key_on_sr_2p" },
+    { Input::Pad::K21, "key_on_1_2p" },
+    { Input::Pad::K22, "key_on_2_2p" },
+    { Input::Pad::K23, "key_on_3_2p" },
+    { Input::Pad::K24, "key_on_4_2p" },
+    { Input::Pad::K25, "key_on_5_2p" },
+    { Input::Pad::K26, "key_on_6_2p" },
+    { Input::Pad::K27, "key_on_7_2p" },
+    { Input::Pad::K28, "key_on_8_2p" },
+    { Input::Pad::K29, "key_on_9_2p" },
+    { Input::Pad::K2START, "key_on_start_2p" },
+    { Input::Pad::K2SELECT, "key_on_select_2p" },
+    { Input::Pad::K2SPDUP, "key_on_spdup_2p" },
+    { Input::Pad::K2SPDDN, "key_on_spddn_2p" },
 };
 
-inline const InputTimerSwitchMap InputGamePressMap[] =
+inline const std::unordered_map<Input::Pad, std::string> InputGameReleaseMap =
 {
-    { IndexTimer::S1L_DOWN, IndexSwitch::S1L_DOWN },
-    { IndexTimer::S1R_DOWN, IndexSwitch::S1R_DOWN },
-    { IndexTimer::K11_DOWN, IndexSwitch::K11_DOWN },
-    { IndexTimer::K12_DOWN, IndexSwitch::K12_DOWN },
-    { IndexTimer::K13_DOWN, IndexSwitch::K13_DOWN },
-    { IndexTimer::K14_DOWN, IndexSwitch::K14_DOWN },
-    { IndexTimer::K15_DOWN, IndexSwitch::K15_DOWN },
-    { IndexTimer::K16_DOWN, IndexSwitch::K16_DOWN },
-    { IndexTimer::K17_DOWN, IndexSwitch::K17_DOWN },
-    { IndexTimer::K18_DOWN, IndexSwitch::K18_DOWN },
-    { IndexTimer::K19_DOWN, IndexSwitch::K19_DOWN },
-    { IndexTimer::K1START_DOWN, IndexSwitch::K1START_DOWN },
-    { IndexTimer::K1SELECT_DOWN, IndexSwitch::K1SELECT_DOWN },
-    { IndexTimer::K1SPDUP_DOWN, IndexSwitch::K1SPDUP_DOWN },
-    { IndexTimer::K1SPDDN_DOWN, IndexSwitch::K1SPDDN_DOWN },
-    { IndexTimer::S2L_DOWN, IndexSwitch::S2L_DOWN },
-    { IndexTimer::S2R_DOWN, IndexSwitch::S2R_DOWN },
-    { IndexTimer::K21_DOWN, IndexSwitch::K21_DOWN },
-    { IndexTimer::K22_DOWN, IndexSwitch::K22_DOWN },
-    { IndexTimer::K23_DOWN, IndexSwitch::K23_DOWN },
-    { IndexTimer::K24_DOWN, IndexSwitch::K24_DOWN },
-    { IndexTimer::K25_DOWN, IndexSwitch::K25_DOWN },
-    { IndexTimer::K26_DOWN, IndexSwitch::K26_DOWN },
-    { IndexTimer::K27_DOWN, IndexSwitch::K27_DOWN },
-    { IndexTimer::K28_DOWN, IndexSwitch::K28_DOWN },
-    { IndexTimer::K29_DOWN, IndexSwitch::K29_DOWN },
-    { IndexTimer::K2START_DOWN, IndexSwitch::K2START_DOWN },
-    { IndexTimer::K2SELECT_DOWN, IndexSwitch::K2SELECT_DOWN },
-    { IndexTimer::K2SPDUP_DOWN, IndexSwitch::K2SPDUP_DOWN },
-    { IndexTimer::K2SPDDN_DOWN, IndexSwitch::K2SPDDN_DOWN },
-};
-
-inline const InputTimerSwitchMap InputGameReleaseMap[] =
-{
-    { IndexTimer::S1L_UP, IndexSwitch::S1L_DOWN },
-    { IndexTimer::S1R_UP, IndexSwitch::S1R_DOWN },
-    { IndexTimer::K11_UP, IndexSwitch::K11_DOWN },
-    { IndexTimer::K12_UP, IndexSwitch::K12_DOWN },
-    { IndexTimer::K13_UP, IndexSwitch::K13_DOWN },
-    { IndexTimer::K14_UP, IndexSwitch::K14_DOWN },
-    { IndexTimer::K15_UP, IndexSwitch::K15_DOWN },
-    { IndexTimer::K16_UP, IndexSwitch::K16_DOWN },
-    { IndexTimer::K17_UP, IndexSwitch::K17_DOWN },
-    { IndexTimer::K18_UP, IndexSwitch::K18_DOWN },
-    { IndexTimer::K19_UP, IndexSwitch::K19_DOWN },
-    { IndexTimer::K1START_UP, IndexSwitch::K1START_DOWN },
-    { IndexTimer::K1SELECT_UP, IndexSwitch::K1SELECT_DOWN },
-    { IndexTimer::K1SPDUP_UP, IndexSwitch::K1SPDUP_DOWN },
-    { IndexTimer::K1SPDDN_UP, IndexSwitch::K1SPDDN_DOWN },
-    { IndexTimer::S2L_UP, IndexSwitch::S2L_DOWN },
-    { IndexTimer::S2R_UP, IndexSwitch::S2R_DOWN },
-    { IndexTimer::K21_UP, IndexSwitch::K21_DOWN },
-    { IndexTimer::K22_UP, IndexSwitch::K22_DOWN },
-    { IndexTimer::K23_UP, IndexSwitch::K23_DOWN },
-    { IndexTimer::K24_UP, IndexSwitch::K24_DOWN },
-    { IndexTimer::K25_UP, IndexSwitch::K25_DOWN },
-    { IndexTimer::K26_UP, IndexSwitch::K26_DOWN },
-    { IndexTimer::K27_UP, IndexSwitch::K27_DOWN },
-    { IndexTimer::K28_UP, IndexSwitch::K28_DOWN },
-    { IndexTimer::K29_UP, IndexSwitch::K29_DOWN },
-    { IndexTimer::K2START_UP, IndexSwitch::K2START_DOWN },
-    { IndexTimer::K2SELECT_UP, IndexSwitch::K2SELECT_DOWN },
-    { IndexTimer::K2SPDUP_UP, IndexSwitch::K2SPDUP_DOWN },
-    { IndexTimer::K2SPDDN_UP, IndexSwitch::K2SPDDN_DOWN },
+    { Input::Pad::S1L, "key_off_sl_1p" },
+    { Input::Pad::S1R, "key_off_sr_1p" },
+    { Input::Pad::K11, "key_off_1_1p" },
+    { Input::Pad::K12, "key_off_2_1p" },
+    { Input::Pad::K13, "key_off_3_1p" },
+    { Input::Pad::K14, "key_off_4_1p" },
+    { Input::Pad::K15, "key_off_5_1p" },
+    { Input::Pad::K16, "key_off_6_1p" },
+    { Input::Pad::K17, "key_off_7_1p" },
+    { Input::Pad::K18, "key_off_8_1p" },
+    { Input::Pad::K19, "key_off_9_1p" },
+    { Input::Pad::K1START, "key_off_start_1p" },
+    { Input::Pad::K1SELECT, "key_off_select_1p" },
+    { Input::Pad::K1SPDUP, "key_off_spdup_1p" },
+    { Input::Pad::K1SPDDN, "key_off_spddn_1p" },
+    { Input::Pad::S2L, "key_off_sl_2p" },
+    { Input::Pad::S2R, "key_off_sr_2p" },
+    { Input::Pad::K21, "key_off_1_2p" },
+    { Input::Pad::K22, "key_off_2_2p" },
+    { Input::Pad::K23, "key_off_3_2p" },
+    { Input::Pad::K24, "key_off_4_2p" },
+    { Input::Pad::K25, "key_off_5_2p" },
+    { Input::Pad::K26, "key_off_6_2p" },
+    { Input::Pad::K27, "key_off_7_2p" },
+    { Input::Pad::K28, "key_off_8_2p" },
+    { Input::Pad::K29, "key_off_9_2p" },
+    { Input::Pad::K2START, "key_off_start_2p" },
+    { Input::Pad::K2SELECT, "key_off_select_2p" },
+    { Input::Pad::K2SPDUP, "key_off_spdup_2p" },
+    { Input::Pad::K2SPDDN, "key_off_spddn_2p" },
 };
 
 ////////////////////////////////////////////////////////////////////////////////

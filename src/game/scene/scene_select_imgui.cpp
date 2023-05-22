@@ -4,9 +4,10 @@
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
 #include "game/runtime/i18n.h"
-#include "game/arena/arena_data.h"
+#include "game/ruleset/ruleset_network.h"
 #include "game/arena/arena_client.h"
 #include "game/arena/arena_host.h"
+#include "game/data/data_types.h"
 
 #include "imgui.h"
 #include "imgui_internal.h"
@@ -374,7 +375,7 @@ static const float infoRowWidth = 240.f;
 
 void SceneSelect::imguiPageArenaDiagnose()
 {
-    auto& d = gArenaData;
+    auto& d = ArenaData;
 
     static bool online = false;
     online = d.isOnline();
@@ -821,18 +822,18 @@ void SceneSelect::imguiPageOptionsPlay()
 
         ImGui::Text(i18n::c(DEFAULT_TARGET));
         ImGui::SameLine(infoRowWidth);
-        imgui_play_defaultTarget = State::get(IndexNumber::DEFAULT_TARGET_RATE);
+        imgui_play_defaultTarget = PlayData.targetRate;
         if (ImGui::SliderInt("##defaulttarget", &imgui_play_defaultTarget, 0, 100, "%d %%", ImGuiSliderFlags_None))
         {
-            State::set(IndexNumber::DEFAULT_TARGET_RATE, std::clamp(imgui_play_defaultTarget, 0, 100));
+            PlayData.targetRate = std::clamp(imgui_play_defaultTarget, 0, 100);
         }
 
         ImGui::Text(i18n::c(JUDGE_TIMING));
         ImGui::SameLine(infoRowWidth);
-        imgui_play_judgeTiming = State::get(IndexNumber::TIMING_ADJUST_VISUAL);
+        imgui_play_judgeTiming = PlayData.player[PLAYER_SLOT_PLAYER].offsetVisual;
         if (ImGui::SliderInt("##judgetiming", &imgui_play_judgeTiming, -99, 99, "%d ms", ImGuiSliderFlags_None))
         {
-            State::set(IndexNumber::TIMING_ADJUST_VISUAL, imgui_play_judgeTiming);
+            PlayData.player[PLAYER_SLOT_PLAYER].offsetVisual = imgui_play_judgeTiming;
         }
         ImGui::SameLine();
         HelpMarker(i18n::c(JUDGE_TIMING_HINT));
@@ -840,33 +841,40 @@ void SceneSelect::imguiPageOptionsPlay()
         ImGui::Spacing();
         ImGui::Separator();
 
-        imgui_play_lockGreenNumber = State::get(IndexSwitch::P1_LOCK_SPEED);
+        imgui_play_lockGreenNumber = PlayData.player[PLAYER_SLOT_PLAYER].mods.hispeedFix != PlayModifierHispeedFixType::NONE;
         if (ImGui::Checkbox(i18n::c(LOCK_GREENNUMBER), &imgui_play_lockGreenNumber))
         {
-            State::set(IndexOption::PLAY_HSFIX_TYPE, imgui_play_lockGreenNumber ? Option::SPEED_FIX_INITIAL : Option::SPEED_NORMAL);
-            State::set(IndexText::SCROLL_TYPE, Option::s_speed_type[State::get(IndexOption::PLAY_HSFIX_TYPE)]);
-            State::set(IndexSwitch::P1_LOCK_SPEED, imgui_play_lockGreenNumber);
+            if (PlayData.player[PLAYER_SLOT_PLAYER].mods.hispeedFix != PlayModifierHispeedFixType::NONE)
+            {
+                PlayData.player[PLAYER_SLOT_PLAYER].mods.hispeedFix = PlayModifierHispeedFixType::NONE;
+                PlayData.player[PLAYER_SLOT_TARGET].mods.hispeedFix = PlayModifierHispeedFixType::NONE;
+            }
+            else
+            {
+                PlayData.player[PLAYER_SLOT_PLAYER].mods.hispeedFix = PlayModifierHispeedFixType::INITIAL;
+                PlayData.player[PLAYER_SLOT_TARGET].mods.hispeedFix = PlayModifierHispeedFixType::INITIAL;
+            }
         }
 
         ImGui::BeginDisabled(imgui_play_lockGreenNumber);
         ImGui::Text(i18n::c(HISPEED));
         ImGui::SameLine(infoRowWidth);
-        imgui_play_hispeed = gPlayContext.playerState[PLAYER_SLOT_PLAYER].hispeed;
+        imgui_play_hispeed = PlayData.player[PLAYER_SLOT_PLAYER].hispeed;
         if (ImGui::SliderFloat("##hispeed", &imgui_play_hispeed, 0.01f, 10.0f, "%.02f", ImGuiSliderFlags_None))
         {
-            int hsInt = int(std::round(imgui_play_hispeed * 100.0));
-            State::set(IndexNumber::HS_1P, hsInt);
-            gPlayContext.playerState[PLAYER_SLOT_PLAYER].hispeed = imgui_play_hispeed = hsInt / 100.0;
+            PlayData.player[PLAYER_SLOT_PLAYER].hispeed = imgui_play_hispeed;
+            PlayData.player[PLAYER_SLOT_TARGET].hispeed = imgui_play_hispeed;
         }
         ImGui::EndDisabled();
 
         ImGui::BeginDisabled(!imgui_play_lockGreenNumber);
         ImGui::Text(i18n::c(GREENNUMBER));
         ImGui::SameLine(infoRowWidth);
-        imgui_play_greenNumber = State::get(IndexNumber::GREEN_NUMBER_1P);
+        imgui_play_greenNumber = PlayData.player[PLAYER_SLOT_PLAYER].greenNumber;
         if (ImGui::SliderInt("##greennumber", &imgui_play_greenNumber, 1, 1200, "%d", ImGuiSliderFlags_None))
         {
-            State::set(IndexNumber::GREEN_NUMBER_1P, imgui_play_greenNumber >= 0 ? imgui_play_greenNumber : 0);
+            PlayData.player[PLAYER_SLOT_PLAYER].greenNumber = imgui_play_greenNumber >= 0 ? imgui_play_greenNumber : 0;
+            PlayData.player[PLAYER_SLOT_TARGET].greenNumber = imgui_play_greenNumber >= 0 ? imgui_play_greenNumber : 0;
         }
         ImGui::SameLine();
         HelpMarker(i18n::c(GREENNUMBER_HINT));
@@ -1320,7 +1328,7 @@ void SceneSelect::imguiCheckSettings()
     if (imgui_adv_newSongDuration != ConfigMgr::get("P", cfg::P_NEW_SONG_DURATION, 24))
     {
         ConfigMgr::set("P", cfg::P_NEW_SONG_DURATION, imgui_adv_newSongDuration);
-        State::set(IndexNumber::NEW_ENTRY_SECONDS, ConfigMgr::get('P', cfg::P_NEW_SONG_DURATION, 0) * 60 * 60);
+        SelectData.newEntrySeconds = imgui_adv_newSongDuration * 60 * 60;
     }
 
     if (imgui_adv_previewDedicated != ConfigMgr::get("P", cfg::P_PREVIEW_DEDICATED, true))
@@ -1362,14 +1370,14 @@ void SceneSelect::imguiCheckSettings()
     {
         imguiShow = false;
         pSkin->setHandleMouseEvents(true);
-        gSelectContext.isGoingToReboot = true;
+        SelectData.isGoingToReboot = true;
     }
 }
 
 bool SceneSelect::imguiApplyPlayerName()
 {
     ConfigMgr::Profile()->set(cfg::P_PLAYERNAME, imgui_player_name_buf);
-    State::set(IndexText::PLAYER_NAME, imgui_player_name_buf);
+    SystemData.playerName = imgui_player_name_buf;
     return true;
 }
 
@@ -1536,41 +1544,37 @@ bool SceneSelect::imguiApplyResolution()
 
     // windowed
     {
-        State::set(IndexOption::SYS_WINDOWED, imgui_video_mode == 1 ? 1 : 0);
-
-        static const std::map<int, std::string> smap =
+        static const std::map<int, GameWindowMode> smap =
         {
-            {0, "WINDOW"},
-            {1, "FULL"},
-            {2, "BORDERLESS"},
+            {0, GameWindowMode::WINDOWED },
+            {1, GameWindowMode::FULLSCREEN },
+            {2, GameWindowMode::BORDERLESS },
         };
 
         auto&& s = imgui_video_mode;
         if (smap.find(s) != smap.end())
-            State::set(IndexText::WINDOWMODE, smap.at(s));
+            SystemData.windowMode = smap.at(s);
         else
-            State::set(IndexText::WINDOWMODE, "WINDOW");
+            SystemData.windowMode = GameWindowMode::WINDOWED;
     }
     // vsync
     {
-        State::set(IndexOption::SYS_VSYNC, imgui_video_vsync_index == 0 ? 0 : 1);
-
-        static const std::map<int, std::string> smap =
+        static const std::map<int, GameVsyncMode> smap =
         {
-            {0, "OFF"},
-            {1, "ON"},
+            {0, GameVsyncMode::OFF},
+            {1, GameVsyncMode::ON},
 #if _WIN32
-            {2, "ON"}
+            {2, GameVsyncMode::ON}
 #else
-            {2, "ADAPTIVE"}
+            {2, GameVsyncMode::ADAPTIVE}
 #endif
         };
 
         auto&& s = imgui_video_vsync_index;
         if (smap.find(s) != smap.end())
-            State::set(IndexText::VSYNC, smap.at(s));
+            SystemData.vsyncMode = smap.at(s);
         else
-            State::set(IndexText::VSYNC, "OFF");
+            SystemData.vsyncMode = GameVsyncMode::OFF;
     }
 
     return true;
@@ -1642,10 +1646,6 @@ bool SceneSelect::imguiApplyAudioSettings()
     return ret;
 }
 
-
-#include "game/arena/arena_data.h"
-#include "game/arena/arena_client.h"
-#include "game/arena/arena_host.h"
 
 bool SceneSelect::imguiArenaJoinLobbyPrompt()
 {

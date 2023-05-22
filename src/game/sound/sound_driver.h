@@ -17,6 +17,7 @@ enum class DSPType
     FLANGER,
     CHORUS,
     DISTORTION,
+    COMPRESSOR,
 };
 
 enum class EQFreq

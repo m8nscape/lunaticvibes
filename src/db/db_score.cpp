@@ -100,7 +100,7 @@ bool convert_score_bms(std::shared_ptr<ScoreBMS> out, const std::vector<std::any
     out->playcount = params.pc;
     out->clearcount = params.clearcount;
     out->exscore = params.exscore;
-    out->lamp = (ScoreBMS::Lamp)params.lamp;
+    out->lamp = (LampType)params.lamp;
     out->pgreat = params.pgreat;
     out->great = params.great;
     out->good = params.good;

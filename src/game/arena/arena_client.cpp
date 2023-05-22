@@ -1,10 +1,11 @@
 #include "common/pch.h"
 #include "arena_client.h"
-#include "arena_data.h"
 #include "arena_internal.h"
 #include "cereal/archives/portable_binary.hpp"
-#include "game/scene/scene_context.h"
 #include "game/runtime/i18n.h"
+#include "game/data/data_types.h"
+#include "game/ruleset/ruleset_bms_network.h"
+#include "db/db_song.h"
 #include "git_version.h"
 
 namespace lunaticvibes
@@ -15,7 +16,7 @@ std::shared_ptr<ArenaClient> g_pArenaClient = nullptr;
 
 ArenaClient::~ArenaClient()
 {
-	if (gArenaData.isOnline())
+	if (ArenaData.isOnline())
 	{
 		leaveLobby();
 	}
@@ -45,7 +46,7 @@ std::vector<ArenaLobbyInfo> ArenaClient::seekLobby()
 
 bool ArenaClient::joinLobby(const std::string& address)
 {
-	if (gArenaData.isOnline())
+	if (ArenaData.isOnline())
 	{
 		LOG_WARNING << "[Arena] Join failed! Please leave your current lobby first.";
 		createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED_IN_LOBBY));
@@ -113,13 +114,13 @@ bool ArenaClient::joinLobby(const std::string& address)
 	auto n = std::make_shared<ArenaMessageJoinLobby>();
 	n->messageIndex = ++sendMessageIndex;
 	n->version = (boost::format("%s %s") % GIT_BRANCH % GIT_COMMIT).str();
-	n->playerName = State::get(IndexText::PLAYER_NAME);
+	n->playerName = SystemData.playerName;
 
 	auto payload = n->pack();
 	socket->async_send_to(boost::asio::buffer(*payload), server, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
 	addTaskWaitingForResponse(n->messageIndex, payload);
 
-	gArenaData.online = true;
+	ArenaData.online = true;
 	asyncRecv();
 	listen = std::async(std::launch::async, [&] { ioc.run(); });
 
@@ -143,8 +144,6 @@ bool ArenaClient::joinLobby(const std::string& address)
 				LOG_WARNING << "[Arena] Join failed: " << joinLobbyErrorCode; break;
 				return false;
 			}
-
-			State::set(IndexText::ARENA_LOBBY_STATUS, "ARENA LOBBY");
 			return true;
 		}
 	}
@@ -156,9 +155,9 @@ bool ArenaClient::joinLobby(const std::string& address)
 
 void ArenaClient::leaveLobby()
 {
-	if (!gArenaData.isOnline()) return;
+	if (!ArenaData.isOnline()) return;
 
-	if (!gArenaData.isExpired())
+	if (!ArenaData.isExpired())
 	{
 		auto n = std::make_shared<ArenaMessageLeaveLobby>();
 		n->messageIndex = ++sendMessageIndex;
@@ -172,7 +171,7 @@ void ArenaClient::leaveLobby()
 	listen.wait();
 	socket.reset();
 
-	gArenaData.expired = true;
+	ArenaData.expired = true;
 }
 
 void ArenaClient::requestChart(const HashMD5& reqChart)
@@ -212,7 +211,7 @@ void ArenaClient::setCreatedRuleset()
 
 	auto n = std::make_shared<ArenaMessageClientPlayInit>();
 	n->messageIndex = ++sendMessageIndex;
-	n->payload = vRulesetNetwork::packInit(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]);
+	n->payload = vRulesetNetwork::packInit(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
 
 	auto payload = n->pack();
 	socket->async_send_to(boost::asio::buffer(*payload), server, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
@@ -266,7 +265,7 @@ void ArenaClient::handleRecv(const boost::system::error_code& error, size_t byte
 		listen.wait();
 		socket.reset();
 
-		gArenaData.expired = true;
+		ArenaData.expired = true;
 		return;
 	}
 
@@ -277,7 +276,7 @@ void ArenaClient::handleRecv(const boost::system::error_code& error, size_t byte
 	}
 	handleRequest(recv_buf.data(), bytes_transferred);
 
-	if (gArenaData.isOnline() && !gArenaData.isExpired())
+	if (ArenaData.isOnline() && !ArenaData.isExpired())
 		asyncRecv();
 }
 
@@ -346,7 +345,7 @@ void ArenaClient::handleJoinLobbyResp(std::shared_ptr<ArenaMessage> msg)
 		ss.write((char*)&pMsg->payload[0], pMsg->payload.size());
 		try
 		{
-			cereal::PortableBinaryInputArchive ar(ss);
+			::cereal::PortableBinaryInputArchive ar(ss);
 			ar(p);
 		}
 		catch (...)
@@ -359,8 +358,8 @@ void ArenaClient::handleJoinLobbyResp(std::shared_ptr<ArenaMessage> msg)
 		for (const auto& [id, name] : p.playerName)
 		{
 			if (id == playerID) continue;
-			gArenaData.data[id].name = name;
-			gArenaData.playerIDs.push_back(id);
+			ArenaData.data[id].name = name;
+			ArenaData.playerIDs.push_back(id);
 		}
 	}
 }
@@ -428,7 +427,7 @@ void ArenaClient::handleDisbandLobby(std::shared_ptr<ArenaMessage> msg)
 	socket->close();
 	socket.reset();
 
-	gArenaData.expired = true;
+	ArenaData.expired = true;
 }
 
 
@@ -441,23 +440,23 @@ void ArenaClient::handlePlayerJoined(std::shared_ptr<ArenaMessage> msg)
 	auto payload = resp.pack();
 	socket->async_send_to(boost::asio::buffer(*payload), server, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
 
-	if (gArenaData.data.find(pMsg->playerID) != gArenaData.data.end())
+	if (ArenaData.data.find(pMsg->playerID) != ArenaData.data.end())
 	{
 		LOG_WARNING << "[Arena] player ID " << pMsg->playerID << " already exists, removing old";
 
-		for (int i = 0; i < gArenaData.getPlayerCount(); ++i)
+		for (int i = 0; i < ArenaData.getPlayerCount(); ++i)
 		{
-			if (gArenaData.playerIDs[i] == pMsg->playerID)
+			if (ArenaData.playerIDs[i] == pMsg->playerID)
 			{
-				gArenaData.playerIDs.erase(gArenaData.playerIDs.begin() + i);
-				gArenaData.data.erase(pMsg->playerID);
+				ArenaData.playerIDs.erase(ArenaData.playerIDs.begin() + i);
+				ArenaData.data.erase(pMsg->playerID);
 				break;
 			}
 		}
 	}
 
-	gArenaData.data[pMsg->playerID].name = pMsg->playerName;
-	gArenaData.playerIDs.push_back(pMsg->playerID);
+	ArenaData.data[pMsg->playerID].name = pMsg->playerName;
+	ArenaData.playerIDs.push_back(pMsg->playerID);
 
 	createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_JOINED)) % pMsg->playerName).str());
 }
@@ -471,19 +470,19 @@ void ArenaClient::handlePlayerLeft(std::shared_ptr<ArenaMessage> msg)
 	auto payload = resp.pack();
 	socket->async_send_to(boost::asio::buffer(*payload), server, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
 
-	if (gArenaData.data.find(pMsg->playerID) == gArenaData.data.end())
+	if (ArenaData.data.find(pMsg->playerID) == ArenaData.data.end())
 	{
 		LOG_WARNING << "[Arena] player ID " << pMsg->playerID << " does not exist";
 	}
 	else
 	{
-		for (int i = 0; i < gArenaData.getPlayerCount(); ++i)
+		for (int i = 0; i < ArenaData.getPlayerCount(); ++i)
 		{
-			if (gArenaData.playerIDs[i] == pMsg->playerID)
+			if (ArenaData.playerIDs[i] == pMsg->playerID)
 			{
-				createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_LEFT)) % gArenaData.data[i].name).str());
-				gArenaData.playerIDs.erase(gArenaData.playerIDs.begin() + i);
-				gArenaData.data.erase(pMsg->playerID);
+				createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_LEFT)) % ArenaData.data[i].name).str());
+				ArenaData.playerIDs.erase(ArenaData.playerIDs.begin() + i);
+				ArenaData.data.erase(pMsg->playerID);
 				break;
 			}
 		}
@@ -501,7 +500,7 @@ void ArenaClient::handleCheckChartExist(std::shared_ptr<ArenaMessage> msg)
 	std::stringstream ss;
 	try
 	{
-		cereal::PortableBinaryOutputArchive ar(ss);
+		::cereal::PortableBinaryOutputArchive ar(ss);
 		ar(subPayload);
 	}
 	catch (...)
@@ -535,17 +534,17 @@ void ArenaClient::handleHostRequestChart(std::shared_ptr<ArenaMessage> msg)
 	if (!hash.empty())
 	{
 		// select chart
-		gSelectContext.remoteRequestedPlayer = pMsg->requestPlayerName;
-		gSelectContext.remoteRequestedChart = hash;
+		ArenaData.remoteRequestedPlayer = pMsg->requestPlayerName;
+		ArenaData.remoteRequestedChart = hash;
 	}
 	else
 	{
 		// remove ready stat
-		if (gSelectContext.isInArenaRequest)
+		if (ArenaData.isInArenaRequest)
 		{
-			gSelectContext.isArenaCancellingRequest = true;
+			ArenaData.isArenaCancellingRequest = true;
 		}
-		for (auto& [id, d] : gArenaData.data)
+		for (auto& [id, d] : ArenaData.data)
 		{
 			d.ready = false;
 		}
@@ -565,10 +564,10 @@ void ArenaClient::handleHostReadyStat(std::shared_ptr<ArenaMessage> msg)
 	for (auto& [id, ready] : pMsg->ready)
 	{
 		if (id == playerID)
-			gArenaData.ready = !!ready;
-		else if (gArenaData.data.find(id) != gArenaData.data.end())
+			ArenaData.ready = !!ready;
+		else if (ArenaData.data.find(id) != ArenaData.data.end())
 		{
-			gArenaData.data[id].ready = !!ready;
+			ArenaData.data[id].ready = !!ready;
 		}
 	}
 }
@@ -582,9 +581,9 @@ void ArenaClient::handleHostStartPlaying(std::shared_ptr<ArenaMessage> msg)
 	auto payload = resp.pack();
 	socket->async_send_to(boost::asio::buffer(*payload), server, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
 
-	gArenaData.randomSeed = pMsg->randomSeed;
-	gArenaData.initPlaying(RulesetType(pMsg->rulesetType));
-	gSelectContext.isArenaReady = true;
+	ArenaData.randomSeed = pMsg->randomSeed;
+	ArenaData.initPlaying(RulesetType(pMsg->rulesetType));
+	ArenaData.isArenaReady = true;
 }
 
 void ArenaClient::handleHostPlayInit(std::shared_ptr<ArenaMessage> msg)
@@ -593,9 +592,9 @@ void ArenaClient::handleHostPlayInit(std::shared_ptr<ArenaMessage> msg)
 
 	ArenaMessageResponse resp(*pMsg);
 
-	if (gArenaData.data.find(pMsg->playerID) != gArenaData.data.end())
+	if (ArenaData.data.find(pMsg->playerID) != ArenaData.data.end())
 	{
-		gArenaData.data[pMsg->playerID].ruleset->unpackInit(pMsg->rulesetPayload);
+		ArenaData.data[pMsg->playerID].ruleset->unpackInit(pMsg->rulesetPayload);
 	}
 	else
 	{
@@ -611,8 +610,8 @@ void ArenaClient::handleHostFinishedLoading(std::shared_ptr<ArenaMessage> msg)
 {
 	auto pMsg = std::static_pointer_cast<ArenaMessageHostFinishedLoading>(msg);
 
-	gArenaData.playStartTimeMs = pMsg->playStartTimeMs;
-	gArenaData.startPlaying();
+	ArenaData.playStartTimeMs = pMsg->playStartTimeMs;
+	ArenaData.startPlaying();
 
 	ArenaMessageResponse resp(*pMsg);
 
@@ -628,8 +627,8 @@ void ArenaClient::handleHostPlayData(std::shared_ptr<ArenaMessage> msg)
 	{
 		for (auto& [id, payload] : pMsg->payload)
 		{
-			if (gArenaData.data.find(id) == gArenaData.data.end()) continue;
-			gArenaData.data[id].ruleset->unpackFrame(payload);
+			if (ArenaData.data.find(id) == ArenaData.data.end()) continue;
+			ArenaData.data[id].ruleset->unpackFrame(payload);
 		}
 	}
 }
@@ -638,7 +637,7 @@ void ArenaClient::handleHostFinishedPlaying(std::shared_ptr<ArenaMessage> msg)
 {
 	auto pMsg = std::static_pointer_cast<ArenaMessageHostFinishedPlaying>(msg);
 
-	gArenaData.playingFinished = true;
+	ArenaData.playingFinished = true;
 
 	ArenaMessageResponse resp(*pMsg);
 
@@ -656,8 +655,8 @@ void ArenaClient::handleHostFinishedResult(std::shared_ptr<ArenaMessage> msg)
 	auto payload = resp.pack();
 	socket->async_send_to(boost::asio::buffer(*payload), server, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
 
-	gSelectContext.isArenaReady = false;
-	gArenaData.stopPlaying();
+	ArenaData.isArenaReady = false;
+	ArenaData.stopPlaying();
 
 	requestChartHash.reset();
 	_isLoadingFinished = false;
@@ -717,14 +716,14 @@ void ArenaClient::update()
 
 	if (alive)
 	{
-		if (gArenaData.playing)
+		if (ArenaData.playing)
 		{
-			gArenaData.updateGlobals();
+			ArenaData.updateGlobals();
 
 			// send gamedata
 			auto n = std::make_shared<ArenaMessageClientPlayData>();
 			n->messageIndex = ++sendMessageIndex;
-			n->payload = vRulesetNetwork::packFrame(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]);
+			n->payload = vRulesetNetwork::packFrame(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
 
 			auto payload = n->pack();
 			socket->async_send_to(boost::asio::buffer(*payload), server, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));

@@ -1,11 +1,9 @@
 #include "common/pch.h"
 #include "scene_decide.h"
-#include "scene_context.h"
 
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
-
-#include "game/arena/arena_data.h"
+#include "game/data/data_types.h"
 
 namespace lunaticvibes
 {
@@ -25,7 +23,7 @@ SceneDecide::SceneDecide() : SceneBase(SkinType::DECIDE, 1000)
     state = eDecideState::START;
     _updateCallback = std::bind(&SceneDecide::updateStart, this);
 
-    if (!gInCustomize)
+    //if (!LR2CustomizeData.isInCustomize)
     {
         SoundMgr::stopSysSamples();
         SoundMgr::setSysVolume(1.0);
@@ -45,7 +43,7 @@ void SceneDecide::_updateAsync()
 {
     if (SystemData.gNextScene != SceneType::DECIDE) return;
 
-    if (gAppIsExiting)
+    if (SystemData.isAppExiting)
     {
         SystemData.gNextScene = SceneType::EXIT_TRANS;
     }
@@ -56,9 +54,9 @@ void SceneDecide::_updateAsync()
 void SceneDecide::updateStart()
 {
     auto t = Time();
-    auto rt = t - State::get(IndexTimer::SCENE_START);
+    auto rt = t - SystemData.timers["scene_start"];
 
-    if (!gInCustomize && rt.norm() >= pSkin->info.timeDecideExpiry)
+    if (rt.norm() >= pSkin->info.timeDecideExpiry)
     {
         SystemData.gNextScene = SceneType::PLAY;
     }
@@ -67,8 +65,8 @@ void SceneDecide::updateStart()
 void SceneDecide::updateSkip()
 {
     auto t = Time();
-    auto rt = t - State::get(IndexTimer::SCENE_START);
-    auto ft = t - State::get(IndexTimer::FADEOUT_BEGIN);
+    auto rt = t - SystemData.timers["scene_start"];
+    auto ft = t - SystemData.timers["fadeout"];
 
     if (ft.norm() >= pSkin->info.timeOutro)
     {
@@ -79,14 +77,14 @@ void SceneDecide::updateSkip()
 void SceneDecide::updateCancel()
 {
     auto t = Time();
-    auto rt = t - State::get(IndexTimer::SCENE_START);
-    auto ft = t - State::get(IndexTimer::FADEOUT_BEGIN);
+    auto rt = t - SystemData.timers["scene_start"];
+    auto ft = t - SystemData.timers["fadeout"];
 
     if (ft.norm() >= pSkin->info.timeOutro)
     {
-        clearContextPlay();
-        gPlayContext.isAuto = false;
-        gPlayContext.isReplay = false;
+        PlayData.clearContextPlay();
+        PlayData.isAuto = false;
+        PlayData.isReplay = false;
         SystemData.gNextScene = SceneType::SELECT;
     }
 }
@@ -96,7 +94,7 @@ void SceneDecide::updateCancel()
 // CALLBACK
 void SceneDecide::inputGamePress(InputMask& m, Time t)
 {
-    unsigned rt = (t - State::get(IndexTimer::SCENE_START)).norm();
+    unsigned rt = (t - SystemData.timers["scene_start"]).norm();
     if (rt < pSkin->info.timeIntro) return;
 
     auto k = _inputAvailable & m;
@@ -105,7 +103,7 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
         switch (state)
         {
         case eDecideState::START:
-            State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
+            SystemData.timers["fadeout"] = t.norm();
             _updateCallback = std::bind(&SceneDecide::updateSkip, this);
             state = eDecideState::SKIP;
             LOG_DEBUG << "[Decide] State changed to SKIP";
@@ -116,14 +114,14 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
         }
     }
 
-    if (!gArenaData.isOnline())
+    if (!ArenaData.isOnline())
     {
         if (k[Input::ESC])
         {
             switch (state)
             {
             case eDecideState::START:
-                State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
+                SystemData.timers["fadeout"] = t.norm();
                 SoundMgr::stopSysSamples();
                 _updateCallback = std::bind(&SceneDecide::updateCancel, this);
                 state = eDecideState::CANCEL;
@@ -140,19 +138,19 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
 // CALLBACK
 void SceneDecide::inputGameHold(InputMask& m, Time t)
 {
-    unsigned rt = (t - State::get(IndexTimer::SCENE_START)).norm();
+    unsigned rt = (t - SystemData.timers["scene_start"]).norm();
     if (rt < pSkin->info.timeIntro) return;
 
     auto k = _inputAvailable & m;
 
-    if (!gArenaData.isOnline())
+    if (!ArenaData.isOnline())
     {
         if ((k[Input::K1START] && k[Input::K1SELECT]) || (k[Input::K2START] && k[Input::K2SELECT]))
         {
             switch (state)
             {
             case eDecideState::START:
-                State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
+                SystemData.timers["fadeout"] = t.norm();
                 SoundMgr::stopSysSamples();
                 _updateCallback = std::bind(&SceneDecide::updateCancel, this);
                 state = eDecideState::CANCEL;
@@ -169,7 +167,7 @@ void SceneDecide::inputGameHold(InputMask& m, Time t)
 // CALLBACK
 void SceneDecide::inputGameRelease(InputMask& m, Time t)
 {
-    unsigned rt = (t - State::get(IndexTimer::SCENE_START)).norm();
+    unsigned rt = (t - SystemData.timers["scene_start"]).norm();
     if (rt < pSkin->info.timeIntro) return;
 }
 

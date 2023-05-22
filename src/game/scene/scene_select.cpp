@@ -2,9 +2,7 @@
 
 #include "scene_select.h"
 #include "scene_mgr.h"
-#include "scene_context.h"
 #include "scene_pre_select.h"
-#include "scene_customize.h"
 
 #include "common/chartformat/chartformat_types.h"
 #include "common/entry/entry_types.h"
@@ -23,9 +21,15 @@
 
 #include "game/runtime/i18n.h"
 
-#include "game/arena/arena_data.h"
 #include "game/arena/arena_client.h"
 #include "game/arena/arena_host.h"
+
+#include "game/data/data_types.h"
+
+#include "db/db_song.h"
+#include "db/db_score.h"
+
+#include "game/replay/replay_chart.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,12 +42,12 @@ void config_sys()
 {
     using namespace cfg;
 
-    switch (State::get(IndexOption::SYS_WINDOWED))
+    switch (SystemData.windowMode)
     {
-    case Option::WIN_FULLSCREEN: ConfigMgr::set('C',V_WINMODE, V_WINMODE_FULL); break;
-    case Option::WIN_BORDERLESS: ConfigMgr::set('C',V_WINMODE, V_WINMODE_BORDERLESS); break;
-    case Option::WIN_WINDOWED: 
-    default:                     ConfigMgr::set('C',V_WINMODE, V_WINMODE_WINDOWED); break;
+    case GameWindowMode::FULLSCREEN: ConfigMgr::set('C',V_WINMODE, V_WINMODE_FULL); break;
+    case GameWindowMode::BORDERLESS: ConfigMgr::set('C',V_WINMODE, V_WINMODE_BORDERLESS); break;
+    case GameWindowMode::WINDOWED:
+    default:                         ConfigMgr::set('C',V_WINMODE, V_WINMODE_WINDOWED); break;
     }
 }
 
@@ -51,297 +55,225 @@ void config_player()
 {
     using namespace cfg;
 
-    switch (State::get(IndexOption::PLAY_TARGET_TYPE))
+    ConfigMgr::set('P', P_PANEL_STYLE, PlayData.panelStyle);
+
+    switch (PlayData.targetType)
     {
-    case Option::TARGET_0:          ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_0); break;
-    case Option::TARGET_MYBEST:     ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_MYBEST); break;
-    case Option::TARGET_AAA:        ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_AAA); break;
-    case Option::TARGET_AA:         ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_AA); break;
-    case Option::TARGET_A:          ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_A); break;
-    case Option::TARGET_DEFAULT:    ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_DEFAULT); break;
-    case Option::TARGET_IR_TOP:     ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_IR_TOP); break;
-    case Option::TARGET_IR_NEXT:    ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_IR_NEXT); break;
-    case Option::TARGET_IR_AVERAGE: ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_IR_AVERAGE); break;
+    case TargetType::Zero: ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_0); break;
+    case TargetType::MyBest: ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_MYBEST); break;
+    case TargetType::RankAAA: ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_AAA); break;
+    case TargetType::RankAA: ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_AA); break;
+    case TargetType::RankA: ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_A); break;
+    case TargetType::UseTargetRate: ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_DEFAULT); break;
     default:                        ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_DEFAULT); break;
     }
 
-    switch (State::get(IndexOption::PLAY_BGA_TYPE))
+    if (!PlayData.isReplay)
     {
-    case Option::BGA_OFF:      ConfigMgr::set('P', P_BGA_TYPE, P_BGA_TYPE_OFF); break;
-    case Option::BGA_ON:       ConfigMgr::set('P', P_BGA_TYPE, P_BGA_TYPE_ON); break;
-    case Option::BGA_AUTOPLAY: ConfigMgr::set('P', P_BGA_TYPE, P_BGA_TYPE_AUTOPLAY); break;
-    default:                   ConfigMgr::set('P', P_BGA_TYPE, P_BGA_TYPE_ON); break;
-    }
-    switch (State::get(IndexOption::PLAY_BGA_SIZE))
-    {
-    case Option::BGA_NORMAL:   ConfigMgr::set('P', P_BGA_SIZE, P_BGA_SIZE_NORMAL); break;
-    case Option::BGA_EXTEND:   ConfigMgr::set('P', P_BGA_SIZE, P_BGA_SIZE_EXTEND); break;
-    default:                   ConfigMgr::set('P', P_BGA_SIZE, P_BGA_SIZE_NORMAL); break;
-    }
+        ConfigMgr::set('P', P_HISPEED, PlayData.player[PLAYER_SLOT_PLAYER].hispeed);
+        ConfigMgr::set('P', P_HISPEED_2P, PlayData.player[PLAYER_SLOT_TARGET].hispeed);
+        ConfigMgr::set('P', cfg::P_GREENNUMBER, PlayData.player[PLAYER_SLOT_PLAYER].greenNumber);
+        ConfigMgr::set('P', cfg::P_GREENNUMBER_2P, PlayData.player[PLAYER_SLOT_TARGET].greenNumber);
 
-    if (!gPlayContext.isReplay)
-    {
-        ConfigMgr::set('P', P_HISPEED, gPlayContext.playerState[PLAYER_SLOT_PLAYER].hispeed);
-        ConfigMgr::set('P', P_HISPEED_2P, gPlayContext.playerState[PLAYER_SLOT_TARGET].hispeed);
-        ConfigMgr::set('P', cfg::P_GREENNUMBER, State::get(IndexNumber::GREEN_NUMBER_1P));
-        ConfigMgr::set('P', cfg::P_GREENNUMBER_2P, State::get(IndexNumber::GREEN_NUMBER_2P));
-
-        switch (State::get(IndexOption::PLAY_HSFIX_TYPE))
+        switch (PlayData.player[PLAYER_SLOT_PLAYER].mods.hispeedFix)
         {
-        case Option::SPEED_FIX_MAX:      ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_MAX); break;
-        case Option::SPEED_FIX_MIN:      ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_MIN); break;
-        case Option::SPEED_FIX_AVG:      ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_AVG); break;
-        case Option::SPEED_FIX_CONSTANT: ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_CONSTANT); break;
-        case Option::SPEED_FIX_INITIAL:  ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_INITIAL); break;
-        case Option::SPEED_FIX_MAIN:     ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_MAIN); break;
+        case PlayModifierHispeedFixType::MAXBPM:      ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_MAX); break;
+        case PlayModifierHispeedFixType::MINBPM:      ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_MIN); break;
+        case PlayModifierHispeedFixType::AVERAGE:      ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_AVG); break;
+        case PlayModifierHispeedFixType::CONSTANT: ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_CONSTANT); break;
+        case PlayModifierHispeedFixType::INITIAL:  ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_INITIAL); break;
+        case PlayModifierHispeedFixType::MAIN:     ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_MAIN); break;
         default:                         ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_NORMAL); break;
         }
 
-        switch (State::get(IndexOption::PLAY_RANDOM_TYPE_1P))
+        switch (PlayData.player[PLAYER_SLOT_PLAYER].mods.randomLeft)
         {
-        case Option::RAN_MIRROR: ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_MIRROR); break;
-        case Option::RAN_RANDOM: ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_RANDOM); break;
-        case Option::RAN_SRAN:   ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_SRAN); break;
-        case Option::RAN_HRAN:   ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_HRAN); break;
-        case Option::RAN_ALLSCR: ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_ALLSCR); break;
-        case Option::RAN_RRAN:   ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_RRAN); break;
-        default:                 ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_NORMAL); break;
-        }
-        switch (State::get(IndexOption::PLAY_RANDOM_TYPE_2P))
-        {
-        case Option::RAN_MIRROR: ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_MIRROR); break;
-        case Option::RAN_RANDOM: ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_RANDOM); break;
-        case Option::RAN_SRAN:   ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_SRAN); break;
-        case Option::RAN_HRAN:   ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_HRAN); break;
-        case Option::RAN_ALLSCR: ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_ALLSCR); break;
-        case Option::RAN_RRAN:   ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_RRAN); break;
-        default:                 ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_NORMAL); break;
+        case PlayModifierRandomType::MIRROR: ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_MIRROR); break;
+        case PlayModifierRandomType::RANDOM: ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_RANDOM); break;
+        case PlayModifierRandomType::SRAN:   ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_SRAN); break;
+        case PlayModifierRandomType::HRAN:   ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_HRAN); break;
+        case PlayModifierRandomType::ALLSCR: ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_ALLSCR); break;
+        case PlayModifierRandomType::RRAN:   ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_RRAN); break;
+        default:                             ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_NORMAL); break;
         }
 
-
-        switch (State::get(IndexOption::PLAY_GAUGE_TYPE_1P))
+        if (PlayData.battleType == PlayModifierBattleType::LocalBattle)
         {
-        case Option::GAUGE_HARD:   ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_HARD); break;
-        case Option::GAUGE_EASY:   ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_EASY); break;
-        case Option::GAUGE_DEATH:  ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_DEATH); break;
-        case Option::GAUGE_EXHARD: ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_EXHARD); break;
-        case Option::GAUGE_ASSISTEASY: ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_ASSISTEASY); break;
+            switch (PlayData.player[PLAYER_SLOT_TARGET].mods.randomLeft)
+            {
+            case PlayModifierRandomType::MIRROR: ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_MIRROR); break;
+            case PlayModifierRandomType::RANDOM: ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_RANDOM); break;
+            case PlayModifierRandomType::SRAN:   ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_SRAN); break;
+            case PlayModifierRandomType::HRAN:   ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_HRAN); break;
+            case PlayModifierRandomType::ALLSCR: ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_ALLSCR); break;
+            case PlayModifierRandomType::RRAN:   ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_RRAN); break;
+            default:                 ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_NORMAL); break;
+            }
+        }
+        else if (PlayData.mode == SkinType::PLAY10 || PlayData.mode == SkinType::PLAY14)
+        {
+            switch (PlayData.player[PLAYER_SLOT_PLAYER].mods.randomRight)
+            {
+            case PlayModifierRandomType::MIRROR: ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_MIRROR); break;
+            case PlayModifierRandomType::RANDOM: ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_RANDOM); break;
+            case PlayModifierRandomType::SRAN:   ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_SRAN); break;
+            case PlayModifierRandomType::HRAN:   ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_HRAN); break;
+            case PlayModifierRandomType::ALLSCR: ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_ALLSCR); break;
+            case PlayModifierRandomType::RRAN:   ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_RRAN); break;
+            default:                 ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_NORMAL); break;
+            }
+        }
+        else
+        {
+            ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_NORMAL);
+        }
+
+        switch (PlayData.player[PLAYER_SLOT_PLAYER].mods.gauge)
+        {
+        case PlayModifierGaugeType::HARD:   ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_HARD); break;
+        case PlayModifierGaugeType::EASY:   ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_EASY); break;
+        case PlayModifierGaugeType::DEATH:  ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_DEATH); break;
+        case PlayModifierGaugeType::EXHARD: ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_EXHARD); break;
+        case PlayModifierGaugeType::ASSISTEASY: ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_ASSISTEASY); break;
         default:                   ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_NORMAL); break;
         }
-        switch (State::get(IndexOption::PLAY_GAUGE_TYPE_2P))
+        switch (PlayData.player[PLAYER_SLOT_TARGET].mods.gauge)
         {
-        case Option::GAUGE_HARD:   ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_HARD); break;
-        case Option::GAUGE_EASY:   ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_EASY); break;
-        case Option::GAUGE_DEATH:  ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_DEATH); break;
-        case Option::GAUGE_EXHARD: ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_EXHARD); break;
-        case Option::GAUGE_ASSISTEASY: ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_ASSISTEASY); break;
+        case PlayModifierGaugeType::HARD:   ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_HARD); break;
+        case PlayModifierGaugeType::EASY:   ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_EASY); break;
+        case PlayModifierGaugeType::DEATH:  ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_DEATH); break;
+        case PlayModifierGaugeType::EXHARD: ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_EXHARD); break;
+        case PlayModifierGaugeType::ASSISTEASY: ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_ASSISTEASY); break;
         default:                   ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_NORMAL); break;
         }
 
-        switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P))
+        switch (PlayData.player[PLAYER_SLOT_PLAYER].mods.laneEffect)
         {
-        case Option::LANE_OFF:     ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF); break;
-        case Option::LANE_HIDDEN:  ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_HIDDEN); break;
-        case Option::LANE_SUDDEN:  ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_SUDDEN); break;
-        case Option::LANE_SUDHID:  ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_SUDHID); break;
-        case Option::LANE_LIFT:    ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_LIFT); break;
-        case Option::LANE_LIFTSUD: ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_LIFTSUD); break;
+        case PlayModifierLaneEffectType::OFF:     ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF); break;
+        case PlayModifierLaneEffectType::HIDDEN:  ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_HIDDEN); break;
+        case PlayModifierLaneEffectType::SUDDEN:  ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_SUDDEN); break;
+        case PlayModifierLaneEffectType::SUDHID:  ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_SUDHID); break;
+        case PlayModifierLaneEffectType::LIFT:    ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_LIFT); break;
+        case PlayModifierLaneEffectType::LIFTSUD: ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_LIFTSUD); break;
         default:                   ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF); break;
         }
-        switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P))
+        switch (PlayData.player[PLAYER_SLOT_TARGET].mods.laneEffect)
         {
-        case Option::LANE_OFF:     ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_OFF); break;
-        case Option::LANE_HIDDEN:  ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_HIDDEN); break;
-        case Option::LANE_SUDDEN:  ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_SUDDEN); break;
-        case Option::LANE_SUDHID:  ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_SUDHID); break;
-        case Option::LANE_LIFT:    ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_LIFT); break;
-        case Option::LANE_LIFTSUD: ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_LIFTSUD); break;
+        case PlayModifierLaneEffectType::OFF:     ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_OFF); break;
+        case PlayModifierLaneEffectType::HIDDEN:  ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_HIDDEN); break;
+        case PlayModifierLaneEffectType::SUDDEN:  ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_SUDDEN); break;
+        case PlayModifierLaneEffectType::SUDHID:  ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_SUDHID); break;
+        case PlayModifierLaneEffectType::LIFT:    ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_LIFT); break;
+        case PlayModifierLaneEffectType::LIFTSUD: ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_LIFTSUD); break;
         default:                   ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_OFF); break;
         }
 
-        switch (State::get(IndexSwitch::PLAY_OPTION_AUTOSCR_1P))
-        {
-        case false: ConfigMgr::set('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE); break;
-        case true:  ConfigMgr::set('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_AUTOSCR); break;
-        }
-        switch (State::get(IndexSwitch::PLAY_OPTION_AUTOSCR_2P))
-        {
-        case false: ConfigMgr::set('P', P_CHART_ASSIST_OP_2P, P_CHART_ASSIST_OP_NONE); break;
-        case true:  ConfigMgr::set('P', P_CHART_ASSIST_OP_2P, P_CHART_ASSIST_OP_AUTOSCR); break;
-        }
+        ConfigMgr::set('P', P_CHART_ASSIST_OP, PlayData.player[PLAYER_SLOT_PLAYER].mods.assist_mask);
+        ConfigMgr::set('P', P_CHART_ASSIST_OP_2P, PlayData.player[PLAYER_SLOT_TARGET].mods.assist_mask);
 
-        ConfigMgr::set('P', P_FLIP, State::get(IndexSwitch::PLAY_OPTION_DP_FLIP));
+        ConfigMgr::set('P', P_FLIP, PlayData.player[PLAYER_SLOT_PLAYER].mods.DPFlip);
     }
 
-    switch (State::get(IndexOption::PLAY_GHOST_TYPE_1P))
+    // FIXME these options should be adjustable by 2P
+    switch (PlayData.ghostType)
     {
-    case Option::GHOST_TOP:         ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_A); break;
-    case Option::GHOST_SIDE:        ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_B); break;
-    case Option::GHOST_SIDE_BOTTOM: ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_C); break;
-    default:                        ConfigMgr::set('P',P_GHOST_TYPE, "OFF"); break;
+    case GhostScorePosition::AboveJudge:     ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_A); break;
+    case GhostScorePosition::NearJudge:      ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_B); break;
+    case GhostScorePosition::NearJudgeLower: ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_C); break;
+    default:                                 ConfigMgr::set('P',P_GHOST_TYPE, "OFF"); break;
     }
-    switch (State::get(IndexOption::PLAY_GHOST_TYPE_2P))
-    {
-    case Option::GHOST_TOP:         ConfigMgr::set('P', P_GHOST_TYPE_2P, P_GHOST_TYPE_A); break;
-    case Option::GHOST_SIDE:        ConfigMgr::set('P', P_GHOST_TYPE_2P, P_GHOST_TYPE_B); break;
-    case Option::GHOST_SIDE_BOTTOM: ConfigMgr::set('P', P_GHOST_TYPE_2P, P_GHOST_TYPE_C); break;
-    default:                        ConfigMgr::set('P', P_GHOST_TYPE_2P, "OFF"); break;
-    }
+    ConfigMgr::set('P', P_JUDGE_OFFSET, PlayData.player[PLAYER_SLOT_PLAYER].offsetVisual);
+    ConfigMgr::set('P', P_GHOST_TARGET, PlayData.targetRate);
 
-    ConfigMgr::set('P',P_JUDGE_OFFSET, State::get(IndexNumber::TIMING_ADJUST_VISUAL));
-    ConfigMgr::set('P',P_GHOST_TARGET, State::get(IndexNumber::DEFAULT_TARGET_RATE));
-
-    switch (State::get(IndexOption::SELECT_FILTER_KEYS))
+    switch (SelectData.filterKeys)
     {
-    case Option::FILTER_KEYS_SINGLE:  ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_SINGLE); break;
-    case Option::FILTER_KEYS_7:       ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_7K); break;
-    case Option::FILTER_KEYS_5:       ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_5K); break;
-    case Option::FILTER_KEYS_14:      ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_14K); break;
-    case Option::FILTER_KEYS_DOUBLE:  ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_DOUBLE); break;
-    case Option::FILTER_KEYS_10:      ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_10K); break;
-    case Option::FILTER_KEYS_9:       ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_9K); break;
-    default:                          ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_ALL); break;
+    case FilterKeysType::Single: ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_SINGLE); break;
+    case FilterKeysType::_7:     ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_7K); break;
+    case FilterKeysType::_5:     ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_5K); break;
+    case FilterKeysType::_14:    ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_14K); break;
+    case FilterKeysType::Double: ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_DOUBLE); break;
+    case FilterKeysType::_10:    ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_10K); break;
+    case FilterKeysType::_9:     ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_9K); break;
+    default:                     ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_ALL); break;
     }
 
-    switch (State::get(IndexOption::SELECT_SORT))
+    switch (SelectData.sortType)
     {
-    case Option::SORT_TITLE: ConfigMgr::set('P',P_SORT_MODE, P_SORT_MODE_TITLE); break;
-    case Option::SORT_LEVEL: ConfigMgr::set('P',P_SORT_MODE, P_SORT_MODE_LEVEL); break;
-    case Option::SORT_CLEAR: ConfigMgr::set('P',P_SORT_MODE, P_SORT_MODE_CLEAR); break;
-    case Option::SORT_RATE:  ConfigMgr::set('P',P_SORT_MODE, P_SORT_MODE_RATE); break;
+    case SongListSortType::TITLE: ConfigMgr::set('P',P_SORT_MODE, P_SORT_MODE_TITLE); break;
+    case SongListSortType::LEVEL: ConfigMgr::set('P',P_SORT_MODE, P_SORT_MODE_LEVEL); break;
+    case SongListSortType::CLEAR: ConfigMgr::set('P',P_SORT_MODE, P_SORT_MODE_CLEAR); break;
+    case SongListSortType::RATE:  ConfigMgr::set('P',P_SORT_MODE, P_SORT_MODE_RATE); break;
     default:                 ConfigMgr::set('P',P_SORT_MODE, P_SORT_MODE_FOLDER); break;
     }
 
-    switch (State::get(IndexOption::SELECT_FILTER_DIFF))
+    switch (SelectData.filterDifficulty)
     {
-    case Option::DIFF_BEGINNER: ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_BEGINNER); break;
-    case Option::DIFF_NORMAL:   ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_NORMAL); break;
-    case Option::DIFF_HYPER:    ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_HYPER); break;
-    case Option::DIFF_ANOTHER:  ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ANOTHER); break;
-    case Option::DIFF_INSANE:   ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_INSANE); break;
-    default:                    ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL); break;
+    case FilterDifficultyType::B: ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_BEGINNER); break;
+    case FilterDifficultyType::N: ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_NORMAL); break;
+    case FilterDifficultyType::H: ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_HYPER); break;
+    case FilterDifficultyType::A: ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ANOTHER); break;
+    case FilterDifficultyType::I: ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_INSANE); break;
+    default:                      ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL); break;
     }
-
-    ConfigMgr::set('P',P_SCORE_GRAPH, State::get(IndexSwitch::SYSTEM_SCOREGRAPH));
 }
 
 void config_vol()
 {
     using namespace cfg;
 
-    ConfigMgr::set('P',P_VOL_MASTER, State::get(IndexSlider::VOLUME_MASTER));
-    ConfigMgr::set('P',P_VOL_KEY, State::get(IndexSlider::VOLUME_KEY));
-    ConfigMgr::set('P',P_VOL_BGM, State::get(IndexSlider::VOLUME_BGM));
+    ConfigMgr::set('P',P_VOL_MASTER, SystemData.volumeMaster);
+    ConfigMgr::set('P',P_VOL_KEY, SystemData.volumeKey);
+    ConfigMgr::set('P',P_VOL_BGM, SystemData.volumeBgm);
 }
 
 void config_eq()
 {
     using namespace cfg;
 
-    ConfigMgr::set('P',P_EQ, State::get(IndexSwitch::SOUND_EQ));
-    ConfigMgr::set('P',P_EQ0, State::get(IndexNumber::EQ0));
-    ConfigMgr::set('P',P_EQ1, State::get(IndexNumber::EQ1));
-    ConfigMgr::set('P',P_EQ2, State::get(IndexNumber::EQ2));
-    ConfigMgr::set('P',P_EQ3, State::get(IndexNumber::EQ3));
-    ConfigMgr::set('P',P_EQ4, State::get(IndexNumber::EQ4));
-    ConfigMgr::set('P',P_EQ5, State::get(IndexNumber::EQ5));
-    ConfigMgr::set('P',P_EQ6, State::get(IndexNumber::EQ6));
+    ConfigMgr::set('P', P_EQ,  SystemData.equalizerEnabled);
+    ConfigMgr::set('P', P_EQ0, SystemData.equalizerVal62_5hz);
+    ConfigMgr::set('P', P_EQ1, SystemData.equalizerVal160hz);
+    ConfigMgr::set('P', P_EQ2, SystemData.equalizerVal400hz);
+    ConfigMgr::set('P', P_EQ3, SystemData.equalizerVal1khz);
+    ConfigMgr::set('P', P_EQ4, SystemData.equalizerVal2_5khz);
+    ConfigMgr::set('P', P_EQ5, SystemData.equalizerVal6_25khz);
+    ConfigMgr::set('P', P_EQ6, SystemData.equalizerVal16khz);
 }
 
 void config_freq()
 {
     using namespace cfg;
 
-    ConfigMgr::set('P',P_FREQ, State::get(IndexSwitch::SOUND_PITCH));
-    switch (State::get(IndexOption::SOUND_PITCH_TYPE))
+    switch (SystemData.freqType)
     {
-    case Option::FREQ_FREQ: ConfigMgr::set('P',P_FREQ_TYPE, P_FREQ_TYPE_FREQ); break;
-    case Option::FREQ_PITCH: ConfigMgr::set('P',P_FREQ_TYPE, P_FREQ_TYPE_PITCH); break;
-    case Option::FREQ_SPEED: ConfigMgr::set('P',P_FREQ_TYPE, P_FREQ_TYPE_SPEED); break;
+    case FreqModifierType::Off: ConfigMgr::set('P', P_FREQ_TYPE, "OFF"); break;
+    case FreqModifierType::Frequency: ConfigMgr::set('P',P_FREQ_TYPE, P_FREQ_TYPE_FREQ); break;
+    case FreqModifierType::PitchOnly: ConfigMgr::set('P',P_FREQ_TYPE, P_FREQ_TYPE_PITCH); break;
+    case FreqModifierType::SpeedOnly: ConfigMgr::set('P',P_FREQ_TYPE, P_FREQ_TYPE_SPEED); break;
     default: break;
     }
-    ConfigMgr::set('P',P_FREQ_VAL, State::get(IndexNumber::PITCH));
+    ConfigMgr::set('P',P_FREQ_VAL, SystemData.freqVal);
 }
 
 void config_fx()
 {
     using namespace cfg;
 
-    ConfigMgr::set('P',P_FX0, State::get(IndexSwitch::SOUND_FX0));
-    switch (State::get(IndexOption::SOUND_TARGET_FX0))
+    switch (SystemData.fxType)
     {
-    case Option::FX_MASTER: ConfigMgr::set('P',P_FX0_TARGET, P_FX_TARGET_MASTER); break;
-    case Option::FX_KEY:    ConfigMgr::set('P',P_FX0_TARGET, P_FX_TARGET_KEY); break;
-    case Option::FX_BGM:    ConfigMgr::set('P',P_FX0_TARGET, P_FX_TARGET_BGM); break;
-    default: break;
+    case FXType::SfxReverb:     ConfigMgr::set('P', P_FX0_TYPE, P_FX_TYPE_REVERB); break;
+    case FXType::Echo:          ConfigMgr::set('P', P_FX0_TYPE, P_FX_TYPE_DELAY); break;
+    case FXType::LowPass:       ConfigMgr::set('P', P_FX0_TYPE, P_FX_TYPE_LOWPASS); break;
+    case FXType::HighPass:      ConfigMgr::set('P', P_FX0_TYPE, P_FX_TYPE_HIGHPASS); break;
+    case FXType::Compressor:    ConfigMgr::set('P', P_FX0_TYPE, P_FX_TYPE_COMPRESSOR); break;
+    default:                    ConfigMgr::set('P', P_FX0_TYPE, "OFF"); break;
     }
-    switch (State::get(IndexOption::SOUND_FX0))
-    {
-    case Option::FX_OFF:        ConfigMgr::set('P',P_FX0_TYPE, "OFF"); break;
-    case Option::FX_REVERB:     ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_REVERB); break;
-    case Option::FX_DELAY:      ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_DELAY); break;
-    case Option::FX_LOWPASS:    ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_LOWPASS); break;
-    case Option::FX_HIGHPASS:   ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_HIGHPASS); break;
-    case Option::FX_FLANGER:    ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_FLANGER); break;
-    case Option::FX_CHORUS:     ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_CHORUS); break;
-    case Option::FX_DISTORTION: ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_DIST); break;
-    default: break;
-    }
-    ConfigMgr::set('P',P_FX0_P1, State::get(IndexNumber::FX0_P1));
-    ConfigMgr::set('P', P_FX0_P2, State::get(IndexNumber::FX0_P2));
-
-    ConfigMgr::set('P',P_FX1, State::get(IndexSwitch::SOUND_FX1));
-    switch (State::get(IndexOption::SOUND_TARGET_FX1))
-    {
-    case Option::FX_MASTER: ConfigMgr::set('P',P_FX1_TARGET, P_FX_TARGET_MASTER); break;
-    case Option::FX_KEY:    ConfigMgr::set('P',P_FX1_TARGET, P_FX_TARGET_KEY); break;
-    case Option::FX_BGM:    ConfigMgr::set('P',P_FX1_TARGET, P_FX_TARGET_BGM); break;
-    default: break;
-    }
-    switch (State::get(IndexOption::SOUND_FX1))
-    {
-    case Option::FX_OFF:        ConfigMgr::set('P',P_FX1_TYPE, "OFF"); break;
-    case Option::FX_REVERB:     ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_REVERB); break;
-    case Option::FX_DELAY:      ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_DELAY); break;
-    case Option::FX_LOWPASS:    ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_LOWPASS); break;
-    case Option::FX_HIGHPASS:   ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_HIGHPASS); break;
-    case Option::FX_FLANGER:    ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_FLANGER); break;
-    case Option::FX_CHORUS:     ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_CHORUS); break;
-    case Option::FX_DISTORTION: ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_DIST); break;
-    default: break;
-    }
-    ConfigMgr::set('P',P_FX1_P1, State::get(IndexNumber::FX1_P1));
-    ConfigMgr::set('P',P_FX1_P2, State::get(IndexNumber::FX1_P2));
-
-    ConfigMgr::set('P',P_FX2, State::get(IndexSwitch::SOUND_FX2));
-    switch (State::get(IndexOption::SOUND_TARGET_FX2))
-    {
-    case Option::FX_MASTER: ConfigMgr::set('P',P_FX2_TARGET, P_FX_TARGET_MASTER); break;
-    case Option::FX_KEY:    ConfigMgr::set('P',P_FX2_TARGET, P_FX_TARGET_KEY); break;
-    case Option::FX_BGM:    ConfigMgr::set('P',P_FX2_TARGET, P_FX_TARGET_BGM); break;
-    default: break;
-    }
-    switch (State::get(IndexOption::SOUND_FX2))
-    {
-    case Option::FX_OFF:        ConfigMgr::set('P',P_FX2_TYPE, "OFF"); break;
-    case Option::FX_REVERB:     ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_REVERB); break;
-    case Option::FX_DELAY:      ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_DELAY); break;
-    case Option::FX_LOWPASS:    ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_LOWPASS); break;
-    case Option::FX_HIGHPASS:   ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_HIGHPASS); break;
-    case Option::FX_FLANGER:    ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_FLANGER); break;
-    case Option::FX_CHORUS:     ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_CHORUS); break;
-    case Option::FX_DISTORTION: ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_DIST); break;
-    default: break;
-    }
-    ConfigMgr::set('P',P_FX2_P1, State::get(IndexNumber::FX2_P1));
-    ConfigMgr::set('P',P_FX2_P2, State::get(IndexNumber::FX2_P2));
+    ConfigMgr::set('P', P_FX0_P1, SystemData.fxVal);
 }
 
 #pragma endregion
 
 ////////////////////////////////////////////////////////////////////////////////
-
-std::shared_ptr<SceneCustomize> SceneSelect::_virtualSceneCustomize = nullptr;
 
 SceneSelect::SceneSelect() : SceneBase(SkinType::MUSIC_SELECT, 250)
 {
@@ -352,90 +284,43 @@ SceneSelect::SceneSelect() : SceneBase(SkinType::MUSIC_SELECT, 250)
     _inputAvailable |= INPUT_MASK_2P;
 
     // reset globals
-    lv::data::loadConfigs();
+    loadConfigs();
 
-    gSelectContext.lastLaneEffectType1P = State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P);
+    SelectData.lastLaneEffectType1P = PlayData.player[PLAYER_SLOT_PLAYER].mods.laneEffect;
 
-    if (!gSelectContext.entries.empty())
+    if (!SelectData.entries.empty())
     {
         // delay sorting chart list after playing
-        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-        updateEntryScore(gSelectContext.selectedEntryIndex);
-        setEntryInfo();
+        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
+        SelectData.updateEntryScore(SelectData.selectedEntryIndex);
+        SelectData.setEntryInfo();
     }
     else
     {
-        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-        loadSongList();
-        sortSongList();
-        setBarInfo();
-        setEntryInfo();
+        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
+        SelectData.loadSongList();
+        SelectData.sortSongList();
+        SelectData.setBarInfo();
+        SelectData.setEntryInfo();
 
         resetJukeboxText();
     }
 
-    switch (State::get(IndexOption::SELECT_FILTER_KEYS))
-    {
-    case Option::FILTER_KEYS_SINGLE: gSelectContext.filterKeys = 1; break;
-    case Option::FILTER_KEYS_7:      gSelectContext.filterKeys = 7; break;
-    case Option::FILTER_KEYS_5:      gSelectContext.filterKeys = 5; break;
-    case Option::FILTER_KEYS_DOUBLE: gSelectContext.filterKeys = 2; break;
-    case Option::FILTER_KEYS_14:     gSelectContext.filterKeys = 14; break;
-    case Option::FILTER_KEYS_10:     gSelectContext.filterKeys = 10; break;
-    case Option::FILTER_KEYS_9:      gSelectContext.filterKeys = 9; break;
-    default:                         gSelectContext.filterKeys = 0; break;
-    }
+    PlayData.isAuto = false;
+    PlayData.isReplay = false;
+    SelectData.isGoingToKeyConfig = false;
+    SelectData.isGoingToSkinSelect = false;
+    SelectData.isGoingToAutoPlay = false;
+    SelectData.isGoingToReplay = false;
+    SelectData.isGoingToReboot = false;
+    PlayData.isAuto = false;
 
-    gSelectContext.filterDifficulty = State::get(IndexOption::SELECT_FILTER_DIFF);
-
-    switch (State::get(IndexOption::SELECT_SORT))
-    {
-    case Option::SORT_TITLE: gSelectContext.sortType = SongListSortType::TITLE; break;
-    case Option::SORT_LEVEL: gSelectContext.sortType = SongListSortType::LEVEL; break;
-    case Option::SORT_CLEAR: gSelectContext.sortType = SongListSortType::CLEAR; break;
-    case Option::SORT_RATE:  gSelectContext.sortType = SongListSortType::RATE; break;
-    default:                 gSelectContext.sortType = SongListSortType::DEFAULT; break;
-    }
-
-    gPlayContext.isAuto = false;
-    gPlayContext.isReplay = false;
-    gSelectContext.isGoingToKeyConfig = false;
-    gSelectContext.isGoingToSkinSelect = false;
-    gSelectContext.isGoingToAutoPlay = false;
-    gSelectContext.isGoingToReplay = false;
-    gSelectContext.isGoingToReboot = false;
-    State::set(IndexSwitch::SYSTEM_AUTOPLAY, false);
-
-    const auto [score, lamp] = getSaveScoreType();
-    State::set(IndexSwitch::CHART_CAN_SAVE_SCORE, score);
-    State::set(IndexOption::CHART_SAVE_LAMP_TYPE, lamp);
-
-    State::set(IndexText::_OVERLAY_TOPLEFT, "");
-    State::set(IndexText::_OVERLAY_TOPLEFT2, "");
-
-    State::set(IndexSwitch::SOUND_PITCH, true);
-    lr2skin::slider::pitch(0.5);
-    State::set(IndexSwitch::SOUND_PITCH, ConfigMgr::get('P', cfg::P_FREQ, false));
-    lr2skin::slider::pitch((ConfigMgr::get('P', cfg::P_FREQ_VAL, 0) + 12) / 24.0);
-
-    gPlayContext.playerState[PLAYER_SLOT_PLAYER].hispeed = State::get(IndexNumber::HS_1P) / 100.0;
-    gPlayContext.playerState[PLAYER_SLOT_TARGET].hispeed = State::get(IndexNumber::HS_2P) / 100.0;
-    if (State::get(IndexOption::PLAY_HSFIX_TYPE) == Option::SPEED_NORMAL)
-    {
-        State::set(IndexSwitch::P1_LOCK_SPEED, false);
-        State::set(IndexSwitch::P2_LOCK_SPEED, false);
-    }
-    else
-    {
-        State::set(IndexSwitch::P1_LOCK_SPEED, true);
-        State::set(IndexSwitch::P2_LOCK_SPEED, true);
-    }
-    State::set(IndexNumber::GREEN_NUMBER_1P, ConfigMgr::get('P', cfg::P_GREENNUMBER, 300));
-    State::set(IndexNumber::GREEN_NUMBER_2P, ConfigMgr::get('P', cfg::P_GREENNUMBER_2P, 300));
+    SystemData.overlayTopLeftText[0] = "";
+    SystemData.overlayTopLeftText[1] = "";
 
     lr2skin::button::target_type(0);
 
-    if (!gInCustomize)
+    // if (!LR2CustomizeData.isInCustomize)
     {
         using namespace cfg;
         auto bindings = ConfigMgr::get('P', P_SELECT_KEYBINDINGS, P_SELECT_KEYBINDINGS_7K);
@@ -460,41 +345,23 @@ SceneSelect::SceneSelect() : SceneBase(SkinType::MUSIC_SELECT, 250)
     // update random options
     loadLR2Sound();
 
-    gCustomizeContext.modeUpdate = false;
-    if (_virtualSceneCustomize != nullptr)
-    {
-        _virtualSceneCustomize->loopStart();
-    }
-
-    if (!gInCustomize)
-    {
-        SoundMgr::stopNoteSamples();
-        SoundMgr::stopSysSamples();
-        SoundMgr::setSysVolume(1.0);
-        SoundMgr::setNoteVolume(1.0);
-        SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_SELECT);
-    }
+    SoundMgr::stopNoteSamples();
+    SoundMgr::stopSysSamples();
+    SoundMgr::setSysVolume(1.0);
+    SoundMgr::setNoteVolume(1.0);
+    SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_SELECT);
 
     // do not play preview right after scene is loaded
     previewState = PREVIEW_FINISH;
 
-    if (gArenaData.isOnline())
-        State::set(IndexTimer::ARENA_SHOW_LOBBY, Time().norm());
+    if (ArenaData.isOnline())
+        ArenaData.timers["show_lobby"] = Time().norm();
 
     imguiInit();
 }
 
 SceneSelect::~SceneSelect()
 {
-    if (_virtualSceneCustomize != nullptr)
-    {
-        _virtualSceneCustomize->loopEnd();
-        if (SystemData.gNextScene == SceneType::CUSTOMIZE || SystemData.gNextScene == SceneType::EXIT_TRANS || SystemData.gNextScene == SceneType::EXIT)
-        {
-            _virtualSceneCustomize.reset();
-        }
-    }
-
     postStopPreview();
     {
         // safe end loading
@@ -520,47 +387,47 @@ void SceneSelect::_updateAsync()
 
     Time t;
 
-    if (gAppIsExiting)
+    if (SystemData.isAppExiting)
     {
         SystemData.gNextScene = SceneType::EXIT_TRANS;
     }
 
     _updateCallback();
 
-    if (gSelectContext.optionChangePending)
+    if (SelectData.optionChangePending)
     {
-        gSelectContext.optionChangePending = false;
+        SelectData.optionChangePending = false;
 
-        State::set(IndexTimer::LIST_MOVE, t.norm());
+        SystemData.timers["list_move"] = t.norm();
         navigateTimestamp = t;
         postStopPreview();
     }
 
-    if (gSelectContext.cursorClick != gSelectContext.highlightBarIndex)
+    if (SelectData.cursorClick != SelectData.highlightBarIndex)
     {
-        int idx = gSelectContext.selectedEntryIndex + gSelectContext.cursorClick - gSelectContext.highlightBarIndex;
+        int idx = SelectData.selectedEntryIndex + SelectData.cursorClick - SelectData.highlightBarIndex;
         if (idx < 0)
-            idx += gSelectContext.entries.size() * ((-idx) / gSelectContext.entries.size() + 1);
-        gSelectContext.selectedEntryIndex = idx % gSelectContext.entries.size();
-        gSelectContext.highlightBarIndex = gSelectContext.cursorClick;
+            idx += SelectData.entries.size() * ((-idx) / SelectData.entries.size() + 1);
+        SelectData.selectedEntryIndex = idx % SelectData.entries.size();
+        SelectData.highlightBarIndex = SelectData.cursorClick;
 
         navigateTimestamp = t;
         postStopPreview();
 
-        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-        setBarInfo();
-        setEntryInfo();
-        setDynamicTextures();
+        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
+        SelectData.setBarInfo();
+        SelectData.setEntryInfo();
+        SelectData.setDynamicTextures();
 
-        State::set(IndexTimer::LIST_MOVE, t.norm());
+        SystemData.timers["list_move"] = t.norm();
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
     }
 
-    if (gSelectContext.cursorEnterPending)
+    if (SelectData.cursorEnterPending)
     {
-        gSelectContext.cursorEnterPending = false;
+        SelectData.cursorEnterPending = false;
 
-        switch (gSelectContext.entries[gSelectContext.selectedEntryIndex].first->type())
+        switch (SelectData.entries[SelectData.selectedEntryIndex].first->type())
         {
         case eEntryType::FOLDER:
         case eEntryType::CUSTOM_FOLDER:
@@ -590,45 +457,45 @@ void SceneSelect::_updateAsync()
             break;
         }
     }
-    if (gSelectContext.cursorClickScroll != 0)
+    if (SelectData.cursorClickScroll != 0)
     {
         if (scrollAccumulator == 0.0)
         {
-            if (gSelectContext.cursorClickScroll > 0)
+            if (SelectData.cursorClickScroll > 0)
             {
-                scrollAccumulator -= gSelectContext.cursorClickScroll;
+                scrollAccumulator -= SelectData.cursorClickScroll;
                 scrollButtonTimestamp = t;
-                scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
+                scrollAccumulatorAddUnit = scrollAccumulator / SelectData.scrollTimeLength * (1000.0 / getRate());
             }
             else
             {
-                scrollAccumulator += -gSelectContext.cursorClickScroll;
+                scrollAccumulator += -SelectData.cursorClickScroll;
                 scrollButtonTimestamp = t;
-                scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
+                scrollAccumulatorAddUnit = scrollAccumulator / SelectData.scrollTimeLength * (1000.0 / getRate());
             }
         }
-        gSelectContext.cursorClickScroll = 0;
+        SelectData.cursorClickScroll = 0;
     }
 
     // update by slider
-    if (gSelectContext.draggingListSlider)
+    if (SelectData.draggingListSlider)
     {
-        gSelectContext.draggingListSlider = false;
+        SelectData.draggingListSlider = false;
 
-        size_t idx_new = (size_t)std::floor(SelectData.selectedEntryIndexRolling * gSelectContext.entries.size());
-        if (idx_new == gSelectContext.entries.size())
+        size_t idx_new = (size_t)std::floor(SelectData.selectedEntryIndexRolling * SelectData.entries.size());
+        if (idx_new == SelectData.entries.size())
             idx_new = 0;
 
-        if (gSelectContext.selectedEntryIndex != idx_new)
+        if (SelectData.selectedEntryIndex != idx_new)
         {
             navigateTimestamp = t;
             postStopPreview();
 
-            std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-            gSelectContext.selectedEntryIndex = idx_new;
-            setBarInfo();
-            setEntryInfo();
-            setDynamicTextures();
+            std::unique_lock<std::shared_mutex> u(SelectData._mutex);
+            SelectData.selectedEntryIndex = idx_new;
+            SelectData.setBarInfo();
+            SelectData.setEntryInfo();
+            SelectData.setDynamicTextures();
 
             SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
         }
@@ -640,11 +507,11 @@ void SceneSelect::_updateAsync()
         imgui_arena_joinLobby = false;
         arenaJoinLobby();
     }
-    if (!gSelectContext.remoteRequestedChart.empty())
+    if (!ArenaData.remoteRequestedChart.empty())
     {
-        std::string folderName = (boost::format(i18n::c(i18nText::ARENA_REQUEST_BY)) % gSelectContext.remoteRequestedPlayer).str();
+        std::string folderName = (boost::format(i18n::c(i18nText::ARENA_REQUEST_BY)) % ArenaData.remoteRequestedPlayer).str();
         SongListProperties prop{
-            gSelectContext.backtrace.front().folder,
+            SelectData.backtrace.front().folder,
             {},
             folderName,
             {},
@@ -652,27 +519,27 @@ void SceneSelect::_updateAsync()
             0,
             true
         };
-        prop.dbBrowseEntries.push_back({ std::make_shared<EntryChart>(*g_pSongDB->findChartByHash(gSelectContext.remoteRequestedChart).begin()), nullptr });
+        prop.dbBrowseEntries.push_back({ std::make_shared<EntryChart>(*g_pSongDB->findChartByHash(ArenaData.remoteRequestedChart).begin()), nullptr });
 
-        gSelectContext.backtrace.front().index = gSelectContext.selectedEntryIndex;
-        gSelectContext.backtrace.front().displayEntries = gSelectContext.entries;
-        gSelectContext.backtrace.push_front(prop);
-        gSelectContext.entries.clear();
-        loadSongList();
-        sortSongList();
+        SelectData.backtrace.front().index = SelectData.selectedEntryIndex;
+        SelectData.backtrace.front().displayEntries = SelectData.entries;
+        SelectData.backtrace.push_front(prop);
+        SelectData.entries.clear();
+        SelectData.loadSongList();
+        SelectData.sortSongList();
 
         navigateTimestamp = t;
         postStopPreview();
 
-        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-        gSelectContext.selectedEntryIndex = 0;
-        setBarInfo();
-        setEntryInfo();
-        setDynamicTextures();
+        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
+        SelectData.selectedEntryIndex = 0;
+        SelectData.setBarInfo();
+        SelectData.setEntryInfo();
+        SelectData.setDynamicTextures();
 
-        if (!gSelectContext.entries.empty())
+        if (!SelectData.entries.empty())
         {
-            SelectData.selectedEntryIndexRolling = (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size();
+            SelectData.selectedEntryIndexRolling = (double)SelectData.selectedEntryIndex / SelectData.entries.size();
         }
         else
         {
@@ -684,33 +551,33 @@ void SceneSelect::_updateAsync()
         scrollAccumulator = 0.;
         scrollAccumulatorAddUnit = 0.;
 
-        State::set(IndexTimer::LIST_MOVE, Time().norm());
+        SystemData.timers["list_move"] = t.norm();
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
 
-        gSelectContext.remoteRequestedChart.reset();
-        gSelectContext.remoteRequestedPlayer.clear();
-        gSelectContext.isInArenaRequest = true;
+        ArenaData.remoteRequestedChart.reset();
+        ArenaData.remoteRequestedPlayer.clear();
+        ArenaData.isInArenaRequest = true;
     }
-    if (gArenaData.isOnline() && gSelectContext.isArenaCancellingRequest)
+    if (ArenaData.isOnline() && ArenaData.isArenaCancellingRequest)
     {
-        gSelectContext.isArenaCancellingRequest = false;
-        if (gSelectContext.isInArenaRequest)
+        ArenaData.isArenaCancellingRequest = false;
+        if (ArenaData.isInArenaRequest)
         {
             navigateBack(t);
         }
     }
 
-    if (gArenaData.isOnline() && gSelectContext.isArenaReady)
+    if (ArenaData.isOnline() && ArenaData.isArenaReady)
     {
         decide();
     }
 
-    if (gArenaData.isOnline() && gArenaData.isExpired())
+    if (ArenaData.isOnline() && ArenaData.isExpired())
     {
-        gArenaData.reset();
+        ArenaData.reset();
     }
 
-    if (!gSelectContext.entries.empty())
+    if (!SelectData.entries.empty())
     {
         if (!(isHoldingUp || isHoldingDown) && 
             (scrollAccumulator > 0 && scrollAccumulator - scrollAccumulatorAddUnit < 0 ||
@@ -720,13 +587,13 @@ void SceneSelect::_updateAsync()
         {
             bool scrollModified = false;
 
-            if (gSelectContext.scrollDirection != 0)
+            if (SelectData.scrollDirection != 0)
             {
                 double posOld = SelectData.selectedEntryIndexRolling;
-                double idxOld = posOld * gSelectContext.entries.size();
+                double idxOld = posOld * SelectData.entries.size();
 
                 int idxNew = (int)idxOld;
-                if (gSelectContext.scrollDirection > 0)
+                if (SelectData.scrollDirection > 0)
                 {
                     double idxOldTmp = idxOld;
                     if (idxOldTmp - (int)idxOldTmp < 0.0001)
@@ -752,30 +619,29 @@ void SceneSelect::_updateAsync()
 
             if (!scrollModified)
             {
-                std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+                std::unique_lock<std::shared_mutex> u(SelectData._mutex);
 
-                SelectData.selectedEntryIndexRolling = (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size());
+                SelectData.selectedEntryIndexRolling = (double)SelectData.selectedEntryIndex / SelectData.entries.size();
                 scrollAccumulator = 0.0;
                 scrollAccumulatorAddUnit = 0.0;
-                gSelectContext.scrollDirection = 0;
+                SelectData.scrollDirection = 0;
                 pSkin->reset_bar_animation();
-                State::set(IndexTimer::LIST_MOVE_STOP, t.norm());
-                gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
+                SelectData.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
             }
         }
-        else if(gSelectContext.scrollDirection != 0 || scrollAccumulatorAddUnit < -0.003 || scrollAccumulatorAddUnit > 0.003)
+        else if(SelectData.scrollDirection != 0 || scrollAccumulatorAddUnit < -0.003 || scrollAccumulatorAddUnit > 0.003)
         {
-            if (gSelectContext.scrollDirection == 0)
+            if (SelectData.scrollDirection == 0)
             {
-                std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+                std::unique_lock<std::shared_mutex> u(SelectData._mutex);
                 pSkin->start_bar_animation();
             }
 
             double posOld = SelectData.selectedEntryIndexRolling;
-            double posNew = posOld + scrollAccumulatorAddUnit / gSelectContext.entries.size();
+            double posNew = posOld + scrollAccumulatorAddUnit / SelectData.entries.size();
 
-            int idxOld = (int)std::round(posOld * gSelectContext.entries.size());
-            int idxNew = (int)std::round(posNew * gSelectContext.entries.size());
+            int idxOld = (int)std::round(posOld * SelectData.entries.size());
+            int idxNew = (int)std::round(posNew * SelectData.entries.size());
             if (idxOld != idxNew)
             {
                 if (idxOld < idxNew)
@@ -790,29 +656,12 @@ void SceneSelect::_updateAsync()
 
             scrollAccumulator -= scrollAccumulatorAddUnit;
             if (scrollAccumulator < -0.000001 || scrollAccumulator > 0.000001)
-                gSelectContext.scrollDirection = scrollAccumulator > 0. ? 1 : -1;
-        }
-    }
-
-    if (!gInCustomize && gCustomizeContext.modeUpdate)
-    {
-        gCustomizeContext.modeUpdate = false;
-
-        if (_virtualSceneCustomize == nullptr)
-        {
-            createNotification("Loading skin options...");
-
-            pSkin->setHandleMouseEvents(false);
-            _virtualSceneCustomize = std::make_shared<SceneCustomize>();
-            _virtualSceneCustomize->loopStart();
-            pSkin->setHandleMouseEvents(true);
-
-            createNotification("Load finished.");
+                SelectData.scrollDirection = scrollAccumulator > 0. ? 1 : -1;
         }
     }
 
     // load preview
-    if (!gInCustomize && (t - navigateTimestamp).norm() > 500)
+    if ((t - navigateTimestamp).norm() > 500)
     {
         updatePreview();
     }
@@ -821,7 +670,7 @@ void SceneSelect::_updateAsync()
 void SceneSelect::updatePrepare()
 {
     Time t;
-    Time rt = t - State::get(IndexTimer::SCENE_START);
+    Time rt = t - SystemData.timers["scene_start"];
 
     if (rt.norm() >= pSkin->info.timeIntro)
     {
@@ -835,17 +684,26 @@ void SceneSelect::updatePrepare()
         _input.register_a("SCENE_AXIS", std::bind(&SceneSelect::inputGameAxisSelect, this, _1, _2, _3));
         _input.loopStart();
 
-        State::set(IndexTimer::LIST_MOVE, t.norm());
-        State::set(IndexTimer::LIST_MOVE_STOP, t.norm());
+        SystemData.timers["list_move"] = t.norm();
 
         // restore panel stat
-        for (int i = 1; i <= 9; ++i)
+        for (int i = 0; i < 9; ++i)
         {
-            IndexSwitch p = static_cast<IndexSwitch>(int(IndexSwitch::SELECT_PANEL1) - 1 + i);
-            if (State::get(p))
+            static const std::string panelTimerMap[] =
             {
-                IndexTimer tm = static_cast<IndexTimer>(int(IndexTimer::PANEL1_START) - 1 + i);
-                State::set(tm, t.norm());
+                "panel1_start",
+                "panel2_start",
+                "panel3_start",
+                "panel4_start",
+                "panel5_start",
+                "panel6_start",
+                "panel7_start",
+                "panel8_start",
+                "panel9_start",
+            };
+            if (SelectData.panel[i])
+            {
+                SelectData.timers[panelTimerMap[i]] = t.norm();
                 SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_OPEN);
             }
         }
@@ -857,198 +715,199 @@ void SceneSelect::updatePrepare()
 void SceneSelect::updateSelect()
 {
     Time t;
-    Time rt = t - State::get(IndexTimer::SCENE_START);
+    Time rt = t - SystemData.timers["scene_start"];
 
     if (!refreshingSongList)
     {
-        int line = (int)IndexText::_OVERLAY_TOPLEFT;
-        if (State::get(IndexSwitch::SELECT_PANEL1))
+        int line = 0;
+        if (SelectData.panel[0])
         {
+            bool isDP = false;
+            bool isLocalBattle = false;
+            if (PlayData.mode == SkinType::PLAY10 || PlayData.mode == SkinType::PLAY14)
+            {
+                isDP = true;
+            }
+            else if (PlayData.battleType == PlayModifierBattleType::LocalBattle)
+            {
+                isLocalBattle = true;
+            }
+
             if (!pSkin->isSupportGreenNumber)
             {
                 std::stringstream ss;
-                bool lock1 = State::get(IndexSwitch::P1_LOCK_SPEED);
+                bool lock1 = PlayData.player[PLAYER_SLOT_PLAYER].mods.hispeedFix != PlayModifierHispeedFixType::NONE;
                 if (lock1) 
                     ss << "G(1P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER, 0);
 
-                bool lock2 = State::get(IndexSwitch::P2_LOCK_SPEED);
+                bool lock2 = PlayData.player[PLAYER_SLOT_TARGET].mods.hispeedFix != PlayModifierHispeedFixType::NONE;
                 if (lock2) 
                     ss << (lock1 ? " | " : "") << "G(2P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER_2P, 0);
 
                 std::string s = ss.str();
                 if (!s.empty())
                 {
-                    State::set((IndexText)line++, ss.str());
+                    SystemData.overlayTopLeftText[line++] = s;
                 }
             }
             if (!pSkin->isSupportNewRandom && ConfigMgr::get('P', cfg::P_ENABLE_NEW_RANDOM, false))
             {
                 std::stringstream ss;
-                int lane1 = State::get(IndexOption::PLAY_RANDOM_TYPE_1P);
-                switch (lane1)
+                switch (PlayData.player[PLAYER_SLOT_PLAYER].mods.randomLeft)
                 {
-                case Option::RAN_NORMAL:                ss << "Random(1P): OFF"; break;
-                case Option::RAN_MIRROR:                ss << "Random(1P): MIRROR"; break;
-                case Option::RAN_RANDOM:                ss << "Random(1P): RANDOM"; break;
-                case Option::RAN_SRAN:                  ss << "Random(1P): S-RANDOM"; break;
-                case Option::RAN_HRAN:                  ss << "Random(1P): H-RANDOM"; break;
-                case Option::RAN_ALLSCR:                ss << "Random(1P): ALL-SCRATCH"; break;
-                case Option::RAN_RRAN:                  ss << "Random(1P): R-RANDOM"; break;
-                case Option::RAN_DB_SYNCHRONIZE_RANDOM: ss << "Random: SYNCHRONIZE RANDOM"; break;
-                case Option::RAN_DB_SYMMETRY_RANDOM:    ss << "Random: SYMMETRY RANDOM"; break;
+                case PlayModifierRandomType::NONE:           ss << "Random(1P): OFF"; break;
+                case PlayModifierRandomType::MIRROR:         ss << "Random(1P): MIRROR"; break;
+                case PlayModifierRandomType::RANDOM:         ss << "Random(1P): RANDOM"; break;
+                case PlayModifierRandomType::SRAN:           ss << "Random(1P): S-RANDOM"; break;
+                case PlayModifierRandomType::HRAN:           ss << "Random(1P): H-RANDOM"; break;
+                case PlayModifierRandomType::ALLSCR:         ss << "Random(1P): ALL-SCRATCH"; break;
+                case PlayModifierRandomType::RRAN:           ss << "Random(1P): R-RANDOM"; break;
+                case PlayModifierRandomType::DB_SYNCHRONIZE: ss << "Random: SYNCHRONIZE RANDOM"; break;
+                case PlayModifierRandomType::DB_SYMMETRY:    ss << "Random: SYMMETRY RANDOM"; break;
                 }
 
-                if (State::get(IndexOption::PLAY_MODE) == Option::PLAY_MODE_BATTLE || 
-                    State::get(IndexOption::PLAY_MODE) == Option::PLAY_MODE_DOUBLE ||
-                    State::get(IndexOption::PLAY_MODE) == Option::PLAY_MODE_DOUBLE_BATTLE)
+                if (isDP || isLocalBattle)
                 {
-                    int lane2 = State::get(IndexOption::PLAY_RANDOM_TYPE_2P);
-                    switch (lane2)
+                    switch (isLocalBattle ? PlayData.player[PLAYER_SLOT_TARGET].mods.randomLeft : PlayData.player[PLAYER_SLOT_PLAYER].mods.randomRight)
                     {
-                    case Option::RAN_NORMAL:                ss << " | Random(2P): OFF"; break;
-                    case Option::RAN_MIRROR:                ss << " | Random(2P): MIRROR"; break;
-                    case Option::RAN_RANDOM:                ss << " | Random(2P): RANDOM"; break;
-                    case Option::RAN_SRAN:                  ss << " | Random(2P): S-RANDOM"; break;
-                    case Option::RAN_HRAN:                  ss << " | Random(2P): H-RANDOM"; break;
-                    case Option::RAN_ALLSCR:                ss << " | Random(2P): ALL-SCRATCH"; break;
-                    case Option::RAN_RRAN:                  ss << " | Random(2P): R-RANDOM"; break;
-                    case Option::RAN_DB_SYNCHRONIZE_RANDOM:
-                    case Option::RAN_DB_SYMMETRY_RANDOM:    break;
+                    case PlayModifierRandomType::NONE:                ss << " | Random(2P): OFF"; break;
+                    case PlayModifierRandomType::MIRROR:              ss << " | Random(2P): MIRROR"; break;
+                    case PlayModifierRandomType::RANDOM:              ss << " | Random(2P): RANDOM"; break;
+                    case PlayModifierRandomType::SRAN:                ss << " | Random(2P): S-RANDOM"; break;
+                    case PlayModifierRandomType::HRAN:                ss << " | Random(2P): H-RANDOM"; break;
+                    case PlayModifierRandomType::ALLSCR:              ss << " | Random(2P): ALL-SCRATCH"; break;
+                    case PlayModifierRandomType::RRAN:                ss << " | Random(2P): R-RANDOM"; break;
+                    case PlayModifierRandomType::DB_SYNCHRONIZE:
+                    case PlayModifierRandomType::DB_SYMMETRY:    break;
                     }
                 }
 
                 std::string s = ss.str();
                 if (!s.empty())
                 {
-                    State::set((IndexText)line++, ss.str());
+                    SystemData.overlayTopLeftText[line++] = s;
                 }
             }
             if (!pSkin->isSupportExHardAndAssistEasy && ConfigMgr::get('P', cfg::P_ENABLE_NEW_GAUGE, false))
             {
                 std::stringstream ss;
-                int lane1 = State::get(IndexOption::PLAY_GAUGE_TYPE_1P);
-                switch (lane1)
+                switch (PlayData.player[PLAYER_SLOT_PLAYER].mods.gauge)
                 {
-                case Option::GAUGE_NORMAL:     ss << "Gauge(1P): NORMAL"; break;
-                case Option::GAUGE_HARD:       ss << "Gauge(1P): HARD"; break;
-                case Option::GAUGE_DEATH:      ss << "Gauge(1P): DEATH"; break;
-                case Option::GAUGE_EASY:       ss << "Gauge(1P): EASY"; break;
-                case Option::GAUGE_EXHARD:     ss << "Gauge(1P): EX-HARD"; break;
-                case Option::GAUGE_ASSISTEASY: ss << "Gauge(1P): ASSIST EASY"; break;
+                case PlayModifierGaugeType::NORMAL:     ss << "Gauge(1P): NORMAL"; break;
+                case PlayModifierGaugeType::HARD:       ss << "Gauge(1P): HARD"; break;
+                case PlayModifierGaugeType::DEATH:      ss << "Gauge(1P): DEATH"; break;
+                case PlayModifierGaugeType::EASY:       ss << "Gauge(1P): EASY"; break;
+                case PlayModifierGaugeType::EXHARD:     ss << "Gauge(1P): EX-HARD"; break;
+                case PlayModifierGaugeType::ASSISTEASY: ss << "Gauge(1P): ASSIST EASY"; break;
                 }
 
-                if (State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_LOCAL)
+                if (isLocalBattle)
                 {
-                    int lane2 = State::get(IndexOption::PLAY_GAUGE_TYPE_2P);
-                    switch (lane2)
+                    switch (PlayData.player[PLAYER_SLOT_TARGET].mods.gauge)
                     {
-                    case Option::GAUGE_NORMAL:     ss << " | Gauge(2P): NORMAL"; break;
-                    case Option::GAUGE_HARD:       ss << " | Gauge(2P): HARD"; break;
-                    case Option::GAUGE_DEATH:      ss << " | Gauge(2P): DEATH"; break;
-                    case Option::GAUGE_EASY:       ss << " | Gauge(2P): EASY"; break;
-                    case Option::GAUGE_EXHARD:     ss << " | Gauge(2P): EX-HARD"; break;
-                    case Option::GAUGE_ASSISTEASY: ss << " | Gauge(2P): ASSIST EASY"; break;
+                    case PlayModifierGaugeType::NORMAL:     ss << " | Gauge(2P): NORMAL"; break;
+                    case PlayModifierGaugeType::HARD:       ss << " | Gauge(2P): HARD"; break;
+                    case PlayModifierGaugeType::DEATH:      ss << " | Gauge(2P): DEATH"; break;
+                    case PlayModifierGaugeType::EASY:       ss << " | Gauge(2P): EASY"; break;
+                    case PlayModifierGaugeType::EXHARD:     ss << " | Gauge(2P): EX-HARD"; break;
+                    case PlayModifierGaugeType::ASSISTEASY: ss << " | Gauge(2P): ASSIST EASY"; break;
                     }
                 }
 
                 std::string s = ss.str();
                 if (!s.empty())
                 {
-                    State::set((IndexText)line++, ss.str());
+                    SystemData.overlayTopLeftText[line++] = s;
                 }
             }
             if (!pSkin->isSupportLift && ConfigMgr::get('P', cfg::P_ENABLE_NEW_LANE_OPTION, false))
             {
                 std::stringstream ss;
-                int lane1 = State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P);
-                switch (lane1)
+                switch (PlayData.player[PLAYER_SLOT_PLAYER].mods.laneEffect)
                 {
-                case Option::LANE_OFF:      ss << "Lane(1P): OFF"; break;
-                case Option::LANE_HIDDEN:   ss << "Lane(1P): HIDDEN+"; break;
-                case Option::LANE_SUDDEN:   ss << "Lane(1P): SUDDEN+"; break;
-                case Option::LANE_SUDHID:   ss << "Lane(1P): SUD+ & HID+"; break;
-                case Option::LANE_LIFT:     ss << "Lane(1P): LIFT"; break;
-                case Option::LANE_LIFTSUD:  ss << "Lane(1P): LIFT & SUD+"; break;
+                case PlayModifierLaneEffectType::OFF:      ss << "Lane(1P): OFF"; break;
+                case PlayModifierLaneEffectType::HIDDEN:   ss << "Lane(1P): HIDDEN+"; break;
+                case PlayModifierLaneEffectType::SUDDEN:   ss << "Lane(1P): SUDDEN+"; break;
+                case PlayModifierLaneEffectType::SUDHID:   ss << "Lane(1P): SUD+ & HID+"; break;
+                case PlayModifierLaneEffectType::LIFT:     ss << "Lane(1P): LIFT"; break;
+                case PlayModifierLaneEffectType::LIFTSUD:  ss << "Lane(1P): LIFT & SUD+"; break;
                 }
 
-                if (State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_LOCAL)
+                if (isLocalBattle)
                 {
-                    int lane2 = State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P);
-                    switch (lane2)
+                    switch (PlayData.player[PLAYER_SLOT_TARGET].mods.laneEffect)
                     {
-                    case Option::LANE_OFF:      ss << " | Lane(2P): OFF"; break;
-                    case Option::LANE_HIDDEN:   ss << " | Lane(2P): HIDDEN+"; break;
-                    case Option::LANE_SUDDEN:   ss << " | Lane(2P): SUDDEN+"; break;
-                    case Option::LANE_SUDHID:   ss << " | Lane(2P): SUD+ & HID+"; break;
-                    case Option::LANE_LIFT:     ss << " | Lane(2P): LIFT"; break;
-                    case Option::LANE_LIFTSUD:  ss << " | Lane(2P): LIFT & SUD+"; break;
+                    case PlayModifierLaneEffectType::OFF:      ss << " | Lane(2P): OFF"; break;
+                    case PlayModifierLaneEffectType::HIDDEN:   ss << " | Lane(2P): HIDDEN+"; break;
+                    case PlayModifierLaneEffectType::SUDDEN:   ss << " | Lane(2P): SUDDEN+"; break;
+                    case PlayModifierLaneEffectType::SUDHID:   ss << " | Lane(2P): SUD+ & HID+"; break;
+                    case PlayModifierLaneEffectType::LIFT:     ss << " | Lane(2P): LIFT"; break;
+                    case PlayModifierLaneEffectType::LIFTSUD:  ss << " | Lane(2P): LIFT & SUD+"; break;
                     }
                 }
 
                 std::string s = ss.str();
                 if (!s.empty())
                 {
-                    State::set((IndexText)line++, ss.str());
+                    SystemData.overlayTopLeftText[line++] = s;
                 }
             }
             if (!pSkin->isSupportHsFixInitialAndMain)
             {
                 std::stringstream ss;
-                int lane1 = State::get(IndexOption::PLAY_HSFIX_TYPE);
-                switch (lane1)
+                switch (PlayData.player[PLAYER_SLOT_TARGET].mods.hispeedFix)
                 {
-                case Option::SPEED_NORMAL:  break;
-                case Option::SPEED_FIX_MIN: ss << "HiSpeed Fix: Min BPM"; break;
-                case Option::SPEED_FIX_MAX: ss << "HiSpeed Fix: Max BPM"; break;
-                case Option::SPEED_FIX_AVG: ss << "HiSpeed Fix: Average BPM"; break;
-                case Option::SPEED_FIX_CONSTANT: ss << "HiSpeed Fix: *CONSTANT*"; break;
-                case Option::SPEED_FIX_INITIAL: ss << "HiSpeed Fix: Start BPM"; break;
-                case Option::SPEED_FIX_MAIN: ss << "HiSpeed Fix: Main BPM"; break;
+                case PlayModifierHispeedFixType::NONE:  break;
+                case PlayModifierHispeedFixType::MINBPM: ss << "HiSpeed Fix: Min BPM"; break;
+                case PlayModifierHispeedFixType::MAXBPM: ss << "HiSpeed Fix: Max BPM"; break;
+                case PlayModifierHispeedFixType::AVERAGE: ss << "HiSpeed Fix: Average BPM"; break;
+                case PlayModifierHispeedFixType::CONSTANT: ss << "HiSpeed Fix: *CONSTANT*"; break;
+                case PlayModifierHispeedFixType::INITIAL: ss << "HiSpeed Fix: Start BPM"; break;
+                case PlayModifierHispeedFixType::MAIN: ss << "HiSpeed Fix: Main BPM"; break;
                 }
 
                 std::string s = ss.str();
                 if (!s.empty())
                 {
-                    State::set((IndexText)line++, ss.str());
+                    SystemData.overlayTopLeftText[line++] = s;
                 }
             }
         }
-        while (line <= (int)IndexText::_OVERLAY_TOPLEFT4)
-            State::set((IndexText)line++, "");
+        while (line <= sizeof(SystemData.overlayTopLeftText) / sizeof(SystemData.overlayTopLeftText[0]))
+            SystemData.overlayTopLeftText[line++] = "";
     }
 
-    if (gSelectContext.isGoingToKeyConfig || gSelectContext.isGoingToSkinSelect || gSelectContext.isGoingToReboot)
+    if (SelectData.isGoingToKeyConfig || SelectData.isGoingToSkinSelect || SelectData.isGoingToReboot)
     {
-        if (!gInCustomize) SoundMgr::setSysVolume(0.0, 500);
-        State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
+        SoundMgr::setSysVolume(0.0, 500);
+        SystemData.timers["fadeout"] = t.norm();
         state = eSelectState::FADEOUT;
         _updateCallback = std::bind(&SceneSelect::updateFadeout, this);
     }
-    else if (gSelectContext.isGoingToAutoPlay)
+    else if (SelectData.isGoingToAutoPlay)
     {
-        gSelectContext.isGoingToAutoPlay = false;
-        if (!gSelectContext.entries.empty())
+        SelectData.isGoingToAutoPlay = false;
+        if (!SelectData.entries.empty())
         {
-            switch (gSelectContext.entries[gSelectContext.selectedEntryIndex].first->type())
+            switch (SelectData.entries[SelectData.selectedEntryIndex].first->type())
             {
             case eEntryType::SONG:
             case eEntryType::CHART:
             case eEntryType::RIVAL_SONG:
             case eEntryType::RIVAL_CHART:
             case eEntryType::COURSE:
-                gPlayContext.isAuto = true;
-                State::set(IndexSwitch::SYSTEM_AUTOPLAY, true);
+                PlayData.isAuto = true;
                 decide();
                 break;
             }
         }
     }
-    else if (gSelectContext.isGoingToReplay)
+    else if (SelectData.isGoingToReplay)
     {
-        gSelectContext.isGoingToReplay = false;
-        if (!gSelectContext.entries.empty())
+        SelectData.isGoingToReplay = false;
+        if (!SelectData.entries.empty())
         {
-            switch (gSelectContext.entries[gSelectContext.selectedEntryIndex].first->type())
+            switch (SelectData.entries[SelectData.selectedEntryIndex].first->type())
             {
             case eEntryType::SONG:
             case eEntryType::CHART:
@@ -1056,9 +915,9 @@ void SceneSelect::updateSelect()
             case eEntryType::RIVAL_CHART:
             case eEntryType::COURSE:
             {
-                if (State::get(IndexSwitch::CHART_HAVE_REPLAY))
+                if (PlayData.replay != nullptr)
                 {
-                    gPlayContext.isReplay = true;
+                    PlayData.isReplay = true;
                     decide();
                 }
                 break;
@@ -1071,35 +930,35 @@ void SceneSelect::updateSelect()
 void SceneSelect::updateSearch()
 {
     Time t;
-    Time rt = t - State::get(IndexTimer::SCENE_START);
+    Time rt = t - SystemData.timers["scene_start"];
 }
 
 void SceneSelect::updatePanel(unsigned idx)
 {
     Time t;
-    Time rt = t - State::get(IndexTimer::SCENE_START);
+    Time rt = t - SystemData.timers["scene_start"];
 }
 
 void SceneSelect::updateFadeout()
 {
     Time t;
-    Time rt = t - State::get(IndexTimer::SCENE_START);
-    Time ft = t - State::get(IndexTimer::FADEOUT_BEGIN);
+    Time rt = t - SystemData.timers["scene_start"];
+    Time ft = t - SystemData.timers["fadeout"];
 
     if (ft >= pSkin->info.timeOutro)
     {
-        if (gSelectContext.isGoingToKeyConfig)
+        if (SelectData.isGoingToKeyConfig)
         {
             SoundMgr::stopSysSamples();
             SystemData.gNextScene = SceneType::KEYCONFIG;
         }
-        else if (gSelectContext.isGoingToSkinSelect)
+        else if (SelectData.isGoingToSkinSelect)
         {
-            SoundMgr::stopSysSamples();
-            SystemData.gNextScene = SceneType::CUSTOMIZE;
-            gInCustomize = true;
+            //SoundMgr::stopSysSamples();
+            //SystemData.gNextScene = SceneType::CUSTOMIZE;
+            //LR2CustomizeData.isInCustomize = true;
         }
-        else if (gSelectContext.isGoingToReboot)
+        else if (SelectData.isGoingToReboot)
         {
             SoundMgr::stopSysSamples();
             SystemData.gNextScene = SceneType::PRE_SELECT;
@@ -1125,7 +984,7 @@ void SceneSelect::update()
 // CALLBACK
 void SceneSelect::inputGamePress(InputMask& m, const Time& t)
 {
-    Time rt = t - State::get(IndexTimer::SCENE_START);
+    Time rt = t - SystemData.timers["scene_start"];
 
     if (rt.norm() < pSkin->info.timeIntro) return;
 
@@ -1190,7 +1049,7 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
         if (input[Pad::K27]) isHoldingK27 = true;
 
         // sub callbacks
-        if (State::get(IndexSwitch::SELECT_PANEL1))
+        if (SelectData.panel[0])
         {
             inputGamePressPanel(input, t);
         }
@@ -1221,23 +1080,23 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
         {
             if (input[k])
             {
-                State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K11_DOWN) + k - Pad::K11), t.norm());
-                State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K11_UP) + k - Pad::K11), TIMER_NEVER);
+                PlayData.timers[InputGamePressMap.at(Input::Pad(k))] = t.norm();
+                PlayData.timers[InputGameReleaseMap.at(Input::Pad(k))] = TIMER_NEVER;
             }
         }
         for (size_t k = Pad::K21; k <= Pad::K29; ++k)
         {
             if (input[k])
             {
-                if (State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_LOCAL)
+                if (PlayData.battleType == PlayModifierBattleType::LocalBattle)
                 {
-                    State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K21_DOWN) + k - Pad::K21), t.norm());
-                    State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K21_UP) + k - Pad::K21), TIMER_NEVER);
+                    PlayData.timers[InputGamePressMap.at(Input::Pad(k))] = t.norm();
+                    PlayData.timers[InputGameReleaseMap.at(Input::Pad(k))] = TIMER_NEVER;
                 }
                 else
                 {
-                    State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K11_DOWN) + k - Pad::K21), t.norm());
-                    State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K11_UP) + k - Pad::K21), TIMER_NEVER);
+                    PlayData.timers[InputGamePressMap.at(Input::Pad(k - Pad::K21 + Pad::K11))] = t.norm();
+                    PlayData.timers[InputGameReleaseMap.at(Input::Pad(k - Pad::K21 + Pad::K11))] = TIMER_NEVER;
                 }
             }
         }
@@ -1247,7 +1106,7 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
 // CALLBACK
 void SceneSelect::inputGameHold(InputMask& m, const Time& t)
 {
-    Time rt = t - State::get(IndexTimer::SCENE_START);
+    Time rt = t - SystemData.timers["scene_start"];
 
     if (rt.norm() < pSkin->info.timeIntro) return;
 
@@ -1257,7 +1116,7 @@ void SceneSelect::inputGameHold(InputMask& m, const Time& t)
     if (input.any())
     {
         // sub callbacks
-        if (State::get(IndexSwitch::SELECT_PANEL1))
+        if (SelectData.panel[0])
         {
             inputGameHoldPanel(input, t);
         }
@@ -1279,7 +1138,7 @@ void SceneSelect::inputGameHold(InputMask& m, const Time& t)
 // CALLBACK
 void SceneSelect::inputGameRelease(InputMask& m, const Time& t)
 {
-    Time rt = t - State::get(IndexTimer::SCENE_START);
+    Time rt = t - SystemData.timers["scene_start"];
 
     if (rt.norm() < pSkin->info.timeIntro) return;
 
@@ -1296,7 +1155,7 @@ void SceneSelect::inputGameRelease(InputMask& m, const Time& t)
         if (input[Pad::K27]) isHoldingK27 = false;
 
         // sub callbacks
-        if (State::get(IndexSwitch::SELECT_PANEL1))
+        if (SelectData.panel[0])
         {
             inputGameReleasePanel(input, t);
         }
@@ -1319,23 +1178,23 @@ void SceneSelect::inputGameRelease(InputMask& m, const Time& t)
         {
             if (input[k])
             {
-                State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K11_UP) + k - Pad::K11), t.norm());
-                State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K11_DOWN) + k - Pad::K11), TIMER_NEVER);
+                PlayData.timers[InputGamePressMap.at(Input::Pad(k))] = TIMER_NEVER;
+                PlayData.timers[InputGameReleaseMap.at(Input::Pad(k))] = t.norm();
             }
         }
         for (size_t k = Pad::K21; k <= Pad::K29; ++k)
         {
             if (input[k])
             {
-                if (State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_LOCAL)
+                if (PlayData.battleType == PlayModifierBattleType::LocalBattle)
                 {
-                    State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K21_UP) + k - Pad::K21), t.norm());
-                    State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K21_DOWN) + k - Pad::K21), TIMER_NEVER);
+                    PlayData.timers[InputGamePressMap.at(Input::Pad(k))] = TIMER_NEVER;
+                    PlayData.timers[InputGameReleaseMap.at(Input::Pad(k))] = t.norm();
                 }
                 else
                 {
-                    State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K11_UP) + k - Pad::K21), t.norm());
-                    State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K11_DOWN) + k - Pad::K21), TIMER_NEVER);
+                    PlayData.timers[InputGamePressMap.at(Input::Pad(k - Pad::K21 + Pad::K11))] = TIMER_NEVER;
+                    PlayData.timers[InputGameReleaseMap.at(Input::Pad(k - Pad::K21 + Pad::K11))] = t.norm();
                 }
             }
         }
@@ -1353,17 +1212,17 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 
         refreshingSongList = true;
 
-        if (gSelectContext.backtrace.size() >= 2)
+        if (SelectData.backtrace.size() >= 2)
         {
             // only update current folder
-            const auto [hasPath, path] = g_pSongDB->getFolderPath(gSelectContext.backtrace.front().folder);
+            const auto [hasPath, path] = g_pSongDB->getFolderPath(SelectData.backtrace.front().folder);
             if (hasPath)
             {
                 LOG_INFO << "[List] Refreshing folder " << path.u8string();
-                State::set(IndexText::_OVERLAY_TOPLEFT, (boost::format(i18n::c(i18nText::REFRESH_FOLDER)) % path.u8string()).str());
+                SystemData.overlayTopLeftText[0] = (boost::format(i18n::c(i18nText::REFRESH_FOLDER)) % path.u8string()).str();
 
                 g_pSongDB->resetAddSummary();
-                int count = g_pSongDB->addSubFolder(path, gSelectContext.backtrace.front().parent);
+                int count = g_pSongDB->addSubFolder(path, SelectData.backtrace.front().parent);
                 g_pSongDB->waitLoadingFinish();
 
                 LOG_INFO << "[List] Building chart hash cache...";
@@ -1377,8 +1236,9 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 {
                     createNotification((boost::format(i18n::c(i18nText::REFRESH_FOLDER_DETAIL)) % path.u8string() % added % updated % deleted).str());
                 }
-                State::set(IndexText::_OVERLAY_TOPLEFT, "");
-                State::set(IndexText::_OVERLAY_TOPLEFT2, "");
+
+                SystemData.overlayTopLeftText[0] = "";
+                SystemData.overlayTopLeftText[1] = "";
             }
 
             // re-browse
@@ -1387,37 +1247,26 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 
             // simplified navigateBack(t)
             {
-                std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-                auto& top = gSelectContext.backtrace.front();
+                std::unique_lock<std::shared_mutex> u(SelectData._mutex);
+                auto& top = SelectData.backtrace.front();
 
-                gSelectContext.selectedEntryIndex = 0;
-                gSelectContext.backtrace.pop_front();
-                auto& parent = gSelectContext.backtrace.front();
-                gSelectContext.entries = parent.displayEntries;
-                gSelectContext.selectedEntryIndex = parent.index;
+                SelectData.selectedEntryIndex = 0;
+                SelectData.backtrace.pop_front();
+                auto& parent = SelectData.backtrace.front();
+                SelectData.entries = parent.displayEntries;
+                SelectData.selectedEntryIndex = parent.index;
 
                 if (parent.ignoreFilters)
                 {
                     // change display only
-                    State::set(IndexOption::SELECT_FILTER_DIFF, Option::DIFF_ANY);
-                    State::set(IndexOption::SELECT_FILTER_KEYS, Option::FILTER_KEYS_ALL);
+                    SelectData.filterDifficulty = FilterDifficultyType::All;
+                    SelectData.filterKeys = FilterKeysType::All;
                 }
                 else
                 {
                     // restore prev
-                    State::set(IndexOption::SELECT_FILTER_DIFF, gSelectContext.filterDifficulty);
-                    int keys = 0;
-                    switch (gSelectContext.filterKeys)
-                    {
-                     case 1: keys = Option::FILTER_KEYS_SINGLE; break;
-                     case 7: keys = Option::FILTER_KEYS_7; break;
-                     case 5: keys = Option::FILTER_KEYS_5; break;
-                     case 2: keys = Option::FILTER_KEYS_DOUBLE; break;
-                     case 14: keys = Option::FILTER_KEYS_14; break;
-                     case 10: keys = Option::FILTER_KEYS_10; break;
-                     case 9: keys = Option::FILTER_KEYS_9; break;
-                    }
-                    State::set(IndexOption::SELECT_FILTER_KEYS, keys);
+                    cfg::loadFilterDifficulty();
+                    cfg::loadFilterKeys();
                 }
             }
 
@@ -1449,19 +1298,19 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
             }
 
             {
-                std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-                loadSongList();
-                sortSongList();
+                std::unique_lock<std::shared_mutex> u(SelectData._mutex);
+                SelectData.loadSongList();
+                SelectData.sortSongList();
 
-                gSelectContext.selectedEntryIndex = 0;
-                setBarInfo();
-                setEntryInfo();
-                setDynamicTextures();
+                SelectData.selectedEntryIndex = 0;
+                SelectData.setBarInfo();
+                SelectData.setEntryInfo();
+                SelectData.setDynamicTextures();
 
                 resetJukeboxText();
             }
 
-            State::set(IndexTimer::LIST_MOVE, Time().norm());
+            SelectData.timers["list_move"] = t.norm();
             SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_F_OPEN);
         }
 
@@ -1477,19 +1326,18 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
             closeAllPanels(t);
 
             // open panel 1
-            State::set(IndexSwitch::SELECT_PANEL1, true);
-            State::set(IndexTimer::PANEL1_START, t.norm());
-            State::set(IndexTimer::PANEL1_END, TIMER_NEVER);
+            SelectData.panel[0] = true;
+            SelectData.timers["panel1_start"] = t.norm();
+            SelectData.timers["panel1_end"] = TIMER_NEVER;
             SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_OPEN);
             return;
         }
         if (input[Input::M2])
         {
             bool hasPanelOpened = false;
-            for (int i = 1; i <= 9; ++i)
+            for (int i = 0; i < 9; ++i)
             {
-                IndexSwitch p = static_cast<IndexSwitch>(int(IndexSwitch::SELECT_PANEL1) - 1 + i);
-                if (State::get(p))
+                if (SelectData.panel[i])
                 {
                     hasPanelOpened = true;
                     break;
@@ -1501,9 +1349,9 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 return;
             }
         }
-        if (selectDownTimestamp == -1 && (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT]) && !gSelectContext.entries.empty())
+        if (selectDownTimestamp == -1 && (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT]) && !SelectData.entries.empty())
         {
-            switch (gSelectContext.entries[gSelectContext.selectedEntryIndex].first->type())
+            switch (SelectData.entries[SelectData.selectedEntryIndex].first->type())
             {
             case eEntryType::CHART:
             case eEntryType::RIVAL_CHART:
@@ -1518,11 +1366,11 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
     }
 
     // navigate
-    if (!gSelectContext.entries.empty())
+    if (!SelectData.entries.empty())
     {
         if (bindings9K && (input & INPUT_MASK_DECIDE_9K).any() || !bindings9K && (input & INPUT_MASK_DECIDE).any())
         {
-            switch (gSelectContext.entries[gSelectContext.selectedEntryIndex].first->type())
+            switch (SelectData.entries[SelectData.selectedEntryIndex].first->type())
             {
             case eEntryType::FOLDER:
             case eEntryType::CUSTOM_FOLDER:
@@ -1553,35 +1401,35 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
             isHoldingUp = true;
             scrollAccumulator -= 1.0;
             scrollButtonTimestamp = t;
-            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
+            scrollAccumulatorAddUnit = scrollAccumulator / SelectData.scrollTimeLength * (1000.0 / getRate());
         }
         if (bindings9K && (input & INPUT_MASK_NAV_DN_9K).any() || !bindings9K && (input & INPUT_MASK_NAV_DN).any())
         {
             isHoldingDown = true;
             scrollAccumulator += 1.0;
             scrollButtonTimestamp = t;
-            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
+            scrollAccumulatorAddUnit = scrollAccumulator / SelectData.scrollTimeLength * (1000.0 / getRate());
         }
 
         if (input[Input::MWHEELUP])
         {
             if (scrollAccumulator != 0.0)
             {
-                gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
+                SelectData.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
             }
             scrollAccumulator -= 1.0;
             scrollButtonTimestamp = t;
-            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
+            scrollAccumulatorAddUnit = scrollAccumulator / SelectData.scrollTimeLength * (1000.0 / getRate());
         }
         if (input[Input::MWHEELDOWN])
         {
             if (scrollAccumulator != 0.0)
             {
-                gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
+                SelectData.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
             }
             scrollAccumulator += 1.0;
             scrollButtonTimestamp = t;
-            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
+            scrollAccumulatorAddUnit = scrollAccumulator / SelectData.scrollTimeLength * (1000.0 / getRate());
         }
     }
     else
@@ -1594,19 +1442,19 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 void SceneSelect::inputGameHoldSelect(InputMask& input, const Time& t)
 {
     // navigate
-    if (isHoldingUp && (t - scrollButtonTimestamp).norm() >= gSelectContext.scrollTimeLength)
+    if (isHoldingUp && (t - scrollButtonTimestamp).norm() >= SelectData.scrollTimeLength)
     {
-        gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
+        SelectData.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
         scrollButtonTimestamp = t;
         scrollAccumulator -= 1.0;
-        scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
+        scrollAccumulatorAddUnit = scrollAccumulator / SelectData.scrollTimeLength * (1000.0 / getRate());
     }
-    if (isHoldingDown && (t - scrollButtonTimestamp).norm() >= gSelectContext.scrollTimeLength)
+    if (isHoldingDown && (t - scrollButtonTimestamp).norm() >= SelectData.scrollTimeLength)
     {
-        gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
+        SelectData.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
         scrollButtonTimestamp = t;
         scrollAccumulator += 1.0;
-        scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
+        scrollAccumulatorAddUnit = scrollAccumulator / SelectData.scrollTimeLength * (1000.0 / getRate());
     }
     if (selectDownTimestamp != -1 && (t - selectDownTimestamp).norm() >= 233 && !isInVersionList && (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT]))
     {
@@ -1627,13 +1475,13 @@ void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
             else
             {
                 // short press on song, inc version by 1
-                std::unique_lock l(gSelectContext._mutex);
-                switchVersion(0);
-                setBarInfo();
-                setEntryInfo();
-                setDynamicTextures();
+                std::unique_lock l(SelectData._mutex);
+                SelectData.switchVersion(0);
+                SelectData.setBarInfo();
+                SelectData.setEntryInfo();
+                SelectData.setDynamicTextures();
 
-                gSelectContext.optionChangePending = true;
+                SelectData.optionChangePending = true;
                 SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
             }
             selectDownTimestamp = -1;
@@ -1671,7 +1519,7 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
 
     if (pSkin->version() == SkinVersion::LR2beta3)
     {
-        if (State::get(IndexSwitch::SELECT_PANEL1))
+        if (SelectData.panel[0])
         {
             if (input[Pad::K1SELECT] || input[Pad::K2SELECT])
             {
@@ -1698,7 +1546,7 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
             else
             {
                 if (input[Pad::K16]) lr2skin::button::autoscr(PLAYER_SLOT_PLAYER, 1);
-                if (State::get(IndexOption::PLAY_HSFIX_TYPE) == Option::SPEED_NORMAL)
+                if (PlayData.player[PLAYER_SLOT_PLAYER].mods.hispeedFix == PlayModifierHispeedFixType::NONE)
                 {
                     if (input[Pad::K15]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
                     if (input[Pad::K17]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
@@ -1710,7 +1558,7 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
                 }
             }
 
-            if (State::get(IndexOption::PLAY_MODE) == Option::PLAY_MODE_BATTLE)
+            if (PlayData.battleType == PlayModifierBattleType::LocalBattle)
             {
                 // Battle
 
@@ -1733,7 +1581,8 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
                 else
                 {
                     if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_TARGET, 1);
-                    if (State::get(IndexOption::PLAY_HSFIX_TYPE) == Option::SPEED_NORMAL)
+                    // FIXME load 2p hsfix type
+                    if (PlayData.player[PLAYER_SLOT_PLAYER].mods.hispeedFix == PlayModifierHispeedFixType::NONE)
                     {
                         if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_TARGET, -1);
                         if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_TARGET, 1);
@@ -1745,9 +1594,7 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
                     }
                 }
             }
-            else if (State::get(IndexOption::PLAY_MODE) == Option::PLAY_MODE_DOUBLE ||
-                State::get(IndexOption::PLAY_MODE) == Option::PLAY_MODE_DOUBLE_BATTLE ||
-                State::get(IndexOption::PLAY_MODE) == Option::PLAY_MODE_DP_GHOST_BATTLE)
+            else if (PlayData.mode == SkinType::PLAY10 || PlayData.mode == SkinType::PLAY14)
             {
                 // DP
 
@@ -1770,7 +1617,7 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
                 else
                 {
                     if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_TARGET, 1);
-                    if (State::get(IndexOption::PLAY_HSFIX_TYPE) == Option::SPEED_NORMAL)
+                    if (PlayData.player[PLAYER_SLOT_PLAYER].mods.hispeedFix == PlayModifierHispeedFixType::NONE)
                     {
                         if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
                         if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
@@ -1809,7 +1656,7 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
                 else
                 {
                     if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_PLAYER, 1);
-                    if (State::get(IndexOption::PLAY_HSFIX_TYPE) == Option::SPEED_NORMAL)
+                    if (PlayData.player[PLAYER_SLOT_PLAYER].mods.hispeedFix == PlayModifierHispeedFixType::NONE)
                     {
                         if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
                         if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
@@ -1831,12 +1678,12 @@ void SceneSelect::inputGameHoldPanel(InputMask& input, const Time& t)
 
 void SceneSelect::inputGameReleasePanel(InputMask& input, const Time& t)
 {
-    if (State::get(IndexSwitch::SELECT_PANEL1) && (input[Input::Pad::K1START] || input[Input::Pad::K2START]))
+    if (SelectData.panel[0] && (input[Input::Pad::K1START] || input[Input::Pad::K2START]))
     {
         // close panel 1
-        State::set(IndexSwitch::SELECT_PANEL1, false);
-        State::set(IndexTimer::PANEL1_START, TIMER_NEVER);
-        State::set(IndexTimer::PANEL1_END, t.norm());
+        SelectData.panel[0] = false;
+        SelectData.timers["panel1_start"] = TIMER_NEVER;
+        SelectData.timers["panel1_end"] = t.norm();
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CLOSE);
         return;
     }
@@ -1845,16 +1692,19 @@ void SceneSelect::inputGameReleasePanel(InputMask& input, const Time& t)
 
 void SceneSelect::decide()
 {
-    std::shared_lock<std::shared_mutex> u(gSelectContext._mutex);
+    std::shared_lock<std::shared_mutex> u(SelectData._mutex);
 
-    if (gArenaData.isOnline())
+    auto [entry, score] = SelectData.getCurrentEntry();
+    if (entry == nullptr)
+        return;
+
+    if (ArenaData.isOnline())
     {
-        if (!gSelectContext.isArenaReady)
+        if (!ArenaData.isArenaReady)
         {
-            if (State::get(IndexOption::SELECT_ENTRY_TYPE) == Option::ENTRY_SONG)
+            if (entry->type() == CHART)
             {
-                auto& [entry, score] = gSelectContext.entries[gSelectContext.selectedEntryIndex];
-                if (gArenaData.isClient())
+                if (ArenaData.isClient())
                     g_pArenaClient->requestChart(entry->md5);
                 else
                     g_pArenaHost->requestChart(entry->md5, "host");
@@ -1871,55 +1721,33 @@ void SceneSelect::decide()
         }
     }
 
-    if (State::get(IndexOption::SELECT_ENTRY_TYPE) == Option::ENTRY_COURSE && State::get(IndexSwitch::COURSE_NOT_PLAYABLE))
+    if (entry->type() == COURSE && !SelectData.coursePlayable)
         return;
 
-    int bga = State::get(IndexOption::PLAY_BGA_TYPE);
-    State::set(IndexSwitch::_LOAD_BGA,
-        bga == Option::BGA_ON ||
-        bga == Option::BGA_AUTOPLAY && (gPlayContext.isAuto || gPlayContext.isReplay));
+    PlayData.clearContextPlay();
 
-    auto& [entry, score] = gSelectContext.entries[gSelectContext.selectedEntryIndex];
-    //auto& chart = entry.charts[entry.chart_idx];
+    PlayData.canRetry = 
+        !PlayData.isAuto && 
+        !PlayData.isReplay && 
+        entry->type() != eEntryType::COURSE && 
+        !ArenaData.isOnline();
 
-    clearContextPlay();
 
-    gPlayContext.canRetry = !(gPlayContext.isAuto || gPlayContext.isReplay);
+    if (PlayData.battleType == PlayModifierBattleType::GhostBattle && PlayData.replay != nullptr)
+        PlayData.battleType = PlayModifierBattleType::Off;
 
-    switch (State::get(IndexOption::PLAY_BATTLE_TYPE))
+    if (entry->type() == eEntryType::COURSE && PlayData.battleType != PlayModifierBattleType::LocalBattle)
     {
-    case Option::BATTLE_OFF:
-    case Option::BATTLE_DB:     gPlayContext.isBattle = false; break;
-    case Option::BATTLE_LOCAL:  gPlayContext.isBattle = true; break;
-    case Option::BATTLE_GHOST:  gPlayContext.isBattle = !gPlayContext.isAuto && State::get(IndexSwitch::CHART_HAVE_REPLAY); break;
-    }
-
-    if (entry->type() == eEntryType::COURSE)
-    {
-        gPlayContext.canRetry = false;
-        gPlayContext.isBattle = false;
-        gPlayContext.isCourse = true;
-        gPlayContext.courseStage = 0;
-
-        if (gPlayContext.courseStage + 1 == gPlayContext.courseCharts.size())
-            State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_FINAL);
-        else
-        {
-            State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_1 + gPlayContext.courseStage);
-        }
+        PlayData.battleType = PlayModifierBattleType::Off;
+        PlayData.courseStage = 0;
     }
     else
     {
-        State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_NOT_COURSE);
-    }
-
-    if (gArenaData.isOnline())
-    {
-        gPlayContext.canRetry = false;
+        PlayData.courseStage = -1;
     }
 
     // chart
-    gChartContext.started = false;
+    PlayData.playStarted = false;
     switch (entry->type())
     {
     case eEntryType::SONG:
@@ -1931,179 +1759,153 @@ void SceneSelect::decide()
         if (entry->type() == eEntryType::SONG || entry->type() == eEntryType::RIVAL_SONG)
         {
             auto pFile = std::reinterpret_pointer_cast<EntryFolderSong>(entry)->getCurrentChart();
-            gChartContext.chart = pFile;
+            SelectData.selectedChart.chart = pFile;
         }
         else
         {
             auto pFile = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
-            gChartContext.chart = pFile;
+            SelectData.selectedChart.chart = pFile;
         }
 
-        auto& chart = *gChartContext.chart;
-        //gChartContext.path = chart._filePath;
-        gChartContext.path = chart.absolutePath;
+        auto& chart = *SelectData.selectedChart.chart;
+        //SelectData.selectedChart.path = chart._filePath;
+        SelectData.selectedChart.path = chart.absolutePath;
 
         // only reload resources if selected chart is different
-        gChartContext.hash = chart.fileHash;
-        if (gChartContext.hash != gChartContext.sampleLoadedHash)
+        SelectData.selectedChart.hash = chart.fileHash;
+        if (SelectData.selectedChart.hash != SelectData.selectedChart.sampleLoadedHash)
         {
-            gChartContext.isSampleLoaded = false;
-            gChartContext.sampleLoadedHash.reset();
+            SelectData.selectedChart.isSampleLoaded = false;
+            SelectData.selectedChart.sampleLoadedHash.reset();
         }
-        if (gChartContext.hash != gChartContext.bgaLoadedHash)
+        if (SelectData.selectedChart.hash != SelectData.selectedChart.bgaLoadedHash)
         {
-            gChartContext.isBgaLoaded = false;
-            gChartContext.bgaLoadedHash.reset();
+            SelectData.selectedChart.isBgaLoaded = false;
+            SelectData.selectedChart.bgaLoadedHash.reset();
         }
 
-        //gChartContext.chart = std::make_shared<ChartFormatBase>(chart);
-        gChartContext.title = chart.title;
-        gChartContext.title2 = chart.title2;
-        gChartContext.artist = chart.artist;
-        gChartContext.artist2 = chart.artist2;
-        gChartContext.genre = chart.genre;
-        gChartContext.version = chart.version;
-        gChartContext.level = chart.levelEstimated;
-        gChartContext.minBPM = chart.minBPM;
-        gChartContext.maxBPM = chart.maxBPM;
-        gChartContext.startBPM = chart.startBPM;
+        //SelectData.selectedChart.chart = std::make_shared<ChartFormatBase>(chart);
+        SelectData.selectedChart.title = chart.title;
+        SelectData.selectedChart.title2 = chart.title2;
+        SelectData.selectedChart.artist = chart.artist;
+        SelectData.selectedChart.artist2 = chart.artist2;
+        SelectData.selectedChart.genre = chart.genre;
+        SelectData.selectedChart.version = chart.version;
+        SelectData.selectedChart.level = chart.levelEstimated;
+        SelectData.selectedChart.minBPM = chart.minBPM;
+        SelectData.selectedChart.maxBPM = chart.maxBPM;
+        SelectData.selectedChart.startBPM = chart.startBPM;
 
 
         // set gamemode
-        gChartContext.isDoubleBattle = false;
-        if (gChartContext.chart->type() == eChartFormat::BMS)
+        SelectData.selectedChart.isDoubleBattle = false;
+        if (SelectData.selectedChart.chart->type() == eChartFormat::BMS)
         {
-            auto pBMS = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(gChartContext.chart);
+            auto pBMS = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(SelectData.selectedChart.chart);
             switch (pBMS->gamemode)
             {
-            case 5:  gPlayContext.mode = SkinType::PLAY5;  break;
-            case 7:  gPlayContext.mode = SkinType::PLAY7;  break;
-            case 9:  gPlayContext.mode = SkinType::PLAY9;  break;
-            case 10: gPlayContext.mode = SkinType::PLAY10; break;
-            case 14: gPlayContext.mode = SkinType::PLAY14; break;
-            default: gPlayContext.mode = SkinType::PLAY7;  break;
+            case 5:  PlayData.mode = SkinType::PLAY5;  break;
+            case 7:  PlayData.mode = SkinType::PLAY7;  break;
+            case 9:  PlayData.mode = SkinType::PLAY9;  break;
+            case 10: PlayData.mode = SkinType::PLAY10; break;
+            case 14: PlayData.mode = SkinType::PLAY14; break;
+            default: PlayData.mode = SkinType::PLAY7;  break;
             }
-            if (gPlayContext.isBattle)
-            {
-                if (State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_LOCAL || 
-                    State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_GHOST)
-                {
-                    switch (pBMS->gamemode)
-                    {
-                    case 5:  gPlayContext.mode = SkinType::PLAY5_2;  break;
-                    case 7:  gPlayContext.mode = SkinType::PLAY7_2;  break;
-                    case 9:  gPlayContext.mode = SkinType::PLAY9;  gPlayContext.isBattle = false; break;
-                    case 10: gPlayContext.mode = SkinType::PLAY10; gPlayContext.isBattle = false; break;
-                    case 14: gPlayContext.mode = SkinType::PLAY14; gPlayContext.isBattle = false; break;
-                    default: assert(false); break;
-                    }
-                }
-            }
-            else if (State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_DB)
+            if (PlayData.battleType == PlayModifierBattleType::LocalBattle || 
+                PlayData.battleType == PlayModifierBattleType::GhostBattle)
             {
                 switch (pBMS->gamemode)
                 {
-                case 5:  gPlayContext.mode = SkinType::PLAY10;  break;
-                case 7:  gPlayContext.mode = SkinType::PLAY14;  break;
+                case 5:  PlayData.mode = SkinType::PLAY5_2;  break;
+                case 7:  PlayData.mode = SkinType::PLAY7_2;  break;
+                case 9:  PlayData.mode = SkinType::PLAY9;  PlayData.battleType = PlayModifierBattleType::Off; break;
+                case 10: PlayData.mode = SkinType::PLAY10; PlayData.battleType = PlayModifierBattleType::Off; break;
+                case 14: PlayData.mode = SkinType::PLAY14; PlayData.battleType = PlayModifierBattleType::Off; break;
                 default: assert(false); break;
                 }
-                gChartContext.isDoubleBattle = true;
             }
-        }
-
-        switch (gPlayContext.mode)
-        {
-        case SkinType::PLAY5:
-        case SkinType::PLAY7:
-        case SkinType::PLAY9:
-            assert(!gPlayContext.isBattle);
-            assert(!gChartContext.isDoubleBattle);
-            break;
-
-        case SkinType::PLAY5_2:
-        case SkinType::PLAY7_2:
-        case SkinType::PLAY9_2:
-            assert(gPlayContext.isBattle);
-            assert(!gChartContext.isDoubleBattle);
-            break;
-
-        case SkinType::PLAY10:
-        case SkinType::PLAY14:
-            assert(!gPlayContext.isBattle);
-            break;
+            else if (PlayData.battleType == PlayModifierBattleType::DoubleBattle)
+            {
+                switch (pBMS->gamemode)
+                {
+                case 5:  PlayData.mode = SkinType::PLAY10;  break;
+                case 7:  PlayData.mode = SkinType::PLAY14;  break;
+                default: assert(false); break;
+                }
+                SelectData.selectedChart.isDoubleBattle = true;
+            }
         }
 
         break;
     }
     case eEntryType::COURSE:
     {
-        // reset mods
-        static const std::set<PlayModifierGaugeType> courseGaugeModsAllowed = { PlayModifierGaugeType::NORMAL , PlayModifierGaugeType::HARD };
-        if (courseGaugeModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge) == courseGaugeModsAllowed.end())
+        if (std::dynamic_pointer_cast<EntryCourse>(entry)->courseType == EntryCourse::CourseType::CLASS)
         {
-            State::set(IndexOption::PLAY_GAUGE_TYPE_1P, 0);
-            gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge = PlayModifierGaugeType::NORMAL;
+            // reset mods
+            static const std::set<PlayModifierGaugeType> courseGaugeModsAllowed = { PlayModifierGaugeType::NORMAL , PlayModifierGaugeType::HARD };
+            if (courseGaugeModsAllowed.find(PlayData.player[PLAYER_SLOT_PLAYER].mods.gauge) == courseGaugeModsAllowed.end())
+            {
+                PlayData.player[PLAYER_SLOT_PLAYER].mods.gauge = PlayModifierGaugeType::NORMAL;
+            }
+            if (courseGaugeModsAllowed.find(PlayData.player[PLAYER_SLOT_TARGET].mods.gauge) == courseGaugeModsAllowed.end())
+            {
+                PlayData.player[PLAYER_SLOT_TARGET].mods.gauge = PlayModifierGaugeType::NORMAL;
+            }
+            static const std::set<PlayModifierRandomType> courseChartModsAllowed = { PlayModifierRandomType::NONE , PlayModifierRandomType::MIRROR };
+            if (courseChartModsAllowed.find(PlayData.player[PLAYER_SLOT_PLAYER].mods.randomLeft) == courseChartModsAllowed.end())
+            {
+                PlayData.player[PLAYER_SLOT_PLAYER].mods.randomLeft = PlayModifierRandomType::NONE;
+            }
+            if (courseChartModsAllowed.find(PlayData.player[PLAYER_SLOT_TARGET].mods.randomLeft) == courseChartModsAllowed.end())
+            {
+                PlayData.player[PLAYER_SLOT_TARGET].mods.randomLeft = PlayModifierRandomType::NONE;
+            }
+            PlayData.player[PLAYER_SLOT_PLAYER].mods.assist_mask = 0;
+            PlayData.player[PLAYER_SLOT_TARGET].mods.assist_mask = 0;
         }
-        if (courseGaugeModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_TARGET].gauge) == courseGaugeModsAllowed.end())
-        {
-            State::set(IndexOption::PLAY_GAUGE_TYPE_2P, 0);
-            gPlayContext.mods[PLAYER_SLOT_TARGET].gauge = PlayModifierGaugeType::NORMAL;
-        }
-        static const std::set<PlayModifierRandomType> courseChartModsAllowed = { PlayModifierRandomType::NONE , PlayModifierRandomType::MIRROR };
-        if (courseChartModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_PLAYER].randomLeft) == courseChartModsAllowed.end())
-        {
-            State::set(IndexOption::PLAY_RANDOM_TYPE_1P, 0);
-            gPlayContext.mods[PLAYER_SLOT_PLAYER].randomLeft = PlayModifierRandomType::NONE;
-        }
-        if (courseChartModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_TARGET].randomLeft) == courseChartModsAllowed.end())
-        {
-            State::set(IndexOption::PLAY_RANDOM_TYPE_2P, 0);
-            gPlayContext.mods[PLAYER_SLOT_TARGET].randomLeft = PlayModifierRandomType::NONE;
-        }
-        State::set(IndexSwitch::PLAY_OPTION_AUTOSCR_1P, false);
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask = 0;
-        State::set(IndexSwitch::PLAY_OPTION_AUTOSCR_2P, false);
-        gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask = 0;
 
         // set metadata
         auto pCourse = std::dynamic_pointer_cast<EntryCourse>(entry);
-        gPlayContext.courseHash = pCourse->md5;
-        gPlayContext.courseCharts = pCourse->charts;
-        gPlayContext.courseStageRulesetCopy[0].clear();
-        gPlayContext.courseStageRulesetCopy[1].clear();
-        gPlayContext.courseStageReplayPathNew.clear();
+        PlayData.courseHash = pCourse->md5;
+        PlayData.courseStageData.clear();
+        PlayData.courseStageData.resize(pCourse->charts.size());
+        for (size_t i = 0; i < pCourse->charts.size(); i++)
+        {
+            PlayData.courseStageData[i].hash = pCourse->charts[i];
+        }
 
         auto pChart = *g_pSongDB->findChartByHash(*pCourse->charts.begin()).begin();
-        gChartContext.chart = pChart;
+        SelectData.selectedChart.chart = pChart;
 
-        auto& chart = *gChartContext.chart;
-        //gChartContext.path = chart._filePath;
-        gChartContext.path = chart.absolutePath;
+        auto& chart = *SelectData.selectedChart.chart;
+        //SelectData.selectedChart.path = chart._filePath;
+        SelectData.selectedChart.path = chart.absolutePath;
 
         // only reload resources if selected chart is different
-        gChartContext.hash = chart.fileHash;
-        if (gChartContext.hash != gChartContext.sampleLoadedHash)
+        SelectData.selectedChart.hash = chart.fileHash;
+        if (SelectData.selectedChart.hash != SelectData.selectedChart.sampleLoadedHash)
         {
-            gChartContext.isSampleLoaded = false;
-            gChartContext.sampleLoadedHash.reset();
+            SelectData.selectedChart.isSampleLoaded = false;
+            SelectData.selectedChart.sampleLoadedHash.reset();
         }
-        if (gChartContext.hash != gChartContext.bgaLoadedHash)
+        if (SelectData.selectedChart.hash != SelectData.selectedChart.bgaLoadedHash)
         {
-            gChartContext.isBgaLoaded = false;
-            gChartContext.bgaLoadedHash.reset();
+            SelectData.selectedChart.isBgaLoaded = false;
+            SelectData.selectedChart.bgaLoadedHash.reset();
         }
 
-        //gChartContext.chart = std::make_shared<ChartFormatBase>(chart);
-        gChartContext.title = chart.title;
-        gChartContext.title2 = chart.title2;
-        gChartContext.artist = chart.artist;
-        gChartContext.artist2 = chart.artist2;
-        gChartContext.genre = chart.genre;
-        gChartContext.version = chart.version;
-        gChartContext.level = chart.levelEstimated;
-        gChartContext.minBPM = chart.minBPM;
-        gChartContext.maxBPM = chart.maxBPM;
-        gChartContext.startBPM = chart.startBPM;
+        //SelectData.selectedChart.chart = std::make_shared<ChartFormatBase>(chart);
+        SelectData.selectedChart.title = chart.title;
+        SelectData.selectedChart.title2 = chart.title2;
+        SelectData.selectedChart.artist = chart.artist;
+        SelectData.selectedChart.artist2 = chart.artist2;
+        SelectData.selectedChart.genre = chart.genre;
+        SelectData.selectedChart.version = chart.version;
+        SelectData.selectedChart.level = chart.levelEstimated;
+        SelectData.selectedChart.minBPM = chart.minBPM;
+        SelectData.selectedChart.maxBPM = chart.maxBPM;
+        SelectData.selectedChart.startBPM = chart.startBPM;
 
         break;
     }
@@ -2111,275 +1913,78 @@ void SceneSelect::decide()
         break;
     }
 
-    if (!gPlayContext.isReplay)
+    if (!PlayData.isReplay)
     {
-        // gauge
-        auto convertGaugeType = [](int nType) -> PlayModifierGaugeType
+        switch (PlayData.battleType)
         {
-            if (gPlayContext.isCourse)
-            {
-                if (State::get(IndexOption::COURSE_TYPE) == Option::COURSE_GRADE)
-                {
-                    switch (nType)
-                    {
-                    case 1:
-                    case 4:
-                    case 5:
-                    case 6: return PlayModifierGaugeType::GRADE_HARD;
-                    case 2: return PlayModifierGaugeType::GRADE_DEATH;
-                    case 0:
-                    default: return PlayModifierGaugeType::GRADE_NORMAL;
-                    };
-                }
-            }
-
-            switch (nType)
-            {
-            case 1: return PlayModifierGaugeType::HARD;
-            case 2: return PlayModifierGaugeType::DEATH;
-            case 3: return PlayModifierGaugeType::EASY;
-                // case 4: return PlayModifierGaugeType::PATTACK;
-                // case 5: return PlayModifierGaugeType::GATTACK;
-            case 4: return PlayModifierGaugeType::HARD;
-            case 5: return PlayModifierGaugeType::HARD;
-            case 6: return PlayModifierGaugeType::EXHARD;
-            case 7: return PlayModifierGaugeType::ASSISTEASY;
-            case 0:
-            default: return PlayModifierGaugeType::NORMAL;
-            };
-        };
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge = convertGaugeType(State::get(IndexOption::PLAY_GAUGE_TYPE_1P));
-
-        // random
-        auto convertRandomType = [](int nType) -> PlayModifierRandomType
-        {
-            switch (nType)
-            {
-            case 1: return PlayModifierRandomType::MIRROR;
-            case 2: return PlayModifierRandomType::RANDOM;
-            case 3: return PlayModifierRandomType::SRAN;
-            case 4: return PlayModifierRandomType::HRAN;
-            case 5: return PlayModifierRandomType::ALLSCR;
-            case 6: return PlayModifierRandomType::RRAN;
-            case 7: return PlayModifierRandomType::DB_SYNCHRONIZE;
-            case 8: return PlayModifierRandomType::DB_SYMMETRY;
-            case 0:
-            default: return PlayModifierRandomType::NONE;
-            };
-        };
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].randomLeft = convertRandomType(State::get(IndexOption::PLAY_RANDOM_TYPE_1P));
-
-        if (gPlayContext.mode == SkinType::PLAY10 || gPlayContext.mode == SkinType::PLAY14)
-        {
-            gPlayContext.mods[PLAYER_SLOT_PLAYER].randomRight = convertRandomType(State::get(IndexOption::PLAY_RANDOM_TYPE_2P));
-            gPlayContext.mods[PLAYER_SLOT_TARGET].randomRight = convertRandomType(State::get(IndexOption::PLAY_RANDOM_TYPE_2P));
-            gPlayContext.mods[PLAYER_SLOT_PLAYER].DPFlip = State::get(IndexSwitch::PLAY_OPTION_DP_FLIP);
-            gPlayContext.mods[PLAYER_SLOT_TARGET].DPFlip = State::get(IndexSwitch::PLAY_OPTION_DP_FLIP);
-        }
-
-        // assist
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask |= State::get(IndexSwitch::PLAY_OPTION_AUTOSCR_1P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
-
-        // lane
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect = (PlayModifierLaneEffectType)State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P);
-        gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect = (PlayModifierLaneEffectType)State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P);
-
-        // HS fix
-        auto convertHSType = [](int nType) -> PlayModifierHispeedFixType
-        {
-            switch (nType)
-            {
-            case 1: return PlayModifierHispeedFixType::MAXBPM;
-            case 2: return PlayModifierHispeedFixType::MINBPM;
-            case 3: return PlayModifierHispeedFixType::AVERAGE;
-            case 4: return PlayModifierHispeedFixType::CONSTANT;
-            case 5: return PlayModifierHispeedFixType::INITIAL;
-            case 6: return PlayModifierHispeedFixType::MAIN;
-            case 0:
-            default: return PlayModifierHispeedFixType::NONE;
-            };
-        };
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix = convertHSType(State::get(IndexOption::PLAY_HSFIX_TYPE));
-        gPlayContext.mods[PLAYER_SLOT_TARGET].hispeedFix = convertHSType(State::get(IndexOption::PLAY_HSFIX_TYPE));
-
-        if (gPlayContext.isBattle)
-        {
-            if (State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_GHOST && gPlayContext.replay != nullptr)
-            {
-                // notes are loaded in 2P area, we should check randomRight instead of randomLeft
-                gPlayContext.mods[PLAYER_SLOT_TARGET].gauge = gPlayContext.replay->gaugeType;
-                gPlayContext.mods[PLAYER_SLOT_TARGET].randomRight = gPlayContext.replay->randomTypeLeft;
-                gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask = gPlayContext.replay->assistMask;
-                gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect = (PlayModifierLaneEffectType)gPlayContext.replay->laneEffectType;
-
-                switch (gPlayContext.replay->randomTypeRight)
-                {
-                case PlayModifierRandomType::MIRROR:         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_MIRROR); break;
-                case PlayModifierRandomType::RANDOM:         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_RANDOM); break;
-                case PlayModifierRandomType::SRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_SRAN); break;
-                case PlayModifierRandomType::HRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_HRAN); break;
-                case PlayModifierRandomType::ALLSCR:         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_ALLSCR); break;
-                case PlayModifierRandomType::RRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_RRAN); break;
-                case PlayModifierRandomType::DB_SYNCHRONIZE: State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_DB_SYNCHRONIZE_RANDOM); break;
-                case PlayModifierRandomType::DB_SYMMETRY:    State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_DB_SYMMETRY_RANDOM); break;
-                default:                         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_NORMAL); break;
-                }
-
-                switch (gPlayContext.replay->gaugeType)
-                {
-                case PlayModifierGaugeType::HARD:
-                case PlayModifierGaugeType::GRADE_NORMAL: State::set(IndexOption::PLAY_GAUGE_TYPE_2P, Option::GAUGE_HARD); break;
-                case PlayModifierGaugeType::EASY:         State::set(IndexOption::PLAY_GAUGE_TYPE_2P, Option::GAUGE_EASY); break;
-                case PlayModifierGaugeType::ASSISTEASY:   State::set(IndexOption::PLAY_GAUGE_TYPE_2P, Option::GAUGE_ASSISTEASY); break;
-                case PlayModifierGaugeType::EXHARD:
-                case PlayModifierGaugeType::GRADE_HARD:   State::set(IndexOption::PLAY_GAUGE_TYPE_2P, Option::GAUGE_EXHARD); break;
-                default:                      State::set(IndexOption::PLAY_GAUGE_TYPE_2P, Option::GAUGE_NORMAL); break;
-                }
-
-                switch ((PlayModifierLaneEffectType)gPlayContext.replay->laneEffectType)
-                {
-                case PlayModifierLaneEffectType::SUDDEN:  State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_SUDDEN); break;
-                case PlayModifierLaneEffectType::HIDDEN:  State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_HIDDEN); break;
-                case PlayModifierLaneEffectType::SUDHID:  State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_SUDHID); break;
-                case PlayModifierLaneEffectType::LIFT:    State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_LIFT); break;
-                case PlayModifierLaneEffectType::LIFTSUD: State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_LIFTSUD); break;
-                default:                      State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_OFF); break;
-                }
-
-                State::set(IndexSwitch::PLAY_OPTION_AUTOSCR_2P, !!(gPlayContext.replay->assistMask & PLAY_MOD_ASSIST_AUTOSCR));
-            }
-            else
-            {
-                // notes are loaded in 2P area, we should check randomRight instead of randomLeft
-                gPlayContext.mods[PLAYER_SLOT_TARGET].gauge = convertGaugeType(State::get(IndexOption::PLAY_GAUGE_TYPE_2P));
-                gPlayContext.mods[PLAYER_SLOT_TARGET].randomRight = convertRandomType(State::get(IndexOption::PLAY_RANDOM_TYPE_2P));
-                gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask |= State::get(IndexSwitch::PLAY_OPTION_AUTOSCR_2P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
-            }
-        }
-        else
-        {
+        case PlayModifierBattleType::Off:
             // copy 1P setting for target
-            gPlayContext.mods[PLAYER_SLOT_TARGET].gauge = convertGaugeType(State::get(IndexOption::PLAY_GAUGE_TYPE_1P));
-            gPlayContext.mods[PLAYER_SLOT_TARGET].randomLeft = convertRandomType(State::get(IndexOption::PLAY_RANDOM_TYPE_1P));
-            gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask = 0;  // rival do not use assist options
+            PlayData.player[PLAYER_SLOT_TARGET].mods.gauge = PlayData.player[PLAYER_SLOT_PLAYER].mods.gauge;
+            PlayData.player[PLAYER_SLOT_TARGET].mods.randomLeft = PlayData.player[PLAYER_SLOT_PLAYER].mods.randomLeft;
+            PlayData.player[PLAYER_SLOT_TARGET].mods.randomRight = PlayData.player[PLAYER_SLOT_PLAYER].mods.randomRight;
+            PlayData.player[PLAYER_SLOT_TARGET].mods.assist_mask = 0;  // rival do not use assist options
+            break;
 
-            State::set(IndexOption::PLAY_GAUGE_TYPE_2P, State::get(IndexOption::PLAY_GAUGE_TYPE_1P));
-            State::set(IndexOption::PLAY_RANDOM_TYPE_2P, State::get(IndexOption::PLAY_RANDOM_TYPE_1P));
-            State::set(IndexSwitch::PLAY_OPTION_AUTOSCR_2P, false);
+        case PlayModifierBattleType::GhostBattle:
+            // replay notes are loaded in 2P area, we should check randomRight instead of randomLeft
+            // FIXME ^ ?
+            PlayData.player[PLAYER_SLOT_TARGET].mods.gauge = PlayData.replay->gaugeType;
+            PlayData.player[PLAYER_SLOT_TARGET].mods.randomRight = PlayData.replay->randomTypeLeft;
+            PlayData.player[PLAYER_SLOT_TARGET].mods.assist_mask = PlayData.replay->assistMask;
+            PlayData.player[PLAYER_SLOT_TARGET].mods.laneEffect = (PlayModifierLaneEffectType)PlayData.replay->laneEffectType;
+            break;
         }
     }
-    else // gPlayContext.isReplay
+    else // PlayData.isReplay
     {
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].randomLeft = gPlayContext.replay->randomTypeLeft;
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].randomRight = gPlayContext.replay->randomTypeRight;
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge = gPlayContext.replay->gaugeType;
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask = gPlayContext.replay->assistMask;
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix = gPlayContext.replay->hispeedFix;
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect = (PlayModifierLaneEffectType)gPlayContext.replay->laneEffectType;
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].DPFlip = gPlayContext.replay->DPFlip;
-
-        switch (gPlayContext.replay->randomTypeLeft)
-        {
-        case PlayModifierRandomType::MIRROR:         State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_MIRROR); break;
-        case PlayModifierRandomType::RANDOM:         State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_RANDOM); break;
-        case PlayModifierRandomType::SRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_SRAN); break;
-        case PlayModifierRandomType::HRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_HRAN); break;
-        case PlayModifierRandomType::ALLSCR:         State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_ALLSCR); break;
-        case PlayModifierRandomType::RRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_RRAN); break;
-        case PlayModifierRandomType::DB_SYNCHRONIZE: State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_DB_SYNCHRONIZE_RANDOM); break;
-        case PlayModifierRandomType::DB_SYMMETRY:    State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_DB_SYMMETRY_RANDOM); break;
-        default:                         State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_NORMAL); break;
-        }
-
-        switch (gPlayContext.replay->randomTypeRight)
-        {
-        case PlayModifierRandomType::MIRROR:         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_MIRROR); break;
-        case PlayModifierRandomType::RANDOM:         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_RANDOM); break;
-        case PlayModifierRandomType::SRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_SRAN); break;
-        case PlayModifierRandomType::HRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_HRAN); break;
-        case PlayModifierRandomType::ALLSCR:         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_ALLSCR); break;
-        case PlayModifierRandomType::RRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_RRAN); break;
-        case PlayModifierRandomType::DB_SYNCHRONIZE: State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_DB_SYNCHRONIZE_RANDOM); break;
-        case PlayModifierRandomType::DB_SYMMETRY:    State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_DB_SYMMETRY_RANDOM); break;
-        default:                         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_NORMAL); break;
-        }
-
-        switch (gPlayContext.replay->gaugeType)
-        {
-        case PlayModifierGaugeType::HARD:
-        case PlayModifierGaugeType::GRADE_NORMAL: State::set(IndexOption::PLAY_GAUGE_TYPE_1P, Option::GAUGE_HARD); break;
-        case PlayModifierGaugeType::EASY:         State::set(IndexOption::PLAY_GAUGE_TYPE_1P, Option::GAUGE_EASY); break;
-        case PlayModifierGaugeType::ASSISTEASY:   State::set(IndexOption::PLAY_GAUGE_TYPE_1P, Option::GAUGE_ASSISTEASY); break;
-        case PlayModifierGaugeType::EXHARD:
-        case PlayModifierGaugeType::GRADE_HARD:   State::set(IndexOption::PLAY_GAUGE_TYPE_1P, Option::GAUGE_EXHARD); break;
-        default:                      State::set(IndexOption::PLAY_GAUGE_TYPE_1P, Option::GAUGE_NORMAL); break;
-        }
-
-        switch ((PlayModifierLaneEffectType)gPlayContext.replay->laneEffectType)
-        {
-        case PlayModifierLaneEffectType::SUDDEN:  State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_SUDDEN); break;
-        case PlayModifierLaneEffectType::HIDDEN:  State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_HIDDEN); break;
-        case PlayModifierLaneEffectType::SUDHID:  State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_SUDHID); break;
-        case PlayModifierLaneEffectType::LIFT:    State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_LIFT); break;
-        case PlayModifierLaneEffectType::LIFTSUD: State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_LIFTSUD); break;
-        default:                      State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_OFF); break;
-        }
-
-        switch (gPlayContext.replay->hispeedFix)
-        {
-        case PlayModifierHispeedFixType::MAXBPM:    State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_MAX); break;
-        case PlayModifierHispeedFixType::MINBPM:    State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_MIN); break;
-        case PlayModifierHispeedFixType::AVERAGE:   State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_AVG); break;
-        case PlayModifierHispeedFixType::CONSTANT:  State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_CONSTANT); break;
-        case PlayModifierHispeedFixType::INITIAL:     State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_INITIAL); break;
-        case PlayModifierHispeedFixType::MAIN:      State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_MAIN); break;
-        default:                State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_NORMAL); break;
-        }
-
-        State::set(IndexSwitch::PLAY_OPTION_AUTOSCR_1P, !!(gPlayContext.replay->assistMask& PLAY_MOD_ASSIST_AUTOSCR));
-        State::set(IndexSwitch::PLAY_OPTION_AUTOSCR_2P, false);
-        State::set(IndexSwitch::PLAY_OPTION_DP_FLIP, gPlayContext.replay->DPFlip);
+        PlayData.player[PLAYER_SLOT_PLAYER].mods.randomLeft = PlayData.replay->randomTypeLeft;
+        PlayData.player[PLAYER_SLOT_PLAYER].mods.randomRight = PlayData.replay->randomTypeRight;
+        PlayData.player[PLAYER_SLOT_PLAYER].mods.gauge = PlayData.replay->gaugeType;
+        PlayData.player[PLAYER_SLOT_PLAYER].mods.assist_mask = PlayData.replay->assistMask;
+        PlayData.player[PLAYER_SLOT_PLAYER].mods.hispeedFix = PlayData.replay->hispeedFix;
+        PlayData.player[PLAYER_SLOT_PLAYER].mods.laneEffect = (PlayModifierLaneEffectType)PlayData.replay->laneEffectType;
+        PlayData.player[PLAYER_SLOT_PLAYER].mods.DPFlip = PlayData.replay->DPFlip;
     }
     
     // score (mybest)
-    if (!gPlayContext.isBattle)
+    if (PlayData.battleType != PlayModifierBattleType::LocalBattle && PlayData.battleType != PlayModifierBattleType::DoubleBattle)
     {
         auto pScore = score;
         if (pScore == nullptr)
         {
-            pScore = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
+            pScore = g_pScoreDB->getChartScoreBMS(SelectData.selectedChart.hash);
         }
         if (pScore && !pScore->replayFileName.empty())
         {
             Path replayFilePath;
             if ((entry->type() == eEntryType::CHART || entry->type() == eEntryType::RIVAL_CHART))
             {
-                replayFilePath = ReplayChart::getReplayPath(gChartContext.hash) / pScore->replayFileName;
+                replayFilePath = ReplayChart::getReplayPath(SelectData.selectedChart.hash) / pScore->replayFileName;
             }
-            else if (entry->type() == eEntryType::COURSE && !gPlayContext.courseCharts.empty())
+            else if (entry->type() == eEntryType::COURSE && !PlayData.courseStageData.empty())
             {
-                auto pScoreStage1 = g_pScoreDB->getChartScoreBMS(gPlayContext.courseCharts[0]);
+                auto pScoreStage1 = g_pScoreDB->getChartScoreBMS(PlayData.courseStageData[0].hash);
                 if (pScoreStage1 && !pScoreStage1->replayFileName.empty())
                 {
-                    replayFilePath = ReplayChart::getReplayPath(gPlayContext.courseCharts[0]) / pScoreStage1->replayFileName;
+                    replayFilePath = ReplayChart::getReplayPath(PlayData.courseStageData[0].hash) / pScoreStage1->replayFileName;
                 }
             }
             if (!replayFilePath.empty() && fs::is_regular_file(replayFilePath))
             {
-                gPlayContext.replayMybest = std::make_shared<ReplayChart>();
-                if (gPlayContext.replayMybest->loadFile(replayFilePath))
+                PlayData.replayMybest = std::make_shared<ReplayChart>();
+                if (PlayData.replayMybest->loadFile(replayFilePath))
                 {
-                    gPlayContext.mods[PLAYER_SLOT_MYBEST].randomLeft = gPlayContext.replayMybest->randomTypeLeft;
-                    gPlayContext.mods[PLAYER_SLOT_MYBEST].randomRight = gPlayContext.replayMybest->randomTypeRight;
-                    gPlayContext.mods[PLAYER_SLOT_MYBEST].gauge = gPlayContext.replayMybest->gaugeType;
-                    gPlayContext.mods[PLAYER_SLOT_MYBEST].assist_mask = gPlayContext.replayMybest->assistMask;
-                    gPlayContext.mods[PLAYER_SLOT_MYBEST].hispeedFix = gPlayContext.replayMybest->hispeedFix;
-                    gPlayContext.mods[PLAYER_SLOT_MYBEST].laneEffect = (PlayModifierLaneEffectType)gPlayContext.replayMybest->laneEffectType;
-                    gPlayContext.mods[PLAYER_SLOT_MYBEST].DPFlip = gPlayContext.replayMybest->DPFlip;
+                    PlayData.player[PLAYER_SLOT_MYBEST].mods.randomLeft = PlayData.replayMybest->randomTypeLeft;
+                    PlayData.player[PLAYER_SLOT_MYBEST].mods.randomRight = PlayData.replayMybest->randomTypeRight;
+                    PlayData.player[PLAYER_SLOT_MYBEST].mods.gauge = PlayData.replayMybest->gaugeType;
+                    PlayData.player[PLAYER_SLOT_MYBEST].mods.assist_mask = PlayData.replayMybest->assistMask;
+                    PlayData.player[PLAYER_SLOT_MYBEST].mods.hispeedFix = PlayData.replayMybest->hispeedFix;
+                    PlayData.player[PLAYER_SLOT_MYBEST].mods.laneEffect = (PlayModifierLaneEffectType)PlayData.replayMybest->laneEffectType;
+                    PlayData.player[PLAYER_SLOT_MYBEST].mods.DPFlip = PlayData.replayMybest->DPFlip;
                 }
                 else
                 {
-                    gPlayContext.replayMybest.reset();
+                    PlayData.replayMybest.reset();
                 }
             }
         }
@@ -2393,18 +1998,18 @@ void SceneSelect::navigateUpBy1(const Time& t)
     if (!isInVersionList)
         selectDownTimestamp = -1;
 
-    if (!gSelectContext.entries.empty())
+    if (!SelectData.entries.empty())
     {
         navigateTimestamp = t;
         postStopPreview();
 
-        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-        gSelectContext.selectedEntryIndex = (gSelectContext.entries.size() + gSelectContext.selectedEntryIndex - 1) % gSelectContext.entries.size();
-        setBarInfo();
-        setEntryInfo();
-        setDynamicTextures();
+        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
+        SelectData.selectedEntryIndex = (SelectData.entries.size() + SelectData.selectedEntryIndex - 1) % SelectData.entries.size();
+        SelectData.setBarInfo();
+        SelectData.setEntryInfo();
+        SelectData.setDynamicTextures();
 
-        State::set(IndexTimer::LIST_MOVE, t.norm());
+        SelectData.timers["list_move"] = t.norm();
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
     }
 }
@@ -2414,119 +2019,107 @@ void SceneSelect::navigateDownBy1(const Time& t)
     if (!isInVersionList)
         selectDownTimestamp = -1;
 
-    if (!gSelectContext.entries.empty())
+    if (!SelectData.entries.empty())
     {
         navigateTimestamp = t;
         postStopPreview();
 
-        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-        gSelectContext.selectedEntryIndex = (gSelectContext.selectedEntryIndex + 1) % gSelectContext.entries.size();
-        setBarInfo();
-        setEntryInfo();
-        setDynamicTextures();
+        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
+        SelectData.selectedEntryIndex = (SelectData.selectedEntryIndex + 1) % SelectData.entries.size();
+        SelectData.setBarInfo();
+        SelectData.setEntryInfo();
+        SelectData.setDynamicTextures();
 
-        State::set(IndexTimer::LIST_MOVE, t.norm());
+        SelectData.timers["list_move"] = t.norm();
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
     }
 }
 
 void SceneSelect::navigateEnter(const Time& t)
 {
-    if (!gSelectContext.entries.empty())
+    if (!SelectData.entries.empty())
     {
         navigateTimestamp = t;
         postStopPreview();
 
-        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
 
-        if (gSelectContext.entries[gSelectContext.selectedEntryIndex].first->type() == eEntryType::FOLDER)
+        if (SelectData.entries[SelectData.selectedEntryIndex].first->type() == eEntryType::FOLDER)
         {
-            {
-                const auto& [e, s] = gSelectContext.entries[gSelectContext.selectedEntryIndex];
+            const auto& [e, s] = SelectData.entries[SelectData.selectedEntryIndex];
 
-                SongListProperties prop{
-                    gSelectContext.backtrace.front().folder,
-                    e->md5,
-                    e->_name,
-                    {},
-                    {},
-                    0,
-                    false
-                };
-                auto top = g_pSongDB->browse(e->md5, false);
-                if (top && !top->empty())
-                {
-                    for (size_t i = 0; i < top->getContentsCount(); ++i)
-                        prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
-                }
-
-                gSelectContext.backtrace.front().index = gSelectContext.selectedEntryIndex;
-                gSelectContext.backtrace.front().displayEntries = gSelectContext.entries;
-                gSelectContext.backtrace.push_front(prop);
-                gSelectContext.entries.clear();
-            }
-
-            loadSongList();
-            if (gSelectContext.entries.empty())
+            SongListProperties prop{
+                SelectData.backtrace.front().folder,
+                e->md5,
+                e->_name,
+                {},
+                {},
+                0,
+                false
+            };
+            auto top = g_pSongDB->browse(e->md5, false);
+            if (top && !top->empty())
             {
-                State::set(IndexOption::SELECT_FILTER_DIFF, Option::DIFF_ANY);
-                gSelectContext.filterDifficulty = State::get(IndexOption::SELECT_FILTER_DIFF);
-                loadSongList();
-            }
-            if (gSelectContext.entries.empty())
-            {
-                State::set(IndexOption::SELECT_FILTER_KEYS, Option::FILTER_KEYS_ALL);
-                switch (State::get(IndexOption::SELECT_FILTER_KEYS))
-                {
-                case Option::FILTER_KEYS_SINGLE: gSelectContext.filterKeys = 1; break;
-                case Option::FILTER_KEYS_7:      gSelectContext.filterKeys = 7; break;
-                case Option::FILTER_KEYS_5:      gSelectContext.filterKeys = 5; break;
-                case Option::FILTER_KEYS_DOUBLE: gSelectContext.filterKeys = 2; break;
-                case Option::FILTER_KEYS_14:     gSelectContext.filterKeys = 14; break;
-                case Option::FILTER_KEYS_10:     gSelectContext.filterKeys = 10; break;
-                case Option::FILTER_KEYS_9:      gSelectContext.filterKeys = 9; break;
-                default:                         gSelectContext.filterKeys = 0; break;
-                }
-                loadSongList();
-            }
-        }
-        else if (auto top = std::dynamic_pointer_cast<EntryFolderBase>(gSelectContext.entries[gSelectContext.selectedEntryIndex].first); top)
-        {
-            {
-                auto folderType = gSelectContext.entries[gSelectContext.selectedEntryIndex].first->type();
-                const auto& [e, s] = gSelectContext.entries[gSelectContext.selectedEntryIndex];
-
-                SongListProperties prop{
-                    gSelectContext.backtrace.front().folder,
-                    e->md5,
-                    e->_name,
-                    {},
-                    {},
-                    0,
-                    folderType == eEntryType::CUSTOM_FOLDER || folderType == eEntryType::RIVAL
-                };
                 for (size_t i = 0; i < top->getContentsCount(); ++i)
                     prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
-
-                gSelectContext.backtrace.front().index = gSelectContext.selectedEntryIndex;
-                gSelectContext.backtrace.front().displayEntries = gSelectContext.entries;
-                gSelectContext.backtrace.push_front(prop);
-                gSelectContext.entries.clear();
             }
 
-            loadSongList();
+            SelectData.backtrace.front().index = SelectData.selectedEntryIndex;
+            SelectData.backtrace.front().displayEntries = SelectData.entries;
+            SelectData.backtrace.push_front(prop);
+            SelectData.entries.clear();
+
+            cfg::loadFilterDifficulty();
+            cfg::loadFilterKeys();
+            SelectData.loadSongList();
+            if (SelectData.entries.empty())
+            {
+                SelectData.filterDifficulty = FilterDifficultyType::All;
+                SelectData.loadSongList();
+            }
+            if (SelectData.entries.empty())
+            {
+                SelectData.filterKeys = FilterKeysType::All;
+                SelectData.loadSongList();
+            }
+        }
+        else if (auto top = std::dynamic_pointer_cast<EntryFolderBase>(SelectData.entries[SelectData.selectedEntryIndex].first); top)
+        {
+            auto folderType = SelectData.entries[SelectData.selectedEntryIndex].first->type();
+            const auto& [e, s] = SelectData.entries[SelectData.selectedEntryIndex];
+
+            SongListProperties prop{
+                SelectData.backtrace.front().folder,
+                e->md5,
+                e->_name,
+                {},
+                {},
+                0,
+                folderType == eEntryType::CUSTOM_FOLDER || folderType == eEntryType::RIVAL
+            };
+            for (size_t i = 0; i < top->getContentsCount(); ++i)
+                prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
+
+            SelectData.backtrace.front().index = SelectData.selectedEntryIndex;
+            SelectData.backtrace.front().displayEntries = SelectData.entries;
+            SelectData.backtrace.push_front(prop);
+            SelectData.entries.clear();
+
+            cfg::loadFilterDifficulty();
+            cfg::loadFilterKeys();
+            SelectData.loadSongList();
         }
 
-        sortSongList();
-        gSelectContext.selectedEntryIndex = 0;
+        SelectData.sortSongList();
+        SelectData.selectedEntryIndex = 0;
 
-        setBarInfo();
-        setEntryInfo();
-        setDynamicTextures();
+        SelectData.setBarInfo();
+        SelectData.setEntryInfo();
+        SelectData.setDynamicTextures();
 
-        if (!gSelectContext.entries.empty())
+        if (!SelectData.entries.empty())
         {
-            SelectData.selectedEntryIndexRolling = (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size();
+            SelectData.selectedEntryIndexRolling = (double)SelectData.selectedEntryIndex / SelectData.entries.size();
         }
         else
         {
@@ -2538,7 +2131,7 @@ void SceneSelect::navigateEnter(const Time& t)
         scrollAccumulator = 0.;
         scrollAccumulatorAddUnit = 0.;
 
-        State::set(IndexTimer::LIST_MOVE, Time().norm());
+        SelectData.timers["list_move"] = t.norm();
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
     }
 }
@@ -2547,62 +2140,51 @@ void SceneSelect::navigateBack(const Time& t, bool sound)
     if (!isInVersionList)
         selectDownTimestamp = -1;
 
-    if (gSelectContext.backtrace.size() >= 2)
+    if (SelectData.backtrace.size() >= 2)
     {
         navigateTimestamp = t;
         postStopPreview();
 
-        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
 
-        if (gArenaData.isOnline())
+        if (ArenaData.isOnline())
         {
-            if (gArenaData.isClient())
+            if (ArenaData.isClient())
                 g_pArenaClient->requestChart(HashMD5());
             else
                 g_pArenaHost->requestChart(HashMD5(), "host");
 
-            gSelectContext.isInArenaRequest = false;
+            ArenaData.isInArenaRequest = false;
         }
 
-        auto& top = gSelectContext.backtrace.front();
+        auto& top = SelectData.backtrace.front();
 
-        gSelectContext.selectedEntryIndex = 0;
-        gSelectContext.backtrace.pop_front();
-        auto& parent = gSelectContext.backtrace.front();
-        gSelectContext.entries = parent.displayEntries;
-        gSelectContext.selectedEntryIndex = parent.index;
+        SelectData.selectedEntryIndex = 0;
+        SelectData.backtrace.pop_front();
+        auto& parent = SelectData.backtrace.front();
+        SelectData.entries = parent.displayEntries;
+        SelectData.selectedEntryIndex = parent.index;
 
         if (parent.ignoreFilters)
         {
             // change display only
-            State::set(IndexOption::SELECT_FILTER_DIFF, Option::DIFF_ANY);
-            State::set(IndexOption::SELECT_FILTER_KEYS, Option::FILTER_KEYS_ALL);
+            SelectData.filterDifficulty = FilterDifficultyType::All;
+            SelectData.filterKeys = FilterKeysType::All;
         }
         else
         {
             // restore prev
-            State::set(IndexOption::SELECT_FILTER_DIFF, gSelectContext.filterDifficulty);
-            int keys = 0;
-            switch (gSelectContext.filterKeys)
-            {
-            case 1: keys = Option::FILTER_KEYS_SINGLE; break;
-            case 7: keys = Option::FILTER_KEYS_7; break;
-            case 5: keys = Option::FILTER_KEYS_5; break;
-            case 2: keys = Option::FILTER_KEYS_DOUBLE; break;
-            case 14: keys = Option::FILTER_KEYS_14; break;
-            case 10: keys = Option::FILTER_KEYS_10; break;
-            case 9: keys = Option::FILTER_KEYS_9; break;
-            }
-            State::set(IndexOption::SELECT_FILTER_KEYS, keys);
+            cfg::loadFilterDifficulty();
+            cfg::loadFilterKeys();
         }
 
-        setBarInfo();
-        setEntryInfo();
-        setDynamicTextures();
+        SelectData.setBarInfo();
+        SelectData.setEntryInfo();
+        SelectData.setDynamicTextures();
 
-        if (!gSelectContext.entries.empty())
+        if (!SelectData.entries.empty())
         {
-            SelectData.selectedEntryIndexRolling = (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size();
+            SelectData.selectedEntryIndexRolling = (double)SelectData.selectedEntryIndex / SelectData.entries.size();
         }
         else
         {
@@ -2647,15 +2229,14 @@ void SceneSelect::navigateVersionBack(const Time& t)
 bool SceneSelect::closeAllPanels(const Time& t)
 {
     bool hasPanelOpened = false;
-    for (int i = 1; i <= 9; ++i)
+    for (int i = 0; i < 9; ++i)
     {
-        IndexSwitch p = static_cast<IndexSwitch>(int(IndexSwitch::SELECT_PANEL1) - 1 + i);
-        if (State::get(p))
+        if (SelectData.panel[i])
         {
             hasPanelOpened = true;
-            State::set(p, false);
-            State::set(static_cast<IndexTimer>(int(IndexTimer::PANEL1_START) - 1 + i), TIMER_NEVER);
-            State::set(static_cast<IndexTimer>(int(IndexTimer::PANEL1_END) - 1 + i), t.norm());
+            SelectData.panel[i] = false;
+            SelectData.timers["panel1_start"] = TIMER_NEVER;
+            SelectData.timers["panel1_end"] = t.norm();
         }
     }
     if (hasPanelOpened)
@@ -2672,11 +2253,8 @@ bool SceneSelect::checkAndStartTextEdit()
     {
         if (pSkin->textEditSpriteClicked())
         {
-            if (pSkin->textEditType() == IndexText::EDIT_JUKEBOX_NAME)
-            {
-                startTextEdit(true);
-                return true;
-            }
+            startTextEdit(true);
+            return true;
         }
         else if (isInTextEdit())
         {
@@ -2695,12 +2273,8 @@ void SceneSelect::inputGamePressTextEdit(InputMask& input, const Time& t)
     }
     else if (input[Input::Pad::RETURN])
     {
-        if (textEditType() == IndexText::EDIT_JUKEBOX_NAME)
-        {
-            stopTextEdit(true);
-            std::string searchText = State::get(IndexText::EDIT_JUKEBOX_NAME);
-            searchSong(searchText);
-        }
+        stopTextEdit(true);
+        searchSong(SelectData.jukeboxName);
     }
 }
 
@@ -2713,10 +2287,10 @@ void SceneSelect::stopTextEdit(bool modify)
 
 void SceneSelect::resetJukeboxText()
 {
-    if (gSelectContext.backtrace.front().name.empty())
-        State::set(IndexText::EDIT_JUKEBOX_NAME, i18n::s(i18nText::SEARCH_SONG));
+    if (SelectData.backtrace.front().name.empty())
+        SelectData.jukeboxName = i18n::s(i18nText::SEARCH_SONG);
     else
-        State::set(IndexText::EDIT_JUKEBOX_NAME, gSelectContext.backtrace.front().name);
+        SelectData.jukeboxName = SelectData.backtrace.front().name;
 }
 
 void SceneSelect::searchSong(const std::string& text)
@@ -2726,11 +2300,11 @@ void SceneSelect::searchSong(const std::string& text)
     auto top = g_pSongDB->search(ROOT_FOLDER_HASH, text);
     if (!top || top->empty())
     {
-        State::set(IndexText::EDIT_JUKEBOX_NAME, i18n::s(i18nText::SEARCH_FAILED));
+        SelectData.jukeboxName = i18n::s(i18nText::SEARCH_FAILED);
         return;
     }
 
-    std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+    std::unique_lock<std::shared_mutex> u(SelectData._mutex);
 
     std::string name = (boost::format(i18n::c(i18nText::SEARCH_RESULT)) % text % top->getContentsCount()).str();
     SongListProperties prop{
@@ -2744,24 +2318,24 @@ void SceneSelect::searchSong(const std::string& text)
     for (size_t i = 0; i < top->getContentsCount(); ++i)
         prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
 
-    gSelectContext.backtrace.front().index = gSelectContext.selectedEntryIndex;
-    gSelectContext.backtrace.front().displayEntries = gSelectContext.entries;
-    gSelectContext.backtrace.push_front(prop);
-    gSelectContext.entries.clear();
-    loadSongList();
-    sortSongList();
+    SelectData.backtrace.front().index = SelectData.selectedEntryIndex;
+    SelectData.backtrace.front().displayEntries = SelectData.entries;
+    SelectData.backtrace.push_front(prop);
+    SelectData.entries.clear();
+    SelectData.loadSongList();
+    SelectData.sortSongList();
 
     navigateTimestamp = Time();
     postStopPreview();
 
-    gSelectContext.selectedEntryIndex = 0;
-    setBarInfo();
-    setEntryInfo();
-    setDynamicTextures();
+    SelectData.selectedEntryIndex = 0;
+    SelectData.setBarInfo();
+    SelectData.setEntryInfo();
+    SelectData.setDynamicTextures();
 
-    if (!gSelectContext.entries.empty())
+    if (!SelectData.entries.empty())
     {
-        SelectData.selectedEntryIndexRolling = (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size();
+        SelectData.selectedEntryIndexRolling = (double)SelectData.selectedEntryIndex / SelectData.entries.size();
     }
     else
     {
@@ -2778,7 +2352,7 @@ void SceneSelect::searchSong(const std::string& text)
 
 void SceneSelect::updatePreview()
 {
-    const EntryList& e = gSelectContext.entries;
+    const EntryList& e = SelectData.entries;
     if (e.empty()) return;
 
     bool previewDedicated = ConfigMgr::get('P', cfg::P_PREVIEW_DEDICATED, false);
@@ -2802,10 +2376,10 @@ void SceneSelect::updatePreview()
         Path previewChartPath;
         eEntryType type = eEntryType::UNKNOWN;
         {
-            std::shared_lock<std::shared_mutex> s(gSelectContext._mutex);
-            if (!gSelectContext.entries.empty())
+            std::shared_lock<std::shared_mutex> s(SelectData._mutex);
+            if (!SelectData.entries.empty())
             {
-                const auto& entry = gSelectContext.entries[gSelectContext.selectedEntryIndex].first;
+                const auto& entry = SelectData.entries[SelectData.selectedEntryIndex].first;
                 type = entry->type();
 
                 if (type == eEntryType::SONG || type == eEntryType::RIVAL_SONG)
@@ -2838,11 +2412,11 @@ void SceneSelect::updatePreview()
                 std::shared_ptr<ChartFormatBase> previewChartTmp;
                 if (type == eEntryType::SONG || type == eEntryType::RIVAL_SONG)
                 {
-                    previewChartTmp = ChartFormatBase::createFromFile(previewChartPath, gPlayContext.randomSeed);
+                    previewChartTmp = ChartFormatBase::createFromFile(previewChartPath, PlayData.randomSeed);
                 }
                 else
                 {
-                    previewChartTmp = ChartFormatBase::createFromFile(previewChartPath, gPlayContext.randomSeed);
+                    previewChartTmp = ChartFormatBase::createFromFile(previewChartPath, PlayData.randomSeed);
                 }
 
                 {
@@ -2928,8 +2502,8 @@ void SceneSelect::updatePreview()
                     previewState = PREVIEW_LOAD;
                 }
 
-                gChartContext.isSampleLoaded = false;
-                gChartContext.sampleLoadedHash.reset();
+                SelectData.selectedChart.isSampleLoaded = false;
+                SelectData.selectedChart.sampleLoadedHash.reset();
 
                 std::thread([&, bms] {
                     unsigned bars = bms->lastBarIdx;
@@ -2972,8 +2546,8 @@ void SceneSelect::updatePreview()
                         }
                         pool.wait();
 
-                        gChartContext.isSampleLoaded = true;
-                        gChartContext.sampleLoadedHash = bms->fileHash;
+                        SelectData.selectedChart.isSampleLoaded = true;
+                        SelectData.selectedChart.sampleLoadedHash = bms->fileHash;
 
                         {
                             std::unique_lock l(previewMutex);
@@ -3025,7 +2599,7 @@ void SceneSelect::updatePreview()
             SoundMgr::setSysVolume(0.1, 200);
             previewState = PREVIEW_PLAY;
         }
-        else if (gChartContext.isSampleLoaded)
+        else if (SelectData.selectedChart.isSampleLoaded)
         {
             std::unique_lock l(previewMutex);
 
@@ -3142,7 +2716,7 @@ void SceneSelect::postStopPreview()
 
 void SceneSelect::arenaCommand()
 {
-    if (auto p = std::dynamic_pointer_cast<EntryArenaCommand>(gSelectContext.entries[gSelectContext.selectedEntryIndex].first); p)
+    if (auto p = std::dynamic_pointer_cast<EntryArenaCommand>(SelectData.entries[SelectData.selectedEntryIndex].first); p)
     {
         switch (p->getCmdType())
         {
@@ -3155,7 +2729,7 @@ void SceneSelect::arenaCommand()
 
 void SceneSelect::arenaHostLobby()
 {
-    if (gArenaData.isOnline())
+    if (ArenaData.isOnline())
     {
         createNotification(i18n::s(i18nText::ARENA_HOST_FAILED_IN_LOBBY));
         return;
@@ -3170,7 +2744,7 @@ void SceneSelect::arenaHostLobby()
 
         Time t;
         navigateBack(t, false);
-        State::set(IndexTimer::ARENA_SHOW_LOBBY, t.norm());
+        ArenaData.timers["show_lobby"] = t.norm();
 
         // Reset freq option for arena. Not supported yet
         lr2skin::button::pitch_switch(0);
@@ -3186,31 +2760,31 @@ void SceneSelect::arenaHostLobby()
 
 void SceneSelect::arenaLeaveLobby()
 {
-    if (!gArenaData.isOnline())
+    if (!ArenaData.isOnline())
     {
         createNotification(i18n::s(i18nText::ARENA_LEAVE_FAILED_NO_LOBBY));
         return;
     }
 
-    if (gArenaData.isClient())
+    if (ArenaData.isClient())
     {
         g_pArenaClient->leaveLobby();
     }
-    if (gArenaData.isServer())
+    if (ArenaData.isServer())
     {
         g_pArenaHost->disbandLobby();
     }
 
     Time t;
     navigateBack(t, false);
-    State::set(IndexTimer::ARENA_SHOW_LOBBY, TIMER_NEVER);
+    ArenaData.timers["show_lobby"] = TIMER_NEVER;
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
 }
 
 void SceneSelect::arenaJoinLobbyPrompt()
 {
-    if (gArenaData.isOnline())
+    if (ArenaData.isOnline())
     {
         createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED_IN_LOBBY));
         return;
@@ -3222,7 +2796,7 @@ void SceneSelect::arenaJoinLobbyPrompt()
 
 void SceneSelect::arenaJoinLobby()
 {
-    assert(!gArenaData.isOnline());
+    assert(!ArenaData.isOnline());
 
     std::string address = imgui_arena_address_buf;
     createNotification((boost::format(i18n::c(i18nText::ARENA_JOINING)) % address).str());
@@ -3235,7 +2809,7 @@ void SceneSelect::arenaJoinLobby()
 
         Time t;
         navigateBack(t, false);
-        State::set(IndexTimer::ARENA_SHOW_LOBBY, t.norm());
+        ArenaData.timers["show_lobby"] = t.norm();
 
         // Reset freq option for arena. Not supported yet
         lr2skin::button::pitch_switch(0);

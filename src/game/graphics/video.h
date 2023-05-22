@@ -25,9 +25,6 @@ inline const std::set<std::string> video_file_extensions =
 
 #include "graphics.h"
 
-namespace lunaticvibes
-{
-
 extern "C"
 {
 	struct AVFormatContext;
@@ -36,6 +33,10 @@ extern "C"
 	struct AVFrame;
 	struct AVPacket;
 }
+
+namespace lunaticvibes
+{
+
 class SceneBase;
 class SkinBase;
 

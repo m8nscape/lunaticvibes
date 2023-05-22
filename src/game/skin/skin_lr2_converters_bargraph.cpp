@@ -6,14 +6,12 @@
 #include "game/ruleset/ruleset.h"
 #include "game/ruleset/ruleset_bms.h"
 #include "game/ruleset/ruleset_bms_auto.h"
+#include "game/ruleset/ruleset_bms_network.h"
 #include "game/data/data_types.h"
-#include "game/arena/arena_data.h"
 #include "db/db_score.h"
 
 namespace lunaticvibes
 {
-
-using namespace data;
 
 class BargraphConverter
 {
@@ -37,9 +35,9 @@ public:
 
     static Ratio bargraph_arena_0(int player)
     {
-        if (!gArenaData.isOnline()) return 0.0;
+        if (!ArenaData.isOnline()) return 0.0;
 
-        auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(player));
+        auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(player));
         if (r && r->getMaxScore() != 0)
         {
             return double(r->getExScore()) / r->getMaxScore();
@@ -49,9 +47,9 @@ public:
 
     static Ratio bargraph_arena_1(int player)
     {
-        if (!gArenaData.isOnline()) return 0.0;
+        if (!ArenaData.isOnline()) return 0.0;
 
-        auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(player));
+        auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(player));
         if (r && r->getMaxScore() != 0)
         {
             return double(r->getExScore()) / r->getCurrentMaxScore();
@@ -70,7 +68,7 @@ public:
         }
         return 0;
     };
-    static Ratio bargraph_2() { (PlayData.loadProgressWav + PlayData.loadProgressBga) / 2.0; };
+    static Ratio bargraph_2() { return (PlayData.loadProgressWav + PlayData.loadProgressBga) / 2.0; };
     /*
         LEVEL_BAR = 3,
 
@@ -82,7 +80,7 @@ public:
     */
     static Ratio bargraph_10()
     {
-        if (gArenaData.isOnline()) return 0.0;
+        if (ArenaData.isOnline()) return 0.0;
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r && r->getMaxScore() != 0)
         {
@@ -92,7 +90,7 @@ public:
     };
     static Ratio bargraph_11()
     {
-        if (gArenaData.isOnline()) return 0.0;
+        if (ArenaData.isOnline()) return 0.0;
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r && r->getCurrentMaxScore() != 0)
         {
@@ -102,7 +100,7 @@ public:
     };
     static Ratio bargraph_12()
     {
-        if (gArenaData.isOnline()) return 0.0;
+        if (ArenaData.isOnline()) return 0.0;
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_MYBEST].ruleset);
         if (r)
         {
@@ -112,8 +110,8 @@ public:
     };
     static Ratio bargraph_13()
     {
-        if (gArenaData.isOnline()) return 0.0;
-        auto pScore = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
+        if (ArenaData.isOnline()) return 0.0;
+        auto pScore = g_pScoreDB->getChartScoreBMS(SelectData.selectedChart.hash);
         if (pScore)
         {
             auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_MYBEST].ruleset);
@@ -126,7 +124,7 @@ public:
     };
     static Ratio bargraph_14()
     {
-        if (gArenaData.isOnline()) return 0.0;
+        if (ArenaData.isOnline()) return 0.0;
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r && r->getCurrentMaxScore() != 0)
         {
@@ -136,8 +134,9 @@ public:
     };
     static Ratio bargraph_15()
     {
-        if (gArenaData.isOnline()) return 0.0;
-        if (PlayData.isBattle)
+        if (ArenaData.isOnline()) return 0.0;
+        if (PlayData.battleType == PlayModifierBattleType::LocalBattle ||
+            PlayData.battleType == PlayModifierBattleType::GhostBattle)
         {
             auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
             if (r && r->getCurrentMaxScore() != 0)
@@ -628,130 +627,110 @@ public:
     };
 };
 
-#define define_has_member(index)                                                            \
-class has_bargraph_##index                                                                  \
-{                                                                                           \
-private:                                                                                    \
-    typedef long yes_type;                                                                  \
-    typedef char no_type;                                                                   \
-    template <typename U> static yes_type test(decltype(&U::bargraph_##index));             \
-    template <typename U> static no_type  test(...);                                        \
-public:                                                                                     \
-    static constexpr bool has_func = sizeof(test<BargraphConverter>()) == sizeof(yes_type); \
-private:                                                                                    \
-    template <typename U, typename = std::enable_if_t<!has_func>>                           \
-    static constexpr Ratio(*func())() { return &U::bargraph_0; }                            \
-    template <typename U, typename = std::enable_if_t<has_func>>                            \
-    static constexpr Ratio(*func())() { return &U::bargraph_##index; }                      \
-public:                                                                                     \
-    static constexpr Ratio(*value)() = func<BargraphConverter>();                           \
-}
+#pragma region declare_member
 
-#define has_bargraph(index)  has_bargraph_##index::has_func
-#define bargraph(index) has_bargraph_##index::value
+declare_member(BargraphConverter, Ratio, bargraph, 0);
+declare_member(BargraphConverter, Ratio, bargraph, 1);
+declare_member(BargraphConverter, Ratio, bargraph, 2);
+declare_member(BargraphConverter, Ratio, bargraph, 3);
+declare_member(BargraphConverter, Ratio, bargraph, 4);
+declare_member(BargraphConverter, Ratio, bargraph, 5);
+declare_member(BargraphConverter, Ratio, bargraph, 6);
+declare_member(BargraphConverter, Ratio, bargraph, 7);
+declare_member(BargraphConverter, Ratio, bargraph, 8);
+declare_member(BargraphConverter, Ratio, bargraph, 9);
+declare_member(BargraphConverter, Ratio, bargraph, 10);
+declare_member(BargraphConverter, Ratio, bargraph, 11);
+declare_member(BargraphConverter, Ratio, bargraph, 12);
+declare_member(BargraphConverter, Ratio, bargraph, 13);
+declare_member(BargraphConverter, Ratio, bargraph, 14);
+declare_member(BargraphConverter, Ratio, bargraph, 15);
+declare_member(BargraphConverter, Ratio, bargraph, 16);
+declare_member(BargraphConverter, Ratio, bargraph, 17);
+declare_member(BargraphConverter, Ratio, bargraph, 18);
+declare_member(BargraphConverter, Ratio, bargraph, 19);
+declare_member(BargraphConverter, Ratio, bargraph, 20);
+declare_member(BargraphConverter, Ratio, bargraph, 21);
+declare_member(BargraphConverter, Ratio, bargraph, 22);
+declare_member(BargraphConverter, Ratio, bargraph, 23);
+declare_member(BargraphConverter, Ratio, bargraph, 24);
+declare_member(BargraphConverter, Ratio, bargraph, 25);
+declare_member(BargraphConverter, Ratio, bargraph, 26);
+declare_member(BargraphConverter, Ratio, bargraph, 27);
+declare_member(BargraphConverter, Ratio, bargraph, 28);
+declare_member(BargraphConverter, Ratio, bargraph, 29);
+declare_member(BargraphConverter, Ratio, bargraph, 30);
+declare_member(BargraphConverter, Ratio, bargraph, 31);
+declare_member(BargraphConverter, Ratio, bargraph, 32);
+declare_member(BargraphConverter, Ratio, bargraph, 33);
+declare_member(BargraphConverter, Ratio, bargraph, 34);
+declare_member(BargraphConverter, Ratio, bargraph, 35);
+declare_member(BargraphConverter, Ratio, bargraph, 36);
+declare_member(BargraphConverter, Ratio, bargraph, 37);
+declare_member(BargraphConverter, Ratio, bargraph, 38);
+declare_member(BargraphConverter, Ratio, bargraph, 39);
+declare_member(BargraphConverter, Ratio, bargraph, 40);
+declare_member(BargraphConverter, Ratio, bargraph, 41);
+declare_member(BargraphConverter, Ratio, bargraph, 42);
+declare_member(BargraphConverter, Ratio, bargraph, 43);
+declare_member(BargraphConverter, Ratio, bargraph, 44);
+declare_member(BargraphConverter, Ratio, bargraph, 45);
+declare_member(BargraphConverter, Ratio, bargraph, 46);
+declare_member(BargraphConverter, Ratio, bargraph, 47);
+declare_member(BargraphConverter, Ratio, bargraph, 48);
+declare_member(BargraphConverter, Ratio, bargraph, 49);
+declare_member(BargraphConverter, Ratio, bargraph, 50);
+declare_member(BargraphConverter, Ratio, bargraph, 51);
+declare_member(BargraphConverter, Ratio, bargraph, 52);
+declare_member(BargraphConverter, Ratio, bargraph, 53);
+declare_member(BargraphConverter, Ratio, bargraph, 54);
+declare_member(BargraphConverter, Ratio, bargraph, 55);
+declare_member(BargraphConverter, Ratio, bargraph, 56);
+declare_member(BargraphConverter, Ratio, bargraph, 57);
+declare_member(BargraphConverter, Ratio, bargraph, 58);
+declare_member(BargraphConverter, Ratio, bargraph, 59);
+declare_member(BargraphConverter, Ratio, bargraph, 60);
+declare_member(BargraphConverter, Ratio, bargraph, 61);
+declare_member(BargraphConverter, Ratio, bargraph, 62);
+declare_member(BargraphConverter, Ratio, bargraph, 63);
+declare_member(BargraphConverter, Ratio, bargraph, 64);
+declare_member(BargraphConverter, Ratio, bargraph, 65);
+declare_member(BargraphConverter, Ratio, bargraph, 66);
+declare_member(BargraphConverter, Ratio, bargraph, 67);
+declare_member(BargraphConverter, Ratio, bargraph, 68);
+declare_member(BargraphConverter, Ratio, bargraph, 69);
+declare_member(BargraphConverter, Ratio, bargraph, 70);
+declare_member(BargraphConverter, Ratio, bargraph, 71);
+declare_member(BargraphConverter, Ratio, bargraph, 72);
+declare_member(BargraphConverter, Ratio, bargraph, 73);
+declare_member(BargraphConverter, Ratio, bargraph, 74);
+declare_member(BargraphConverter, Ratio, bargraph, 75);
+declare_member(BargraphConverter, Ratio, bargraph, 76);
+declare_member(BargraphConverter, Ratio, bargraph, 77);
+declare_member(BargraphConverter, Ratio, bargraph, 78);
+declare_member(BargraphConverter, Ratio, bargraph, 79);
+declare_member(BargraphConverter, Ratio, bargraph, 80);
+declare_member(BargraphConverter, Ratio, bargraph, 81);
+declare_member(BargraphConverter, Ratio, bargraph, 82);
+declare_member(BargraphConverter, Ratio, bargraph, 83);
+declare_member(BargraphConverter, Ratio, bargraph, 84);
+declare_member(BargraphConverter, Ratio, bargraph, 85);
+declare_member(BargraphConverter, Ratio, bargraph, 86);
+declare_member(BargraphConverter, Ratio, bargraph, 87);
+declare_member(BargraphConverter, Ratio, bargraph, 88);
+declare_member(BargraphConverter, Ratio, bargraph, 89);
+declare_member(BargraphConverter, Ratio, bargraph, 90);
+declare_member(BargraphConverter, Ratio, bargraph, 91);
+declare_member(BargraphConverter, Ratio, bargraph, 92);
+declare_member(BargraphConverter, Ratio, bargraph, 93);
+declare_member(BargraphConverter, Ratio, bargraph, 94);
+declare_member(BargraphConverter, Ratio, bargraph, 95);
+declare_member(BargraphConverter, Ratio, bargraph, 96);
+declare_member(BargraphConverter, Ratio, bargraph, 97);
+declare_member(BargraphConverter, Ratio, bargraph, 98);
+declare_member(BargraphConverter, Ratio, bargraph, 99);
 
-#pragma region define_has_member
-
-define_has_member(0);
-define_has_member(1);
-define_has_member(2);
-define_has_member(3);
-define_has_member(4);
-define_has_member(5);
-define_has_member(6);
-define_has_member(7);
-define_has_member(8);
-define_has_member(9);
-define_has_member(10);
-define_has_member(11);
-define_has_member(12);
-define_has_member(13);
-define_has_member(14);
-define_has_member(15);
-define_has_member(16);
-define_has_member(17);
-define_has_member(18);
-define_has_member(19);
-define_has_member(20);
-define_has_member(21);
-define_has_member(22);
-define_has_member(23);
-define_has_member(24);
-define_has_member(25);
-define_has_member(26);
-define_has_member(27);
-define_has_member(28);
-define_has_member(29);
-define_has_member(30);
-define_has_member(31);
-define_has_member(32);
-define_has_member(33);
-define_has_member(34);
-define_has_member(35);
-define_has_member(36);
-define_has_member(37);
-define_has_member(38);
-define_has_member(39);
-define_has_member(40);
-define_has_member(41);
-define_has_member(42);
-define_has_member(43);
-define_has_member(44);
-define_has_member(45);
-define_has_member(46);
-define_has_member(47);
-define_has_member(48);
-define_has_member(49);
-define_has_member(50);
-define_has_member(51);
-define_has_member(52);
-define_has_member(53);
-define_has_member(54);
-define_has_member(55);
-define_has_member(56);
-define_has_member(57);
-define_has_member(58);
-define_has_member(59);
-define_has_member(60);
-define_has_member(61);
-define_has_member(62);
-define_has_member(63);
-define_has_member(64);
-define_has_member(65);
-define_has_member(66);
-define_has_member(67);
-define_has_member(68);
-define_has_member(69);
-define_has_member(70);
-define_has_member(71);
-define_has_member(72);
-define_has_member(73);
-define_has_member(74);
-define_has_member(75);
-define_has_member(76);
-define_has_member(77);
-define_has_member(78);
-define_has_member(79);
-define_has_member(80);
-define_has_member(81);
-define_has_member(82);
-define_has_member(83);
-define_has_member(84);
-define_has_member(85);
-define_has_member(86);
-define_has_member(87);
-define_has_member(88);
-define_has_member(89);
-define_has_member(90);
-define_has_member(91);
-define_has_member(92);
-define_has_member(93);
-define_has_member(94);
-define_has_member(95);
-define_has_member(96);
-define_has_member(97);
-define_has_member(98);
-define_has_member(99);
+#define bargraph(index) member(BargraphConverter, Ratio, bargraph, index)
 
 #pragma endregion
 

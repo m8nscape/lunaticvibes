@@ -13,16 +13,13 @@ SpriteImageText::SpriteImageText(const SpriteImageTextBuilder& builder) : Sprite
     _margin = builder.margin;
 }
 
-void SpriteImageText::updateTextTexture(std::string&& text)
+void SpriteImageText::updateTextTexture()
 {
     if (text.empty())
     {
         _draw = false;
         return;
     }
-
-    text = text;
-
     /*
     // convert UTF-8 to SHIFT-JIS
     std::u16string sjisText = utf8_to_sjis(text)
@@ -94,12 +91,12 @@ void SpriteImageText::updateTextRect()
     // align
     switch (align)
     {
-    case TEXT_ALIGN_LEFT:
+    case TextAlignType::Left:
         break;
-    case TEXT_ALIGN_CENTER:
+    case TextAlignType::Center:
         for (auto& [c, r] : _drawList) r.x -= text_w / 2;
         break;
-    case TEXT_ALIGN_RIGHT:
+    case TextAlignType::Right:
         for (auto& [c, r] : _drawList) r.x -= text_w;
         break;
     }
@@ -133,9 +130,9 @@ void SpriteImageText::updateTextRect()
 
 bool SpriteImageText::update(const Time& t)
 {
-    if (_draw = updateMotion(t))
+    if (SpriteBase::update(t))
     {
-        updateTextTexture(State::get(textInd));
+        updateTextTexture();
         if (_draw) updateTextRect();
     }
     return _draw;

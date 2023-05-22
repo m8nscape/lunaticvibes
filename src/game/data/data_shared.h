@@ -1,12 +1,24 @@
 #pragma once
+#include "common/types.h"
 
-namespace lunaticvibes::data
+namespace lunaticvibes
 {
 
 constexpr const long long TIMER_NEVER = LLONG_MIN;
+void resetTimers();
+
 
 void loadConfigs();
 
-long long getTimerValue(const std::string& key);
+namespace cfg
+{
+void loadFilterDifficulty();
+void loadFilterKeys();
+}
 
+long long getTimerValue(std::string_view key);
+
+std::pair<bool, LampType> getMaxSaveScoreType();
+
+void createNotification(StringContentView text);
 }

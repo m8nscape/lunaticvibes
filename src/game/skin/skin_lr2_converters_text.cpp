@@ -5,14 +5,12 @@
 #include "game/chart/chart.h"
 #include "game/ruleset/ruleset.h"
 #include "game/ruleset/ruleset_bms.h"
+#include "game/ruleset/ruleset_bms_network.h"
 #include "game/data/data_types.h"
-#include "game/arena/arena_data.h"
 #include "game/runtime/i18n.h"
 
 namespace lunaticvibes
 {
-
-using namespace data;
 
 class TextConverter
 {
@@ -98,51 +96,49 @@ private:
         return "";
     }
 
-    static std::shared_ptr<Struct_LR2Customize::Option> getCustomizeOption(int i)
-    {
-        const auto& d = LR2CustomizeData;
-        if (i >= d.optionsKeyList.size())
-            return nullptr;
+    //static std::shared_ptr<Struct_LR2Customize::Option> getCustomizeOption(int i)
+    //{
+    //    const auto& d = LR2CustomizeData;
+    //    if (i >= d.optionsKeyList.size())
+    //        return nullptr;
 
-        auto& key = d.optionsKeyList[d.topOptionIndex];
-        return d.optionsMap.at(key);
-    }
-    static std::string_view getCustomizeOptionName(int i)
-    {
-        auto p = getCustomizeOption(LR2CustomizeData.topOptionIndex + i);
-        return p ? p->displayName : "";
-    }
-    static std::string_view getCustomizeOptionEntry(int i)
-    {
-        auto p = getCustomizeOption(LR2CustomizeData.topOptionIndex + i);
-        return p ? p->entries[p->selectedEntry] : "";
-    }
+    //    auto& key = d.optionsKeyList[d.topOptionIndex];
+    //    return d.optionsMap.at(key);
+    //}
+    //static std::string_view getCustomizeOptionName(int i)
+    //{
+    //    auto p = getCustomizeOption(LR2CustomizeData.topOptionIndex + i);
+    //    return p ? p->displayName : "";
+    //}
+    //static std::string_view getCustomizeOptionEntry(int i)
+    //{
+    //    auto p = getCustomizeOption(LR2CustomizeData.topOptionIndex + i);
+    //    return p ? p->entries[p->selectedEntry] : "";
+    //}
 
     static std::string_view getCourseStageTitle(int i)
     {
-        if (!PlayData.isCourse) return "";
-        if (PlayData.courseStageData.size() <= i) return "";
+        if (i < 0 || PlayData.courseStageData.size() <= i) return "";
         return PlayData.courseStageData[i].title;
     }
     static std::string_view getCourseStageSubTitle(int i)
     {
-        if (!PlayData.isCourse) return "";
-        if (PlayData.courseStageData.size() <= i) return "";
+        if (i < 0 || PlayData.courseStageData.size() <= i) return "";
         return PlayData.courseStageData[i].subTitle;
     }
 
 private:
 
-    static std::string targetName;
-    static std::string fullTitle;
-    static std::string levelEstimated;
+    inline static std::string targetName;
+    inline static std::string fullTitle;
+    inline static std::string levelEstimated;
 
 public:
     static std::string_view text_0() { return ""; }
 
     static std::string_view text_1()
     {
-        if (PlayData.isBattle)
+        if (PlayData.battleType == PlayModifierBattleType::LocalBattle)
         {
             return "Player";
         }
@@ -182,7 +178,7 @@ public:
         if (p)
         {
             auto chart = getCurrentSelectedChart();
-            return chart ? chart->title : p->_name;
+            return std::string_view(chart ? chart->title : p->_name);
         }
         return "";
     }
@@ -192,7 +188,7 @@ public:
         if (p)
         {
             auto chart = getCurrentSelectedChart();
-            return chart ? chart->title2 : p->_name2;
+            return std::string_view(chart ? chart->title2 : p->_name2);
         }
         return "";
     }
@@ -276,6 +272,8 @@ public:
     EDIT_JUKEBOX_NAME,
     */
 
+    static std::string_view text_30() { return SelectData.jukeboxName; }
+
     static std::string_view text_40() { return KeyConfigData.bindName[KeyConfigData.selecting.first]; };
     static std::string_view text_41() { return "-"; };
     static std::string_view text_42() { return "-"; };
@@ -287,8 +285,8 @@ public:
     static std::string_view text_48() { return "-"; };
     static std::string_view text_49() { return "-"; };
 
-    static std::string_view text_50() { return LR2CustomizeData.currentSkinName; }
-    static std::string_view text_51() { return LR2CustomizeData.currentSkinMakerName; }
+    //static std::string_view text_50() { return LR2CustomizeData.currentSkinName; }
+    //static std::string_view text_51() { return LR2CustomizeData.currentSkinMakerName; }
 
     static std::string_view text_60()
     {
@@ -340,7 +338,7 @@ public:
     static std::string_view text_64()
     {
         PlayModifierRandomType ran = PlayModifierRandomType::NONE;
-        if (PlayData.isBattle)
+        if (PlayData.battleType != PlayModifierBattleType::LocalBattle)
         {
             ran = PlayData.player[PLAYER_SLOT_PLAYER].mods.randomRight;
         }
@@ -371,9 +369,6 @@ public:
 
     static std::string_view text_69()
     {
-        if (!PlayData.isBattle)
-            return "OFF";
-
         switch (PlayData.battleType)
         {
         case PlayModifierBattleType::Off: return "OFF";
@@ -476,6 +471,7 @@ public:
         case GameWindowMode::BORDERLESS: return "BORDERLESS";
         case GameWindowMode::WINDOWED: return "WINDOW";
         }
+        return "UNKNOWN";
     }
 
     static std::string_view text_80()
@@ -508,27 +504,27 @@ public:
         return playModLaneEffect(PlayData.player[PLAYER_SLOT_TARGET].mods.laneEffect);
     }
 
-    static std::string_view text_100() { return getCustomizeOptionName(0); }
-    static std::string_view text_101() { return getCustomizeOptionName(1); }
-    static std::string_view text_102() { return getCustomizeOptionName(2); }
-    static std::string_view text_103() { return getCustomizeOptionName(3); }
-    static std::string_view text_104() { return getCustomizeOptionName(4); }
-    static std::string_view text_105() { return getCustomizeOptionName(5); }
-    static std::string_view text_106() { return getCustomizeOptionName(6); }
-    static std::string_view text_107() { return getCustomizeOptionName(7); }
-    static std::string_view text_108() { return getCustomizeOptionName(8); }
-    static std::string_view text_109() { return getCustomizeOptionName(9); }
+    //static std::string_view text_100() { return getCustomizeOptionName(0); }
+    //static std::string_view text_101() { return getCustomizeOptionName(1); }
+    //static std::string_view text_102() { return getCustomizeOptionName(2); }
+    //static std::string_view text_103() { return getCustomizeOptionName(3); }
+    //static std::string_view text_104() { return getCustomizeOptionName(4); }
+    //static std::string_view text_105() { return getCustomizeOptionName(5); }
+    //static std::string_view text_106() { return getCustomizeOptionName(6); }
+    //static std::string_view text_107() { return getCustomizeOptionName(7); }
+    //static std::string_view text_108() { return getCustomizeOptionName(8); }
+    //static std::string_view text_109() { return getCustomizeOptionName(9); }
 
-    static std::string_view text_110() { return getCustomizeOptionEntry(0); }
-    static std::string_view text_111() { return getCustomizeOptionEntry(1); }
-    static std::string_view text_112() { return getCustomizeOptionEntry(2); }
-    static std::string_view text_113() { return getCustomizeOptionEntry(3); }
-    static std::string_view text_114() { return getCustomizeOptionEntry(4); }
-    static std::string_view text_115() { return getCustomizeOptionEntry(5); }
-    static std::string_view text_116() { return getCustomizeOptionEntry(6); }
-    static std::string_view text_117() { return getCustomizeOptionEntry(7); }
-    static std::string_view text_118() { return getCustomizeOptionEntry(8); }
-    static std::string_view text_119() { return getCustomizeOptionEntry(9); }
+    //static std::string_view text_110() { return getCustomizeOptionEntry(0); }
+    //static std::string_view text_111() { return getCustomizeOptionEntry(1); }
+    //static std::string_view text_112() { return getCustomizeOptionEntry(2); }
+    //static std::string_view text_113() { return getCustomizeOptionEntry(3); }
+    //static std::string_view text_114() { return getCustomizeOptionEntry(4); }
+    //static std::string_view text_115() { return getCustomizeOptionEntry(5); }
+    //static std::string_view text_116() { return getCustomizeOptionEntry(6); }
+    //static std::string_view text_117() { return getCustomizeOptionEntry(7); }
+    //static std::string_view text_118() { return getCustomizeOptionEntry(8); }
+    //static std::string_view text_119() { return getCustomizeOptionEntry(9); }
 
     static std::string_view text_150() { return getCourseStageTitle(0); }
     static std::string_view text_151() { return getCourseStageTitle(1); }
@@ -552,33 +548,33 @@ public:
     static std::string_view text_168() { return getCourseStageSubTitle(8); }
     static std::string_view text_169() { return getCourseStageSubTitle(9); }
 
-    static std::string_view text_260() { return gArenaData.isOnline() ? "ARENA LOBBY" : ""; };
-    static std::string_view text_261() { return gArenaData.getPlayerName(0); };
-    static std::string_view text_262() { return gArenaData.getPlayerName(1); };
-    static std::string_view text_263() { return gArenaData.getPlayerName(2); };
-    static std::string_view text_264() { return gArenaData.getPlayerName(3); };
-    static std::string_view text_265() { return gArenaData.getPlayerName(4); };
-    static std::string_view text_266() { return gArenaData.getPlayerName(5); };
-    static std::string_view text_267() { return gArenaData.getPlayerName(6); };
-    static std::string_view text_268() { return gArenaData.getPlayerName(7); };
+    static std::string_view text_260() { return ArenaData.isOnline() ? "ARENA LOBBY" : ""; };
+    static std::string_view text_261() { return ArenaData.getPlayerName(0); };
+    static std::string_view text_262() { return ArenaData.getPlayerName(1); };
+    static std::string_view text_263() { return ArenaData.getPlayerName(2); };
+    static std::string_view text_264() { return ArenaData.getPlayerName(3); };
+    static std::string_view text_265() { return ArenaData.getPlayerName(4); };
+    static std::string_view text_266() { return ArenaData.getPlayerName(5); };
+    static std::string_view text_267() { return ArenaData.getPlayerName(6); };
+    static std::string_view text_268() { return ArenaData.getPlayerName(7); };
     static std::string_view text_270() { auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset); return r ? r->getModifierText() : ""; };
-    static std::string_view text_271() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(0)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_272() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(1)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_273() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(2)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_274() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(3)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_275() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(4)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_276() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(5)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_277() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(6)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_278() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(7)); return r ? r->getModifierText() : ""; };
+    static std::string_view text_271() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(0)); return r ? r->getModifierText() : ""; };
+    static std::string_view text_272() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(1)); return r ? r->getModifierText() : ""; };
+    static std::string_view text_273() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(2)); return r ? r->getModifierText() : ""; };
+    static std::string_view text_274() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(3)); return r ? r->getModifierText() : ""; };
+    static std::string_view text_275() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(4)); return r ? r->getModifierText() : ""; };
+    static std::string_view text_276() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(5)); return r ? r->getModifierText() : ""; };
+    static std::string_view text_277() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(6)); return r ? r->getModifierText() : ""; };
+    static std::string_view text_278() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(7)); return r ? r->getModifierText() : ""; };
     static std::string_view text_280() { auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_281() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(0)); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_282() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(1)); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_283() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(2)); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_284() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(3)); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_285() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(4)); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_286() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(5)); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_287() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(6)); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_288() { auto r = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(7)); return r ? r->getModifierTextShort() : ""; };
+    static std::string_view text_281() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(0)); return r ? r->getModifierTextShort() : ""; };
+    static std::string_view text_282() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(1)); return r ? r->getModifierTextShort() : ""; };
+    static std::string_view text_283() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(2)); return r ? r->getModifierTextShort() : ""; };
+    static std::string_view text_284() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(3)); return r ? r->getModifierTextShort() : ""; };
+    static std::string_view text_285() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(4)); return r ? r->getModifierTextShort() : ""; };
+    static std::string_view text_286() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(5)); return r ? r->getModifierTextShort() : ""; };
+    static std::string_view text_287() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(6)); return r ? r->getModifierTextShort() : ""; };
+    static std::string_view text_288() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(7)); return r ? r->getModifierTextShort() : ""; };
     static std::string_view text_300() { return i18n::c(i18nText::KEYCONFIG_HINT_KEY); };
     static std::string_view text_301() { return i18n::c(i18nText::KEYCONFIG_HINT_BIND); };
     static std::string_view text_302() { return i18n::c(i18nText::KEYCONFIG_HINT_DEADZONE); };
@@ -871,430 +867,410 @@ public:
 };
 
 
-#define define_has_member(index)                                                            \
-class has_text_##index                                                                      \
-{                                                                                           \
-private:                                                                                    \
-    typedef long yes_type;                                                                  \
-    typedef char no_type;                                                                   \
-    template <typename U> static yes_type test(decltype(&U::text_##index));                 \
-    template <typename U> static no_type  test(...);                                        \
-public:                                                                                     \
-    static constexpr bool has_func = sizeof(test<TextConverter>()) == sizeof(yes_type);     \
-private:                                                                                    \
-    template <typename U, typename = std::enable_if_t<!has_func>>                           \
-    static constexpr std::string_view(*func())() { return &U::text_0; }                     \
-    template <typename U, typename = std::enable_if_t<has_func>>                            \
-    static constexpr std::string_view(*func())() { return &U::text_##index; }               \
-public:                                                                                     \
-    static constexpr std::string_view(*value)() = func<TextConverter>();                    \
-}
+#pragma region declare_member
 
-#define has_text(index)  has_text_##index::has_func
-#define text(index) has_text_##index::value
+declare_member(TextConverter, std::string_view, text, 0);
+declare_member(TextConverter, std::string_view, text, 1);
+declare_member(TextConverter, std::string_view, text, 2);
+declare_member(TextConverter, std::string_view, text, 3);
+declare_member(TextConverter, std::string_view, text, 4);
+declare_member(TextConverter, std::string_view, text, 5);
+declare_member(TextConverter, std::string_view, text, 6);
+declare_member(TextConverter, std::string_view, text, 7);
+declare_member(TextConverter, std::string_view, text, 8);
+declare_member(TextConverter, std::string_view, text, 9);
+declare_member(TextConverter, std::string_view, text, 10);
+declare_member(TextConverter, std::string_view, text, 11);
+declare_member(TextConverter, std::string_view, text, 12);
+declare_member(TextConverter, std::string_view, text, 13);
+declare_member(TextConverter, std::string_view, text, 14);
+declare_member(TextConverter, std::string_view, text, 15);
+declare_member(TextConverter, std::string_view, text, 16);
+declare_member(TextConverter, std::string_view, text, 17);
+declare_member(TextConverter, std::string_view, text, 18);
+declare_member(TextConverter, std::string_view, text, 19);
+declare_member(TextConverter, std::string_view, text, 20);
+declare_member(TextConverter, std::string_view, text, 21);
+declare_member(TextConverter, std::string_view, text, 22);
+declare_member(TextConverter, std::string_view, text, 23);
+declare_member(TextConverter, std::string_view, text, 24);
+declare_member(TextConverter, std::string_view, text, 25);
+declare_member(TextConverter, std::string_view, text, 26);
+declare_member(TextConverter, std::string_view, text, 27);
+declare_member(TextConverter, std::string_view, text, 28);
+declare_member(TextConverter, std::string_view, text, 29);
+declare_member(TextConverter, std::string_view, text, 30);
+declare_member(TextConverter, std::string_view, text, 31);
+declare_member(TextConverter, std::string_view, text, 32);
+declare_member(TextConverter, std::string_view, text, 33);
+declare_member(TextConverter, std::string_view, text, 34);
+declare_member(TextConverter, std::string_view, text, 35);
+declare_member(TextConverter, std::string_view, text, 36);
+declare_member(TextConverter, std::string_view, text, 37);
+declare_member(TextConverter, std::string_view, text, 38);
+declare_member(TextConverter, std::string_view, text, 39);
+declare_member(TextConverter, std::string_view, text, 40);
+declare_member(TextConverter, std::string_view, text, 41);
+declare_member(TextConverter, std::string_view, text, 42);
+declare_member(TextConverter, std::string_view, text, 43);
+declare_member(TextConverter, std::string_view, text, 44);
+declare_member(TextConverter, std::string_view, text, 45);
+declare_member(TextConverter, std::string_view, text, 46);
+declare_member(TextConverter, std::string_view, text, 47);
+declare_member(TextConverter, std::string_view, text, 48);
+declare_member(TextConverter, std::string_view, text, 49);
+declare_member(TextConverter, std::string_view, text, 50);
+declare_member(TextConverter, std::string_view, text, 51);
+declare_member(TextConverter, std::string_view, text, 52);
+declare_member(TextConverter, std::string_view, text, 53);
+declare_member(TextConverter, std::string_view, text, 54);
+declare_member(TextConverter, std::string_view, text, 55);
+declare_member(TextConverter, std::string_view, text, 56);
+declare_member(TextConverter, std::string_view, text, 57);
+declare_member(TextConverter, std::string_view, text, 58);
+declare_member(TextConverter, std::string_view, text, 59);
+declare_member(TextConverter, std::string_view, text, 60);
+declare_member(TextConverter, std::string_view, text, 61);
+declare_member(TextConverter, std::string_view, text, 62);
+declare_member(TextConverter, std::string_view, text, 63);
+declare_member(TextConverter, std::string_view, text, 64);
+declare_member(TextConverter, std::string_view, text, 65);
+declare_member(TextConverter, std::string_view, text, 66);
+declare_member(TextConverter, std::string_view, text, 67);
+declare_member(TextConverter, std::string_view, text, 68);
+declare_member(TextConverter, std::string_view, text, 69);
+declare_member(TextConverter, std::string_view, text, 70);
+declare_member(TextConverter, std::string_view, text, 71);
+declare_member(TextConverter, std::string_view, text, 72);
+declare_member(TextConverter, std::string_view, text, 73);
+declare_member(TextConverter, std::string_view, text, 74);
+declare_member(TextConverter, std::string_view, text, 75);
+declare_member(TextConverter, std::string_view, text, 76);
+declare_member(TextConverter, std::string_view, text, 77);
+declare_member(TextConverter, std::string_view, text, 78);
+declare_member(TextConverter, std::string_view, text, 79);
+declare_member(TextConverter, std::string_view, text, 80);
+declare_member(TextConverter, std::string_view, text, 81);
+declare_member(TextConverter, std::string_view, text, 82);
+declare_member(TextConverter, std::string_view, text, 83);
+declare_member(TextConverter, std::string_view, text, 84);
+declare_member(TextConverter, std::string_view, text, 85);
+declare_member(TextConverter, std::string_view, text, 86);
+declare_member(TextConverter, std::string_view, text, 87);
+declare_member(TextConverter, std::string_view, text, 88);
+declare_member(TextConverter, std::string_view, text, 89);
+declare_member(TextConverter, std::string_view, text, 90);
+declare_member(TextConverter, std::string_view, text, 91);
+declare_member(TextConverter, std::string_view, text, 92);
+declare_member(TextConverter, std::string_view, text, 93);
+declare_member(TextConverter, std::string_view, text, 94);
+declare_member(TextConverter, std::string_view, text, 95);
+declare_member(TextConverter, std::string_view, text, 96);
+declare_member(TextConverter, std::string_view, text, 97);
+declare_member(TextConverter, std::string_view, text, 98);
+declare_member(TextConverter, std::string_view, text, 99);
+declare_member(TextConverter, std::string_view, text, 100);
+declare_member(TextConverter, std::string_view, text, 101);
+declare_member(TextConverter, std::string_view, text, 102);
+declare_member(TextConverter, std::string_view, text, 103);
+declare_member(TextConverter, std::string_view, text, 104);
+declare_member(TextConverter, std::string_view, text, 105);
+declare_member(TextConverter, std::string_view, text, 106);
+declare_member(TextConverter, std::string_view, text, 107);
+declare_member(TextConverter, std::string_view, text, 108);
+declare_member(TextConverter, std::string_view, text, 109);
+declare_member(TextConverter, std::string_view, text, 110);
+declare_member(TextConverter, std::string_view, text, 111);
+declare_member(TextConverter, std::string_view, text, 112);
+declare_member(TextConverter, std::string_view, text, 113);
+declare_member(TextConverter, std::string_view, text, 114);
+declare_member(TextConverter, std::string_view, text, 115);
+declare_member(TextConverter, std::string_view, text, 116);
+declare_member(TextConverter, std::string_view, text, 117);
+declare_member(TextConverter, std::string_view, text, 118);
+declare_member(TextConverter, std::string_view, text, 119);
+declare_member(TextConverter, std::string_view, text, 120);
+declare_member(TextConverter, std::string_view, text, 121);
+declare_member(TextConverter, std::string_view, text, 122);
+declare_member(TextConverter, std::string_view, text, 123);
+declare_member(TextConverter, std::string_view, text, 124);
+declare_member(TextConverter, std::string_view, text, 125);
+declare_member(TextConverter, std::string_view, text, 126);
+declare_member(TextConverter, std::string_view, text, 127);
+declare_member(TextConverter, std::string_view, text, 128);
+declare_member(TextConverter, std::string_view, text, 129);
+declare_member(TextConverter, std::string_view, text, 130);
+declare_member(TextConverter, std::string_view, text, 131);
+declare_member(TextConverter, std::string_view, text, 132);
+declare_member(TextConverter, std::string_view, text, 133);
+declare_member(TextConverter, std::string_view, text, 134);
+declare_member(TextConverter, std::string_view, text, 135);
+declare_member(TextConverter, std::string_view, text, 136);
+declare_member(TextConverter, std::string_view, text, 137);
+declare_member(TextConverter, std::string_view, text, 138);
+declare_member(TextConverter, std::string_view, text, 139);
+declare_member(TextConverter, std::string_view, text, 140);
+declare_member(TextConverter, std::string_view, text, 141);
+declare_member(TextConverter, std::string_view, text, 142);
+declare_member(TextConverter, std::string_view, text, 143);
+declare_member(TextConverter, std::string_view, text, 144);
+declare_member(TextConverter, std::string_view, text, 145);
+declare_member(TextConverter, std::string_view, text, 146);
+declare_member(TextConverter, std::string_view, text, 147);
+declare_member(TextConverter, std::string_view, text, 148);
+declare_member(TextConverter, std::string_view, text, 149);
+declare_member(TextConverter, std::string_view, text, 150);
+declare_member(TextConverter, std::string_view, text, 151);
+declare_member(TextConverter, std::string_view, text, 152);
+declare_member(TextConverter, std::string_view, text, 153);
+declare_member(TextConverter, std::string_view, text, 154);
+declare_member(TextConverter, std::string_view, text, 155);
+declare_member(TextConverter, std::string_view, text, 156);
+declare_member(TextConverter, std::string_view, text, 157);
+declare_member(TextConverter, std::string_view, text, 158);
+declare_member(TextConverter, std::string_view, text, 159);
+declare_member(TextConverter, std::string_view, text, 160);
+declare_member(TextConverter, std::string_view, text, 161);
+declare_member(TextConverter, std::string_view, text, 162);
+declare_member(TextConverter, std::string_view, text, 163);
+declare_member(TextConverter, std::string_view, text, 164);
+declare_member(TextConverter, std::string_view, text, 165);
+declare_member(TextConverter, std::string_view, text, 166);
+declare_member(TextConverter, std::string_view, text, 167);
+declare_member(TextConverter, std::string_view, text, 168);
+declare_member(TextConverter, std::string_view, text, 169);
+declare_member(TextConverter, std::string_view, text, 170);
+declare_member(TextConverter, std::string_view, text, 171);
+declare_member(TextConverter, std::string_view, text, 172);
+declare_member(TextConverter, std::string_view, text, 173);
+declare_member(TextConverter, std::string_view, text, 174);
+declare_member(TextConverter, std::string_view, text, 175);
+declare_member(TextConverter, std::string_view, text, 176);
+declare_member(TextConverter, std::string_view, text, 177);
+declare_member(TextConverter, std::string_view, text, 178);
+declare_member(TextConverter, std::string_view, text, 179);
+declare_member(TextConverter, std::string_view, text, 180);
+declare_member(TextConverter, std::string_view, text, 181);
+declare_member(TextConverter, std::string_view, text, 182);
+declare_member(TextConverter, std::string_view, text, 183);
+declare_member(TextConverter, std::string_view, text, 184);
+declare_member(TextConverter, std::string_view, text, 185);
+declare_member(TextConverter, std::string_view, text, 186);
+declare_member(TextConverter, std::string_view, text, 187);
+declare_member(TextConverter, std::string_view, text, 188);
+declare_member(TextConverter, std::string_view, text, 189);
+declare_member(TextConverter, std::string_view, text, 190);
+declare_member(TextConverter, std::string_view, text, 191);
+declare_member(TextConverter, std::string_view, text, 192);
+declare_member(TextConverter, std::string_view, text, 193);
+declare_member(TextConverter, std::string_view, text, 194);
+declare_member(TextConverter, std::string_view, text, 195);
+declare_member(TextConverter, std::string_view, text, 196);
+declare_member(TextConverter, std::string_view, text, 197);
+declare_member(TextConverter, std::string_view, text, 198);
+declare_member(TextConverter, std::string_view, text, 199);
+declare_member(TextConverter, std::string_view, text, 200);
+declare_member(TextConverter, std::string_view, text, 201);
+declare_member(TextConverter, std::string_view, text, 202);
+declare_member(TextConverter, std::string_view, text, 203);
+declare_member(TextConverter, std::string_view, text, 204);
+declare_member(TextConverter, std::string_view, text, 205);
+declare_member(TextConverter, std::string_view, text, 206);
+declare_member(TextConverter, std::string_view, text, 207);
+declare_member(TextConverter, std::string_view, text, 208);
+declare_member(TextConverter, std::string_view, text, 209);
+declare_member(TextConverter, std::string_view, text, 210);
+declare_member(TextConverter, std::string_view, text, 211);
+declare_member(TextConverter, std::string_view, text, 212);
+declare_member(TextConverter, std::string_view, text, 213);
+declare_member(TextConverter, std::string_view, text, 214);
+declare_member(TextConverter, std::string_view, text, 215);
+declare_member(TextConverter, std::string_view, text, 216);
+declare_member(TextConverter, std::string_view, text, 217);
+declare_member(TextConverter, std::string_view, text, 218);
+declare_member(TextConverter, std::string_view, text, 219);
+declare_member(TextConverter, std::string_view, text, 220);
+declare_member(TextConverter, std::string_view, text, 221);
+declare_member(TextConverter, std::string_view, text, 222);
+declare_member(TextConverter, std::string_view, text, 223);
+declare_member(TextConverter, std::string_view, text, 224);
+declare_member(TextConverter, std::string_view, text, 225);
+declare_member(TextConverter, std::string_view, text, 226);
+declare_member(TextConverter, std::string_view, text, 227);
+declare_member(TextConverter, std::string_view, text, 228);
+declare_member(TextConverter, std::string_view, text, 229);
+declare_member(TextConverter, std::string_view, text, 230);
+declare_member(TextConverter, std::string_view, text, 231);
+declare_member(TextConverter, std::string_view, text, 232);
+declare_member(TextConverter, std::string_view, text, 233);
+declare_member(TextConverter, std::string_view, text, 234);
+declare_member(TextConverter, std::string_view, text, 235);
+declare_member(TextConverter, std::string_view, text, 236);
+declare_member(TextConverter, std::string_view, text, 237);
+declare_member(TextConverter, std::string_view, text, 238);
+declare_member(TextConverter, std::string_view, text, 239);
+declare_member(TextConverter, std::string_view, text, 240);
+declare_member(TextConverter, std::string_view, text, 241);
+declare_member(TextConverter, std::string_view, text, 242);
+declare_member(TextConverter, std::string_view, text, 243);
+declare_member(TextConverter, std::string_view, text, 244);
+declare_member(TextConverter, std::string_view, text, 245);
+declare_member(TextConverter, std::string_view, text, 246);
+declare_member(TextConverter, std::string_view, text, 247);
+declare_member(TextConverter, std::string_view, text, 248);
+declare_member(TextConverter, std::string_view, text, 249);
+declare_member(TextConverter, std::string_view, text, 250);
+declare_member(TextConverter, std::string_view, text, 251);
+declare_member(TextConverter, std::string_view, text, 252);
+declare_member(TextConverter, std::string_view, text, 253);
+declare_member(TextConverter, std::string_view, text, 254);
+declare_member(TextConverter, std::string_view, text, 255);
+declare_member(TextConverter, std::string_view, text, 256);
+declare_member(TextConverter, std::string_view, text, 257);
+declare_member(TextConverter, std::string_view, text, 258);
+declare_member(TextConverter, std::string_view, text, 259);
+declare_member(TextConverter, std::string_view, text, 260);
+declare_member(TextConverter, std::string_view, text, 261);
+declare_member(TextConverter, std::string_view, text, 262);
+declare_member(TextConverter, std::string_view, text, 263);
+declare_member(TextConverter, std::string_view, text, 264);
+declare_member(TextConverter, std::string_view, text, 265);
+declare_member(TextConverter, std::string_view, text, 266);
+declare_member(TextConverter, std::string_view, text, 267);
+declare_member(TextConverter, std::string_view, text, 268);
+declare_member(TextConverter, std::string_view, text, 269);
+declare_member(TextConverter, std::string_view, text, 270);
+declare_member(TextConverter, std::string_view, text, 271);
+declare_member(TextConverter, std::string_view, text, 272);
+declare_member(TextConverter, std::string_view, text, 273);
+declare_member(TextConverter, std::string_view, text, 274);
+declare_member(TextConverter, std::string_view, text, 275);
+declare_member(TextConverter, std::string_view, text, 276);
+declare_member(TextConverter, std::string_view, text, 277);
+declare_member(TextConverter, std::string_view, text, 278);
+declare_member(TextConverter, std::string_view, text, 279);
+declare_member(TextConverter, std::string_view, text, 280);
+declare_member(TextConverter, std::string_view, text, 281);
+declare_member(TextConverter, std::string_view, text, 282);
+declare_member(TextConverter, std::string_view, text, 283);
+declare_member(TextConverter, std::string_view, text, 284);
+declare_member(TextConverter, std::string_view, text, 285);
+declare_member(TextConverter, std::string_view, text, 286);
+declare_member(TextConverter, std::string_view, text, 287);
+declare_member(TextConverter, std::string_view, text, 288);
+declare_member(TextConverter, std::string_view, text, 289);
+declare_member(TextConverter, std::string_view, text, 290);
+declare_member(TextConverter, std::string_view, text, 291);
+declare_member(TextConverter, std::string_view, text, 292);
+declare_member(TextConverter, std::string_view, text, 293);
+declare_member(TextConverter, std::string_view, text, 294);
+declare_member(TextConverter, std::string_view, text, 295);
+declare_member(TextConverter, std::string_view, text, 296);
+declare_member(TextConverter, std::string_view, text, 297);
+declare_member(TextConverter, std::string_view, text, 298);
+declare_member(TextConverter, std::string_view, text, 299);
+declare_member(TextConverter, std::string_view, text, 300);
+declare_member(TextConverter, std::string_view, text, 301);
+declare_member(TextConverter, std::string_view, text, 302);
+declare_member(TextConverter, std::string_view, text, 303);
+declare_member(TextConverter, std::string_view, text, 304);
+declare_member(TextConverter, std::string_view, text, 305);
+declare_member(TextConverter, std::string_view, text, 306);
+declare_member(TextConverter, std::string_view, text, 307);
+declare_member(TextConverter, std::string_view, text, 308);
+declare_member(TextConverter, std::string_view, text, 309);
+declare_member(TextConverter, std::string_view, text, 310);
+declare_member(TextConverter, std::string_view, text, 311);
+declare_member(TextConverter, std::string_view, text, 312);
+declare_member(TextConverter, std::string_view, text, 313);
+declare_member(TextConverter, std::string_view, text, 314);
+declare_member(TextConverter, std::string_view, text, 315);
+declare_member(TextConverter, std::string_view, text, 316);
+declare_member(TextConverter, std::string_view, text, 317);
+declare_member(TextConverter, std::string_view, text, 318);
+declare_member(TextConverter, std::string_view, text, 319);
+declare_member(TextConverter, std::string_view, text, 320);
+declare_member(TextConverter, std::string_view, text, 321);
+declare_member(TextConverter, std::string_view, text, 322);
+declare_member(TextConverter, std::string_view, text, 323);
+declare_member(TextConverter, std::string_view, text, 324);
+declare_member(TextConverter, std::string_view, text, 325);
+declare_member(TextConverter, std::string_view, text, 326);
+declare_member(TextConverter, std::string_view, text, 327);
+declare_member(TextConverter, std::string_view, text, 328);
+declare_member(TextConverter, std::string_view, text, 329);
+declare_member(TextConverter, std::string_view, text, 330);
+declare_member(TextConverter, std::string_view, text, 331);
+declare_member(TextConverter, std::string_view, text, 332);
+declare_member(TextConverter, std::string_view, text, 333);
+declare_member(TextConverter, std::string_view, text, 334);
+declare_member(TextConverter, std::string_view, text, 335);
+declare_member(TextConverter, std::string_view, text, 336);
+declare_member(TextConverter, std::string_view, text, 337);
+declare_member(TextConverter, std::string_view, text, 338);
+declare_member(TextConverter, std::string_view, text, 339);
+declare_member(TextConverter, std::string_view, text, 340);
+declare_member(TextConverter, std::string_view, text, 341);
+declare_member(TextConverter, std::string_view, text, 342);
+declare_member(TextConverter, std::string_view, text, 343);
+declare_member(TextConverter, std::string_view, text, 344);
+declare_member(TextConverter, std::string_view, text, 345);
+declare_member(TextConverter, std::string_view, text, 346);
+declare_member(TextConverter, std::string_view, text, 347);
+declare_member(TextConverter, std::string_view, text, 348);
+declare_member(TextConverter, std::string_view, text, 349);
+declare_member(TextConverter, std::string_view, text, 350);
+declare_member(TextConverter, std::string_view, text, 351);
+declare_member(TextConverter, std::string_view, text, 352);
+declare_member(TextConverter, std::string_view, text, 353);
+declare_member(TextConverter, std::string_view, text, 354);
+declare_member(TextConverter, std::string_view, text, 355);
+declare_member(TextConverter, std::string_view, text, 356);
+declare_member(TextConverter, std::string_view, text, 357);
+declare_member(TextConverter, std::string_view, text, 358);
+declare_member(TextConverter, std::string_view, text, 359);
+declare_member(TextConverter, std::string_view, text, 360);
+declare_member(TextConverter, std::string_view, text, 361);
+declare_member(TextConverter, std::string_view, text, 362);
+declare_member(TextConverter, std::string_view, text, 363);
+declare_member(TextConverter, std::string_view, text, 364);
+declare_member(TextConverter, std::string_view, text, 365);
+declare_member(TextConverter, std::string_view, text, 366);
+declare_member(TextConverter, std::string_view, text, 367);
+declare_member(TextConverter, std::string_view, text, 368);
+declare_member(TextConverter, std::string_view, text, 369);
+declare_member(TextConverter, std::string_view, text, 370);
+declare_member(TextConverter, std::string_view, text, 371);
+declare_member(TextConverter, std::string_view, text, 372);
+declare_member(TextConverter, std::string_view, text, 373);
+declare_member(TextConverter, std::string_view, text, 374);
+declare_member(TextConverter, std::string_view, text, 375);
+declare_member(TextConverter, std::string_view, text, 376);
+declare_member(TextConverter, std::string_view, text, 377);
+declare_member(TextConverter, std::string_view, text, 378);
+declare_member(TextConverter, std::string_view, text, 379);
+declare_member(TextConverter, std::string_view, text, 380);
+declare_member(TextConverter, std::string_view, text, 381);
+declare_member(TextConverter, std::string_view, text, 382);
+declare_member(TextConverter, std::string_view, text, 383);
+declare_member(TextConverter, std::string_view, text, 384);
+declare_member(TextConverter, std::string_view, text, 385);
+declare_member(TextConverter, std::string_view, text, 386);
+declare_member(TextConverter, std::string_view, text, 387);
+declare_member(TextConverter, std::string_view, text, 388);
+declare_member(TextConverter, std::string_view, text, 389);
+declare_member(TextConverter, std::string_view, text, 390);
+declare_member(TextConverter, std::string_view, text, 391);
+declare_member(TextConverter, std::string_view, text, 392);
+declare_member(TextConverter, std::string_view, text, 393);
+declare_member(TextConverter, std::string_view, text, 394);
+declare_member(TextConverter, std::string_view, text, 395);
+declare_member(TextConverter, std::string_view, text, 396);
+declare_member(TextConverter, std::string_view, text, 397);
+declare_member(TextConverter, std::string_view, text, 398);
+declare_member(TextConverter, std::string_view, text, 399);
 
-#pragma region define_has_member
-
-define_has_member(0);
-define_has_member(1);
-define_has_member(2);
-define_has_member(3);
-define_has_member(4);
-define_has_member(5);
-define_has_member(6);
-define_has_member(7);
-define_has_member(8);
-define_has_member(9);
-define_has_member(10);
-define_has_member(11);
-define_has_member(12);
-define_has_member(13);
-define_has_member(14);
-define_has_member(15);
-define_has_member(16);
-define_has_member(17);
-define_has_member(18);
-define_has_member(19);
-define_has_member(20);
-define_has_member(21);
-define_has_member(22);
-define_has_member(23);
-define_has_member(24);
-define_has_member(25);
-define_has_member(26);
-define_has_member(27);
-define_has_member(28);
-define_has_member(29);
-define_has_member(30);
-define_has_member(31);
-define_has_member(32);
-define_has_member(33);
-define_has_member(34);
-define_has_member(35);
-define_has_member(36);
-define_has_member(37);
-define_has_member(38);
-define_has_member(39);
-define_has_member(40);
-define_has_member(41);
-define_has_member(42);
-define_has_member(43);
-define_has_member(44);
-define_has_member(45);
-define_has_member(46);
-define_has_member(47);
-define_has_member(48);
-define_has_member(49);
-define_has_member(50);
-define_has_member(51);
-define_has_member(52);
-define_has_member(53);
-define_has_member(54);
-define_has_member(55);
-define_has_member(56);
-define_has_member(57);
-define_has_member(58);
-define_has_member(59);
-define_has_member(60);
-define_has_member(61);
-define_has_member(62);
-define_has_member(63);
-define_has_member(64);
-define_has_member(65);
-define_has_member(66);
-define_has_member(67);
-define_has_member(68);
-define_has_member(69);
-define_has_member(70);
-define_has_member(71);
-define_has_member(72);
-define_has_member(73);
-define_has_member(74);
-define_has_member(75);
-define_has_member(76);
-define_has_member(77);
-define_has_member(78);
-define_has_member(79);
-define_has_member(80);
-define_has_member(81);
-define_has_member(82);
-define_has_member(83);
-define_has_member(84);
-define_has_member(85);
-define_has_member(86);
-define_has_member(87);
-define_has_member(88);
-define_has_member(89);
-define_has_member(90);
-define_has_member(91);
-define_has_member(92);
-define_has_member(93);
-define_has_member(94);
-define_has_member(95);
-define_has_member(96);
-define_has_member(97);
-define_has_member(98);
-define_has_member(99);
-define_has_member(100);
-define_has_member(101);
-define_has_member(102);
-define_has_member(103);
-define_has_member(104);
-define_has_member(105);
-define_has_member(106);
-define_has_member(107);
-define_has_member(108);
-define_has_member(109);
-define_has_member(110);
-define_has_member(111);
-define_has_member(112);
-define_has_member(113);
-define_has_member(114);
-define_has_member(115);
-define_has_member(116);
-define_has_member(117);
-define_has_member(118);
-define_has_member(119);
-define_has_member(120);
-define_has_member(121);
-define_has_member(122);
-define_has_member(123);
-define_has_member(124);
-define_has_member(125);
-define_has_member(126);
-define_has_member(127);
-define_has_member(128);
-define_has_member(129);
-define_has_member(130);
-define_has_member(131);
-define_has_member(132);
-define_has_member(133);
-define_has_member(134);
-define_has_member(135);
-define_has_member(136);
-define_has_member(137);
-define_has_member(138);
-define_has_member(139);
-define_has_member(140);
-define_has_member(141);
-define_has_member(142);
-define_has_member(143);
-define_has_member(144);
-define_has_member(145);
-define_has_member(146);
-define_has_member(147);
-define_has_member(148);
-define_has_member(149);
-define_has_member(150);
-define_has_member(151);
-define_has_member(152);
-define_has_member(153);
-define_has_member(154);
-define_has_member(155);
-define_has_member(156);
-define_has_member(157);
-define_has_member(158);
-define_has_member(159);
-define_has_member(160);
-define_has_member(161);
-define_has_member(162);
-define_has_member(163);
-define_has_member(164);
-define_has_member(165);
-define_has_member(166);
-define_has_member(167);
-define_has_member(168);
-define_has_member(169);
-define_has_member(170);
-define_has_member(171);
-define_has_member(172);
-define_has_member(173);
-define_has_member(174);
-define_has_member(175);
-define_has_member(176);
-define_has_member(177);
-define_has_member(178);
-define_has_member(179);
-define_has_member(180);
-define_has_member(181);
-define_has_member(182);
-define_has_member(183);
-define_has_member(184);
-define_has_member(185);
-define_has_member(186);
-define_has_member(187);
-define_has_member(188);
-define_has_member(189);
-define_has_member(190);
-define_has_member(191);
-define_has_member(192);
-define_has_member(193);
-define_has_member(194);
-define_has_member(195);
-define_has_member(196);
-define_has_member(197);
-define_has_member(198);
-define_has_member(199);
-define_has_member(200);
-define_has_member(201);
-define_has_member(202);
-define_has_member(203);
-define_has_member(204);
-define_has_member(205);
-define_has_member(206);
-define_has_member(207);
-define_has_member(208);
-define_has_member(209);
-define_has_member(210);
-define_has_member(211);
-define_has_member(212);
-define_has_member(213);
-define_has_member(214);
-define_has_member(215);
-define_has_member(216);
-define_has_member(217);
-define_has_member(218);
-define_has_member(219);
-define_has_member(220);
-define_has_member(221);
-define_has_member(222);
-define_has_member(223);
-define_has_member(224);
-define_has_member(225);
-define_has_member(226);
-define_has_member(227);
-define_has_member(228);
-define_has_member(229);
-define_has_member(230);
-define_has_member(231);
-define_has_member(232);
-define_has_member(233);
-define_has_member(234);
-define_has_member(235);
-define_has_member(236);
-define_has_member(237);
-define_has_member(238);
-define_has_member(239);
-define_has_member(240);
-define_has_member(241);
-define_has_member(242);
-define_has_member(243);
-define_has_member(244);
-define_has_member(245);
-define_has_member(246);
-define_has_member(247);
-define_has_member(248);
-define_has_member(249);
-define_has_member(250);
-define_has_member(251);
-define_has_member(252);
-define_has_member(253);
-define_has_member(254);
-define_has_member(255);
-define_has_member(256);
-define_has_member(257);
-define_has_member(258);
-define_has_member(259);
-define_has_member(260);
-define_has_member(261);
-define_has_member(262);
-define_has_member(263);
-define_has_member(264);
-define_has_member(265);
-define_has_member(266);
-define_has_member(267);
-define_has_member(268);
-define_has_member(269);
-define_has_member(270);
-define_has_member(271);
-define_has_member(272);
-define_has_member(273);
-define_has_member(274);
-define_has_member(275);
-define_has_member(276);
-define_has_member(277);
-define_has_member(278);
-define_has_member(279);
-define_has_member(280);
-define_has_member(281);
-define_has_member(282);
-define_has_member(283);
-define_has_member(284);
-define_has_member(285);
-define_has_member(286);
-define_has_member(287);
-define_has_member(288);
-define_has_member(289);
-define_has_member(290);
-define_has_member(291);
-define_has_member(292);
-define_has_member(293);
-define_has_member(294);
-define_has_member(295);
-define_has_member(296);
-define_has_member(297);
-define_has_member(298);
-define_has_member(299);
-define_has_member(300);
-define_has_member(301);
-define_has_member(302);
-define_has_member(303);
-define_has_member(304);
-define_has_member(305);
-define_has_member(306);
-define_has_member(307);
-define_has_member(308);
-define_has_member(309);
-define_has_member(310);
-define_has_member(311);
-define_has_member(312);
-define_has_member(313);
-define_has_member(314);
-define_has_member(315);
-define_has_member(316);
-define_has_member(317);
-define_has_member(318);
-define_has_member(319);
-define_has_member(320);
-define_has_member(321);
-define_has_member(322);
-define_has_member(323);
-define_has_member(324);
-define_has_member(325);
-define_has_member(326);
-define_has_member(327);
-define_has_member(328);
-define_has_member(329);
-define_has_member(330);
-define_has_member(331);
-define_has_member(332);
-define_has_member(333);
-define_has_member(334);
-define_has_member(335);
-define_has_member(336);
-define_has_member(337);
-define_has_member(338);
-define_has_member(339);
-define_has_member(340);
-define_has_member(341);
-define_has_member(342);
-define_has_member(343);
-define_has_member(344);
-define_has_member(345);
-define_has_member(346);
-define_has_member(347);
-define_has_member(348);
-define_has_member(349);
-define_has_member(350);
-define_has_member(351);
-define_has_member(352);
-define_has_member(353);
-define_has_member(354);
-define_has_member(355);
-define_has_member(356);
-define_has_member(357);
-define_has_member(358);
-define_has_member(359);
-define_has_member(360);
-define_has_member(361);
-define_has_member(362);
-define_has_member(363);
-define_has_member(364);
-define_has_member(365);
-define_has_member(366);
-define_has_member(367);
-define_has_member(368);
-define_has_member(369);
-define_has_member(370);
-define_has_member(371);
-define_has_member(372);
-define_has_member(373);
-define_has_member(374);
-define_has_member(375);
-define_has_member(376);
-define_has_member(377);
-define_has_member(378);
-define_has_member(379);
-define_has_member(380);
-define_has_member(381);
-define_has_member(382);
-define_has_member(383);
-define_has_member(384);
-define_has_member(385);
-define_has_member(386);
-define_has_member(387);
-define_has_member(388);
-define_has_member(389);
-define_has_member(390);
-define_has_member(391);
-define_has_member(392);
-define_has_member(393);
-define_has_member(394);
-define_has_member(395);
-define_has_member(396);
-define_has_member(397);
-define_has_member(398);
-define_has_member(399);
+#define text(index) member(TextConverter, std::string_view, text, index)
 
 #pragma endregion
 

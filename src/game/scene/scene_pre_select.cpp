@@ -1,13 +1,15 @@
 #include "common/pch.h"
 #include "scene_pre_select.h"
 #include "config/config_mgr.h"
-#include "scene_context.h"
 #include "common/coursefile/lr2crs.h"
 #include "common/entry/entry_table.h"
 #include "common/entry/entry_course.h"
 #include "common/entry/entry_arena.h"
 #include "imgui.h"
 #include "game/runtime/i18n.h"
+#include "game/data/data_types.h"
+#include "db/db_song.h"
+#include "db/db_score.h"
 #include "git_version.h"
 
 namespace lunaticvibes
@@ -44,9 +46,9 @@ ScenePreSelect::ScenePreSelect() : SceneBase(SkinType::PRE_SELECT, 240)
         if (!fs::exists(dbPath)) fs::create_directories(dbPath);
         g_pSongDB = std::make_shared<SongDB>(dbPath / "song.db");
 
-        std::unique_lock l(gSelectContext._mutex);
-        gSelectContext.entries.clear();
-        gSelectContext.backtrace.clear();
+        std::unique_lock l(SelectData._mutex);
+        SelectData.entries.clear();
+        SelectData.backtrace.clear();
 
         textHint = i18n::s(i18nText::INITIALIZING);
     }
@@ -65,7 +67,7 @@ void ScenePreSelect::_updateAsync()
 {
     if (SystemData.gNextScene != SceneType::PRE_SELECT && SystemData.gNextScene != SceneType::SELECT) return;
 
-    if (gAppIsExiting)
+    if (SystemData.isAppExiting)
     {
         SystemData.gNextScene = SceneType::EXIT_TRANS;
         g_pSongDB->stopLoading();
@@ -142,7 +144,7 @@ void ScenePreSelect::updateLoadSongs()
             // NEW SONG
             LOG_INFO << "[List] Generating NEW SONG folder...";
             auto newSongList = g_pSongDB->findChartFromTime(ROOT_FOLDER_HASH,
-                std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() - State::get(IndexNumber::NEW_ENTRY_SECONDS));
+                std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() - SelectData.newEntrySeconds);
             if (!newSongList.empty())
             {
                 size_t index = 0;
@@ -219,8 +221,8 @@ void ScenePreSelect::updateLoadTables()
                 LOG_INFO << "[List] Add table " << tableUrl;
                 textHint2 = tableUrl;
 
-                gSelectContext.tables.emplace_back();
-                DifficultyTableBMS& t = gSelectContext.tables.back();
+                SelectData.tables.emplace_back();
+                DifficultyTableBMS& t = SelectData.tables.back();
                 t.setUrl(tableUrl);
 
                 auto convertTable = [&](DifficultyTableBMS& t)
@@ -368,7 +370,7 @@ void ScenePreSelect::updateLoadCourses()
                 std::string folderTitle2 = i18n::s(i18nText::COURSE_SUBTITLE);
                 switch (type)
                 {
-                case EntryCourse::CourseType::GRADE:
+                case EntryCourse::CourseType::CLASS:
                     folderTitle = i18n::s(i18nText::CLASS_TITLE);
                     folderTitle2 = i18n::s(i18nText::CLASS_SUBTITLE);
                     break;
@@ -400,14 +402,14 @@ void ScenePreSelect::loadFinished()
 {
     if (!loadingFinished)
     {
-        while (!gSelectContext.backtrace.empty())
-            gSelectContext.backtrace.pop_front();
-        gSelectContext.backtrace.push_front(rootFolderProp);
+        while (!SelectData.backtrace.empty())
+            SelectData.backtrace.pop_front();
+        SelectData.backtrace.push_front(rootFolderProp);
 
         if (rootFolderProp.dbBrowseEntries.empty())
         {
-            State::set(IndexText::PLAY_TITLE, i18n::s(i18nText::BMS_NOT_FOUND));
-            State::set(IndexText::PLAY_ARTIST, i18n::s(i18nText::BMS_NOT_FOUND_HINT));
+            createNotification(i18n::s(i18nText::BMS_NOT_FOUND));
+            createNotification(i18n::s(i18nText::BMS_NOT_FOUND_HINT));
         }
         if (SystemData.gNextScene == SceneType::PRE_SELECT)
         {
@@ -442,8 +444,6 @@ void ScenePreSelect::loadFinished()
 
 void ScenePreSelect::updateImgui()
 {
-    if (gInCustomize) return;
-
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(ConfigMgr::get('V', cfg::V_DISPLAY_RES_X, CANVAS_WIDTH), ConfigMgr::get('V', cfg::V_DISPLAY_RES_Y, CANVAS_HEIGHT)), ImGuiCond_Always);
     if (ImGui::Begin("LoadSong", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoCollapse))

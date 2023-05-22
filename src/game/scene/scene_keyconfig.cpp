@@ -1,9 +1,9 @@
 #include "common/pch.h"
 #include "scene_keyconfig.h"
-#include "scene_context.h"
 #include "config/config_mgr.h"
 #include "game/sound/sound_mgr.h"
 #include "game/runtime/i18n.h"
+#include "game/data/data_types.h"
 
 namespace lunaticvibes
 {
@@ -11,100 +11,42 @@ namespace lunaticvibes
 SceneKeyConfig::SceneKeyConfig() : SceneBase(SkinType::KEY_CONFIG, 240)
 {
     _type = SceneType::KEYCONFIG;
-    gKeyconfigContext.skinHasAbsAxis = pSkin->isSupportKeyConfigAbsAxis;
+    KeyConfigData.skinHasAbsAxis = pSkin->isSupportKeyConfigAbsAxis;
 
     InputMgr::updateDevices();
 
     _updateCallback = std::bind(&SceneKeyConfig::updateStart, this);
 
-    State::set(IndexSwitch::K11_CONFIG, false);
-    State::set(IndexSwitch::K12_CONFIG, false);
-    State::set(IndexSwitch::K13_CONFIG, false);
-    State::set(IndexSwitch::K14_CONFIG, false);
-    State::set(IndexSwitch::K15_CONFIG, false);
-    State::set(IndexSwitch::K16_CONFIG, false);
-    State::set(IndexSwitch::K17_CONFIG, false);
-    State::set(IndexSwitch::K18_CONFIG, false);
-    State::set(IndexSwitch::K19_CONFIG, false);
-    State::set(IndexSwitch::S1L_CONFIG, false);
-    State::set(IndexSwitch::S1R_CONFIG, false);
-    State::set(IndexSwitch::S1A_CONFIG, false);
-    State::set(IndexSwitch::K1START_CONFIG, false);
-    State::set(IndexSwitch::K1SELECT_CONFIG, false);
-    State::set(IndexSwitch::K1SPDUP_CONFIG, false);
-    State::set(IndexSwitch::K1SPDDN_CONFIG, false);
-    State::set(IndexSwitch::K21_CONFIG, false);
-    State::set(IndexSwitch::K22_CONFIG, false);
-    State::set(IndexSwitch::K23_CONFIG, false);
-    State::set(IndexSwitch::K24_CONFIG, false);
-    State::set(IndexSwitch::K25_CONFIG, false);
-    State::set(IndexSwitch::K26_CONFIG, false);
-    State::set(IndexSwitch::K27_CONFIG, false);
-    State::set(IndexSwitch::K28_CONFIG, false);
-    State::set(IndexSwitch::K29_CONFIG, false);
-    State::set(IndexSwitch::S2L_CONFIG, false);
-    State::set(IndexSwitch::S2R_CONFIG, false);
-    State::set(IndexSwitch::S2A_CONFIG, false);
-    State::set(IndexSwitch::K2START_CONFIG, false);
-    State::set(IndexSwitch::K2SELECT_CONFIG, false);
-    State::set(IndexSwitch::K2SPDUP_CONFIG, false);
-    State::set(IndexSwitch::K2SPDDN_CONFIG, false);
-    State::set(IndexSwitch::KEY_CONFIG_SLOT0, false);
-    State::set(IndexSwitch::KEY_CONFIG_SLOT1, false);
-    State::set(IndexSwitch::KEY_CONFIG_SLOT2, false);
-    State::set(IndexSwitch::KEY_CONFIG_SLOT3, false);
-    State::set(IndexSwitch::KEY_CONFIG_SLOT4, false);
-    State::set(IndexSwitch::KEY_CONFIG_SLOT5, false);
-    State::set(IndexSwitch::KEY_CONFIG_SLOT6, false);
-    State::set(IndexSwitch::KEY_CONFIG_SLOT7, false);
-    State::set(IndexSwitch::KEY_CONFIG_SLOT8, false);
-    State::set(IndexSwitch::KEY_CONFIG_SLOT9, false);
+    KeyConfigData.selecting = { Input::Pad::K11, 0 };
+    KeyConfigData.currentMode = 7;
+    setInputBindingText(KeyConfigData.currentMode, KeyConfigData.selecting.first);
 
-    gKeyconfigContext.selecting = { Input::Pad::K11, 0 };
-    gKeyconfigContext.keys = 7;
-    State::set(IndexSwitch::K11_CONFIG, true);
-    State::set(IndexSwitch::KEY_CONFIG_SLOT0, true);
-    State::set(IndexOption::KEY_CONFIG_MODE, Option::KEYCFG_7);
-    State::set(IndexOption::KEY_CONFIG_KEY5, 1);
-    State::set(IndexOption::KEY_CONFIG_KEY7, 1);
-    State::set(IndexOption::KEY_CONFIG_KEY9, 1);
-    setInputBindingText(gKeyconfigContext.keys, gKeyconfigContext.selecting.first);
-
-    State::set(IndexText::KEYCONFIG_HINT_KEY, i18n::s(i18nText::KEYCONFIG_HINT_KEY));
-    State::set(IndexText::KEYCONFIG_HINT_BIND, i18n::s(i18nText::KEYCONFIG_HINT_BIND));
-    State::set(IndexText::KEYCONFIG_HINT_DEADZONE, i18n::s(i18nText::KEYCONFIG_HINT_DEADZONE));
-    State::set(IndexText::KEYCONFIG_HINT_F1, i18n::s(i18nText::KEYCONFIG_HINT_F1));
-    State::set(IndexText::KEYCONFIG_HINT_F2, i18n::s(i18nText::KEYCONFIG_HINT_F2));
-    State::set(IndexText::KEYCONFIG_HINT_DEL, i18n::s(i18nText::KEYCONFIG_HINT_DEL));
-    State::set(IndexText::KEYCONFIG_HINT_SCRATCH_ABS, i18n::s(i18nText::KEYCONFIG_HINT_SCRATCH_ABS));
-    State::set(IndexText::KEYCONFIG_1P_1, "1P 1");
-    State::set(IndexText::KEYCONFIG_1P_2, "1P 2");
-    State::set(IndexText::KEYCONFIG_1P_3, "1P 3");
-    State::set(IndexText::KEYCONFIG_1P_4, "1P 4");
-    State::set(IndexText::KEYCONFIG_1P_5, "1P 5");
-    State::set(IndexText::KEYCONFIG_1P_6, "1P 6");
-    State::set(IndexText::KEYCONFIG_1P_7, "1P 7");
-    State::set(IndexText::KEYCONFIG_1P_8, "1P 8");
-    State::set(IndexText::KEYCONFIG_1P_9, "1P 9");
-    State::set(IndexText::KEYCONFIG_1P_START, "1P START");
-    State::set(IndexText::KEYCONFIG_1P_SELECT, "1P SELECT");
-    State::set(IndexText::KEYCONFIG_1P_SCRATCH_L, "1P SC-L");
-    State::set(IndexText::KEYCONFIG_1P_SCRATCH_R, "1P SC-R");
-    State::set(IndexText::KEYCONFIG_1P_SCRATCH_ABS, "1P SC ABS");
-    State::set(IndexText::KEYCONFIG_2P_1, "2P 1");
-    State::set(IndexText::KEYCONFIG_2P_2, "2P 2");
-    State::set(IndexText::KEYCONFIG_2P_3, "2P 3");
-    State::set(IndexText::KEYCONFIG_2P_4, "2P 4");
-    State::set(IndexText::KEYCONFIG_2P_5, "2P 5");
-    State::set(IndexText::KEYCONFIG_2P_6, "2P 6");
-    State::set(IndexText::KEYCONFIG_2P_7, "2P 7");
-    State::set(IndexText::KEYCONFIG_2P_8, "2P 8");
-    State::set(IndexText::KEYCONFIG_2P_9, "2P 9");
-    State::set(IndexText::KEYCONFIG_2P_START, "2P START");
-    State::set(IndexText::KEYCONFIG_2P_SELECT, "2P SELECT");
-    State::set(IndexText::KEYCONFIG_2P_SCRATCH_L, "2P SC-L");
-    State::set(IndexText::KEYCONFIG_2P_SCRATCH_R, "2P SC-R");
-    State::set(IndexText::KEYCONFIG_2P_SCRATCH_ABS, "2P SC ABS");
+    KeyConfigData.force[Input::Pad::S1L] = 0.0;
+    KeyConfigData.force[Input::Pad::S1R] = 0.0;
+    KeyConfigData.force[Input::Pad::K1START] = 0.0;
+    KeyConfigData.force[Input::Pad::K1SELECT] = 0.0;
+    KeyConfigData.force[Input::Pad::S2L] = 0.0;
+    KeyConfigData.force[Input::Pad::S2R] = 0.0;
+    KeyConfigData.force[Input::Pad::K2START] = 0.0;
+    KeyConfigData.force[Input::Pad::K2SELECT] = 0.0;
+    KeyConfigData.force[Input::Pad::K11] = 0.0;
+    KeyConfigData.force[Input::Pad::K12] = 0.0;
+    KeyConfigData.force[Input::Pad::K13] = 0.0;
+    KeyConfigData.force[Input::Pad::K14] = 0.0;
+    KeyConfigData.force[Input::Pad::K15] = 0.0;
+    KeyConfigData.force[Input::Pad::K16] = 0.0;
+    KeyConfigData.force[Input::Pad::K17] = 0.0;
+    KeyConfigData.force[Input::Pad::K18] = 0.0;
+    KeyConfigData.force[Input::Pad::K19] = 0.0;
+    KeyConfigData.force[Input::Pad::K21] = 0.0;
+    KeyConfigData.force[Input::Pad::K22] = 0.0;
+    KeyConfigData.force[Input::Pad::K23] = 0.0;
+    KeyConfigData.force[Input::Pad::K24] = 0.0;
+    KeyConfigData.force[Input::Pad::K25] = 0.0;
+    KeyConfigData.force[Input::Pad::K26] = 0.0;
+    KeyConfigData.force[Input::Pad::K27] = 0.0;
+    KeyConfigData.force[Input::Pad::K28] = 0.0;
+    KeyConfigData.force[Input::Pad::K29] = 0.0;
 
     updateInfo(KeyMap(), 0);
 
@@ -121,7 +63,7 @@ void SceneKeyConfig::_updateAsync()
 {
     if (SystemData.gNextScene != SceneType::KEYCONFIG) return;
 
-    if (gAppIsExiting)
+    if (SystemData.isAppExiting)
     {
         SystemData.gNextScene = SceneType::EXIT_TRANS;
     }
@@ -130,24 +72,24 @@ void SceneKeyConfig::_updateAsync()
 
     updateForceBargraphs();
 
-    if (gKeyconfigContext.modeChanged)
+    if (KeyConfigData.modeChanged)
     {
-        gKeyconfigContext.modeChanged = false;
+        KeyConfigData.modeChanged = false;
         updateInfo(KeyMap(), 0);
     }
 
-    State::set(IndexNumber::_ANGLE_TT_1P, int(playerTurntableAngleAdd[0]) % 360);
-    State::set(IndexNumber::_ANGLE_TT_2P, int(playerTurntableAngleAdd[1]) % 360);
-    State::set(IndexNumber::SCRATCH_AXIS_1P_ANGLE, (360 + int(playerTurntableAngleAdd[0]) % 360) % 360 / 360.0 * 256);
-    State::set(IndexNumber::SCRATCH_AXIS_2P_ANGLE, (360 + int(playerTurntableAngleAdd[1]) % 360) % 360 / 360.0 * 256);
-    State::set(IndexText::KEYCONFIG_1P_SCRATCH_ABS_VALUE, std::to_string(State::get(IndexNumber::SCRATCH_AXIS_1P_ANGLE)));
-    State::set(IndexText::KEYCONFIG_2P_SCRATCH_ABS_VALUE, std::to_string(State::get(IndexNumber::SCRATCH_AXIS_2P_ANGLE)));
+    SystemData.scratchAxisValue[0] = int(playerTurntableAngleAdd[0]) % 360;
+    SystemData.scratchAxisValue[1] = int(playerTurntableAngleAdd[1]) % 360;
+    PlayData.scratchAxis[0] = playerTurntableAngleAdd[0];
+    PlayData.scratchAxis[1] = playerTurntableAngleAdd[1];
+    KeyConfigData.scratchAxisValueText[0] = std::to_string(int((360 + int(PlayData.scratchAxis[0]) % 360) % 360 / 360.0 * 256));
+    KeyConfigData.scratchAxisValueText[1] = std::to_string(int((360 + int(PlayData.scratchAxis[1]) % 360) % 360 / 360.0 * 256));
 }
 
 void SceneKeyConfig::updateStart()
 {
     Time t;
-    Time rt = t - State::get(IndexTimer::SCENE_START);
+    Time rt = t - SystemData.timers["scene_start"];
     if (rt.norm() > pSkin->info.timeIntro)
     {
         _updateCallback = std::bind(&SceneKeyConfig::updateMain, this);
@@ -166,7 +108,7 @@ void SceneKeyConfig::updateMain()
     Time t;
     if (exiting)
     {
-        State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
+        SystemData.timers["fadeout"] = t.norm();
         _updateCallback = std::bind(&SceneKeyConfig::updateFadeout, this);
         using namespace std::placeholders;
         _input.unregister_p("SCENE_PRESS");
@@ -181,11 +123,11 @@ void SceneKeyConfig::updateMain()
 void SceneKeyConfig::updateFadeout()
 {
     Time t;
-    Time rt = t - State::get(IndexTimer::FADEOUT_BEGIN);
+    Time rt = t - SystemData.timers["fadeout"];
 
     if (rt.norm() > pSkin->info.timeOutro)
     {
-        ConfigMgr::Input(gKeyconfigContext.keys)->save();   // this is kinda important
+        ConfigMgr::Input(KeyConfigData.currentMode)->save();   // this is kinda important
         SystemData.gNextScene = SceneType::SELECT;
     }
 }
@@ -204,9 +146,8 @@ void SceneKeyConfig::inputGamePress(InputMask& m, const Time& t)
     {
         if (m[i])
         {
-            State::set(InputGamePressMap[i].tm, t.norm());
-            State::set(InputGameReleaseMap[i].tm, TIMER_NEVER);
-            State::set(InputGamePressMap[i].sw, true);
+            PlayData.timers[InputGamePressMap.at(Input::Pad(i))] = t.norm();
+            PlayData.timers[InputGameReleaseMap.at(Input::Pad(i))] = TIMER_NEVER;
         }
     }
 }
@@ -220,41 +161,11 @@ void SceneKeyConfig::inputGameAxis(double S1, double S2, const Time& t)
     playerTurntableAngleAdd[PLAYER_SLOT_TARGET] += S2 * 2.0 * 360;
 }
 
-static const std::map<Input::Pad, IndexBargraph> forceBargraphMap =
-{
-    { Input::Pad::S1L,      IndexBargraph::FORCE_S1L },
-    { Input::Pad::S1R,      IndexBargraph::FORCE_S1R },
-    { Input::Pad::K1START,  IndexBargraph::FORCE_K1Start },
-    { Input::Pad::K1SELECT, IndexBargraph::FORCE_K1Select },
-    { Input::Pad::S2L,      IndexBargraph::FORCE_S2L },
-    { Input::Pad::S2R,      IndexBargraph::FORCE_S2R },
-    { Input::Pad::K2START,  IndexBargraph::FORCE_K2Start },
-    { Input::Pad::K2SELECT, IndexBargraph::FORCE_K2Select },
-    { Input::Pad::K11,      IndexBargraph::FORCE_K11 },
-    { Input::Pad::K12,      IndexBargraph::FORCE_K12 },
-    { Input::Pad::K13,      IndexBargraph::FORCE_K13 },
-    { Input::Pad::K14,      IndexBargraph::FORCE_K14 },
-    { Input::Pad::K15,      IndexBargraph::FORCE_K15 },
-    { Input::Pad::K16,      IndexBargraph::FORCE_K16 },
-    { Input::Pad::K17,      IndexBargraph::FORCE_K17 },
-    { Input::Pad::K18,      IndexBargraph::FORCE_K18 },
-    { Input::Pad::K19,      IndexBargraph::FORCE_K19 },
-    { Input::Pad::K21,      IndexBargraph::FORCE_K21 },
-    { Input::Pad::K22,      IndexBargraph::FORCE_K22 },
-    { Input::Pad::K23,      IndexBargraph::FORCE_K23 },
-    { Input::Pad::K24,      IndexBargraph::FORCE_K24 },
-    { Input::Pad::K25,      IndexBargraph::FORCE_K25 },
-    { Input::Pad::K26,      IndexBargraph::FORCE_K26 },
-    { Input::Pad::K27,      IndexBargraph::FORCE_K27 },
-    { Input::Pad::K28,      IndexBargraph::FORCE_K28 },
-    { Input::Pad::K29,      IndexBargraph::FORCE_K29 },
-};
-
 void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
 {
     // update bindings
-    auto [pad, slot] = gKeyconfigContext.selecting;
-    GameModeKeys keys = gKeyconfigContext.keys;
+    auto [pad, slot] = KeyConfigData.selecting;
+    GameModeKeys keys = KeyConfigData.currentMode;
 
     if (pad != Input::Pad::INVALID)
     {
@@ -325,11 +236,11 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
 void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, const Time& t)
 {
     // update bindings
-    auto [pad, slot] = gKeyconfigContext.selecting;
+    auto [pad, slot] = KeyConfigData.selecting;
     if (pad == Input::Pad::S1A || pad == Input::Pad::S2A)
         return;
 
-    GameModeKeys keys = gKeyconfigContext.keys;
+    GameModeKeys keys = KeyConfigData.currentMode;
 
     if (pad != Input::Pad::INVALID)
     {
@@ -440,13 +351,13 @@ void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, c
 
 void SceneKeyConfig::inputGameAbsoluteAxis(JoystickAxis& axis, size_t device, const Time&)
 {
-    auto [pad, slot] = gKeyconfigContext.selecting;
+    auto [pad, slot] = KeyConfigData.selecting;
     if (pad != Input::Pad::S1A && pad != Input::Pad::S2A)
         return;
 
     std::unique_lock l(_mutex);
 
-    GameModeKeys keys = gKeyconfigContext.keys;
+    GameModeKeys keys = KeyConfigData.currentMode;
 
     for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
     {
@@ -473,18 +384,14 @@ void SceneKeyConfig::inputGameAbsoluteAxis(JoystickAxis& axis, size_t device, co
 void SceneKeyConfig::setInputBindingText(GameModeKeys keys, Input::Pad pad)
 {
     auto bindings = ConfigMgr::Input(keys)->getBindings(pad);
-    State::set(IndexText::KEYCONFIG_SLOT1, bindings.toString());
-    for (size_t i = 1; i < 10; ++i)
-    {
-        State::set(IndexText(unsigned(IndexText::KEYCONFIG_SLOT1) + i), "-");
-    }
+    KeyConfigData.bindName[pad] = bindings.toString();
 }
 
 void SceneKeyConfig::updateForceBargraphs()
 {
     std::shared_lock l(_mutex);
 
-    GameModeKeys keys = gKeyconfigContext.keys;
+    GameModeKeys keys = KeyConfigData.currentMode;
     const auto input = ConfigMgr::Input(keys);
     Time t;
 
@@ -492,7 +399,7 @@ void SceneKeyConfig::updateForceBargraphs()
     for (Input::Keyboard k = Input::Keyboard::K_1; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
     {
         const auto input = ConfigMgr::Input(keys);
-        for (const auto& [p, bar] : forceBargraphMap)
+        for (auto& [p, bar] : KeyConfigData.force)
         {
             const auto binding = input->getBindings(p);
             if (binding.getType() == KeyMap::DeviceType::KEYBOARD && binding.getKeyboard() == k)
@@ -500,7 +407,7 @@ void SceneKeyConfig::updateForceBargraphs()
                 if (isKeyPressed(k))
                 {
                     forceBargraphTriggerTimestamp[p] = t.norm();
-                    State::set(bar, 1.0);
+                    bar = 1.0;
                 }
             }
         }
@@ -510,7 +417,7 @@ void SceneKeyConfig::updateForceBargraphs()
 
     for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_BUTTON_COUNT; ++index)
     {
-        for (const auto& [p, bar] : forceBargraphMap)
+        for (auto& [p, bar] : KeyConfigData.force)
         {
             const auto binding = input->getBindings(p);
             if (binding.getType() == KeyMap::DeviceType::JOYSTICK &&
@@ -520,7 +427,7 @@ void SceneKeyConfig::updateForceBargraphs()
                 if (isButtonPressed(binding.getJoystick(), 0.0))
                 {
                     forceBargraphTriggerTimestamp[p] = t.norm();
-                    State::set(bar, 1.0);
+                    bar = 1.0;
                 }
             }
         }
@@ -529,7 +436,7 @@ void SceneKeyConfig::updateForceBargraphs()
 
     for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_POV_COUNT; ++index)
     {
-        for (const auto& [p, bar] : forceBargraphMap)
+        for (auto& [p, bar] : KeyConfigData.force)
         {
             const auto binding = input->getBindings(p);
             if (binding.getType() == KeyMap::DeviceType::JOYSTICK &&
@@ -539,7 +446,7 @@ void SceneKeyConfig::updateForceBargraphs()
                 if (isButtonPressed(binding.getJoystick(), 0.0))
                 {
                     forceBargraphTriggerTimestamp[p] = t.norm();
-                    State::set(bar, 1.0);
+                    bar = 1.0;
                 }
             }
         }
@@ -548,7 +455,7 @@ void SceneKeyConfig::updateForceBargraphs()
 
     for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
     {
-        for (const auto& [p, bar] : forceBargraphMap)
+        for (auto& [p, bar] : KeyConfigData.force)
         {
             const auto binding = input->getBindings(p);
             if (binding.getType() == KeyMap::DeviceType::JOYSTICK &&
@@ -559,7 +466,7 @@ void SceneKeyConfig::updateForceBargraphs()
                 if (axis > 0.01 && axis <= 1.0)
                 {
                     forceBargraphTriggerTimestamp[p] = t.norm();
-                    State::set(bar, axis);
+                    bar = axis;
                 }
             }
         }
@@ -568,7 +475,7 @@ void SceneKeyConfig::updateForceBargraphs()
 
     for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
     {
-        for (const auto& [p, bar] : forceBargraphMap)
+        for (auto& [p, bar] : KeyConfigData.force)
         {
             const auto binding = input->getBindings(p);
             if (binding.getType() == KeyMap::DeviceType::JOYSTICK &&
@@ -579,19 +486,19 @@ void SceneKeyConfig::updateForceBargraphs()
                 if (axis > 0.01 && axis <= 1.0)
                 {
                     forceBargraphTriggerTimestamp[p] = t.norm();
-                    State::set(bar, axis);
+                    bar = axis;
                 }
             }
         }
     }
 
-    for (auto& [pad, bar] : forceBargraphMap)
+    for (auto& [pad, bar] : KeyConfigData.force)
     {
         if (forceBargraphTriggerTimestamp.find(pad) != forceBargraphTriggerTimestamp.end() &&
             forceBargraphTriggerTimestamp[pad] != 0 &&
             t - forceBargraphTriggerTimestamp[pad] > 200)  // 1s timeout
         {
-            State::set(bar, 0.0);
+            bar = 0.0;
         }
     }
 }
@@ -600,62 +507,39 @@ void SceneKeyConfig::updateInfo(KeyMap k, int slot)
 {
     slot = 0;
 
-    // update text
-    switch (slot)
-    {
-    case 0: State::set(IndexText::KEYCONFIG_SLOT1, k.toString()); break;
-    case 1: State::set(IndexText::KEYCONFIG_SLOT2, k.toString()); break;
-    case 2: State::set(IndexText::KEYCONFIG_SLOT3, k.toString()); break;
-    case 3: State::set(IndexText::KEYCONFIG_SLOT4, k.toString()); break;
-    case 4: State::set(IndexText::KEYCONFIG_SLOT5, k.toString()); break;
-    case 5: State::set(IndexText::KEYCONFIG_SLOT6, k.toString()); break;
-    case 6: State::set(IndexText::KEYCONFIG_SLOT7, k.toString()); break;
-    case 7: State::set(IndexText::KEYCONFIG_SLOT8, k.toString()); break;
-    case 8: State::set(IndexText::KEYCONFIG_SLOT9, k.toString()); break;
-    case 9: State::set(IndexText::KEYCONFIG_SLOT10, k.toString()); break;
-    default: break;
-    }
-
     // update sliders
-    int keys = 0;
-    switch (State::get(IndexOption::KEY_CONFIG_MODE))
-    {
-    case Option::KEYCFG_5: keys = 5; break;
-    case Option::KEYCFG_7: keys = 7; break;
-    case Option::KEYCFG_9: keys = 9; break;
-    default: return;
-    }
-    if (keys != 0)
+    if (KeyConfigData.currentMode != 0)
     {
         using namespace cfg;
-        State::set(IndexSlider::DEADZONE_S1L, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S1L, 0.2));
-        State::set(IndexSlider::DEADZONE_S1R, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S1R, 0.2));
-        State::set(IndexSlider::DEADZONE_K1Start, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K1Start, 0.2));
-        State::set(IndexSlider::DEADZONE_K1Select, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K1Select, 0.2));
-        State::set(IndexSlider::DEADZONE_K11, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K11, 0.2));
-        State::set(IndexSlider::DEADZONE_K12, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K12, 0.2));
-        State::set(IndexSlider::DEADZONE_K13, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K13, 0.2));
-        State::set(IndexSlider::DEADZONE_K14, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K14, 0.2));
-        State::set(IndexSlider::DEADZONE_K15, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K15, 0.2));
-        State::set(IndexSlider::DEADZONE_K16, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K16, 0.2));
-        State::set(IndexSlider::DEADZONE_K17, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K17, 0.2));
-        State::set(IndexSlider::DEADZONE_K18, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K18, 0.2));
-        State::set(IndexSlider::DEADZONE_K19, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K19, 0.2));
-        State::set(IndexSlider::DEADZONE_S2L, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S2L, 0.2));
-        State::set(IndexSlider::DEADZONE_S2R, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S2R, 0.2));
-        State::set(IndexSlider::DEADZONE_K2Start, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K2Start, 0.2));
-        State::set(IndexSlider::DEADZONE_K2Select, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K2Select, 0.2));
-        State::set(IndexSlider::DEADZONE_K21, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K21, 0.2));
-        State::set(IndexSlider::DEADZONE_K22, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K22, 0.2));
-        State::set(IndexSlider::DEADZONE_K23, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K23, 0.2));
-        State::set(IndexSlider::DEADZONE_K24, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K24, 0.2));
-        State::set(IndexSlider::DEADZONE_K25, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K25, 0.2));
-        State::set(IndexSlider::DEADZONE_K26, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K26, 0.2));
-        State::set(IndexSlider::DEADZONE_K27, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K27, 0.2));
-        State::set(IndexSlider::DEADZONE_K28, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K28, 0.2));
-        State::set(IndexSlider::DEADZONE_K29, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K29, 0.2));
-        State::set(IndexSlider::SPEED_S1A, ConfigMgr::Input(keys)->get(I_INPUT_SPEED_S1A, 0.5));
-        State::set(IndexSlider::SPEED_S2A, ConfigMgr::Input(keys)->get(I_INPUT_SPEED_S2A, 0.5));
+        int keys = KeyConfigData.currentMode;
+        KeyConfigData.deadzone[Input::Pad::S1L] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S1L, 0.2);
+        KeyConfigData.deadzone[Input::Pad::S1R] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S1R, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K1START] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K1Start, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K1SELECT] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K1Select, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K11] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K11, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K12] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K12, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K13] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K13, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K14] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K14, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K15] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K15, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K16] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K16, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K17] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K17, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K18] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K18, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K19] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K19, 0.2);
+        KeyConfigData.deadzone[Input::Pad::S2L] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S2L, 0.2);
+        KeyConfigData.deadzone[Input::Pad::S2R] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S2R, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K2START] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K2Start, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K2SELECT] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K2Select, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K21] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K21, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K22] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K22, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K23] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K23, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K24] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K24, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K25] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K25, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K26] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K26, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K27] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K27, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K28] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K28, 0.2);
+        KeyConfigData.deadzone[Input::Pad::K29] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K29, 0.2);
+        KeyConfigData.scratchAxisSpeed[0] = ConfigMgr::Input(keys)->get(I_INPUT_SPEED_S1A, 0.5);
+        KeyConfigData.scratchAxisSpeed[1] = ConfigMgr::Input(keys)->get(I_INPUT_SPEED_S2A, 0.5);
     }
 
     updateAllText();
@@ -663,39 +547,39 @@ void SceneKeyConfig::updateInfo(KeyMap k, int slot)
 
 void SceneKeyConfig::updateAllText()
 {
-    auto [pad, slot] = gKeyconfigContext.selecting;
-    GameModeKeys keys = gKeyconfigContext.keys;
+    auto [pad, slot] = KeyConfigData.selecting;
+    GameModeKeys keys = KeyConfigData.currentMode;
 
     const auto input = ConfigMgr::Input(keys);
 
-    State::set(IndexText::KEYCONFIG_1P_BIND_1, input->getBindings(Input::Pad::K11).toString());
-    State::set(IndexText::KEYCONFIG_1P_BIND_2, input->getBindings(Input::Pad::K12).toString());
-    State::set(IndexText::KEYCONFIG_1P_BIND_3, input->getBindings(Input::Pad::K13).toString());
-    State::set(IndexText::KEYCONFIG_1P_BIND_4, input->getBindings(Input::Pad::K14).toString());
-    State::set(IndexText::KEYCONFIG_1P_BIND_5, input->getBindings(Input::Pad::K15).toString());
-    State::set(IndexText::KEYCONFIG_1P_BIND_6, input->getBindings(Input::Pad::K16).toString());
-    State::set(IndexText::KEYCONFIG_1P_BIND_7, input->getBindings(Input::Pad::K17).toString());
-    State::set(IndexText::KEYCONFIG_1P_BIND_8, input->getBindings(Input::Pad::K18).toString());
-    State::set(IndexText::KEYCONFIG_1P_BIND_9, input->getBindings(Input::Pad::K19).toString());
-    State::set(IndexText::KEYCONFIG_1P_BIND_SCRATCH_L, input->getBindings(Input::Pad::S1L).toString());
-    State::set(IndexText::KEYCONFIG_1P_BIND_SCRATCH_R, input->getBindings(Input::Pad::S1R).toString());
-    State::set(IndexText::KEYCONFIG_1P_BIND_START, input->getBindings(Input::Pad::K1START).toString());
-    State::set(IndexText::KEYCONFIG_1P_BIND_SELECT, input->getBindings(Input::Pad::K1SELECT).toString());
-    State::set(IndexText::KEYCONFIG_1P_BIND_SCRATCH_ABS, input->getBindings(Input::Pad::S1A).toString());
-    State::set(IndexText::KEYCONFIG_2P_BIND_1, input->getBindings(Input::Pad::K21).toString());
-    State::set(IndexText::KEYCONFIG_2P_BIND_2, input->getBindings(Input::Pad::K22).toString());
-    State::set(IndexText::KEYCONFIG_2P_BIND_3, input->getBindings(Input::Pad::K23).toString());
-    State::set(IndexText::KEYCONFIG_2P_BIND_4, input->getBindings(Input::Pad::K24).toString());
-    State::set(IndexText::KEYCONFIG_2P_BIND_5, input->getBindings(Input::Pad::K25).toString());
-    State::set(IndexText::KEYCONFIG_2P_BIND_6, input->getBindings(Input::Pad::K26).toString());
-    State::set(IndexText::KEYCONFIG_2P_BIND_7, input->getBindings(Input::Pad::K27).toString());
-    State::set(IndexText::KEYCONFIG_2P_BIND_8, input->getBindings(Input::Pad::K28).toString());
-    State::set(IndexText::KEYCONFIG_2P_BIND_9, input->getBindings(Input::Pad::K29).toString());
-    State::set(IndexText::KEYCONFIG_2P_BIND_SCRATCH_L, input->getBindings(Input::Pad::S2L).toString());
-    State::set(IndexText::KEYCONFIG_2P_BIND_SCRATCH_R, input->getBindings(Input::Pad::S2R).toString());
-    State::set(IndexText::KEYCONFIG_2P_BIND_START, input->getBindings(Input::Pad::K2START).toString());
-    State::set(IndexText::KEYCONFIG_2P_BIND_SELECT, input->getBindings(Input::Pad::K2SELECT).toString());
-    State::set(IndexText::KEYCONFIG_2P_BIND_SCRATCH_ABS, input->getBindings(Input::Pad::S2A).toString());
+    KeyConfigData.bindName[Input::Pad::K11] = input->getBindings(Input::Pad::K11).toString();
+    KeyConfigData.bindName[Input::Pad::K12] = input->getBindings(Input::Pad::K12).toString();
+    KeyConfigData.bindName[Input::Pad::K13] = input->getBindings(Input::Pad::K13).toString();
+    KeyConfigData.bindName[Input::Pad::K14] = input->getBindings(Input::Pad::K14).toString();
+    KeyConfigData.bindName[Input::Pad::K15] = input->getBindings(Input::Pad::K15).toString();
+    KeyConfigData.bindName[Input::Pad::K16] = input->getBindings(Input::Pad::K16).toString();
+    KeyConfigData.bindName[Input::Pad::K17] = input->getBindings(Input::Pad::K17).toString();
+    KeyConfigData.bindName[Input::Pad::K18] = input->getBindings(Input::Pad::K18).toString();
+    KeyConfigData.bindName[Input::Pad::K19] = input->getBindings(Input::Pad::K19).toString();
+    KeyConfigData.bindName[Input::Pad::S1L] = input->getBindings(Input::Pad::S1L).toString();
+    KeyConfigData.bindName[Input::Pad::S1R] = input->getBindings(Input::Pad::S1R).toString();
+    KeyConfigData.bindName[Input::Pad::K1START] = input->getBindings(Input::Pad::K1START).toString();
+    KeyConfigData.bindName[Input::Pad::K1SELECT] = input->getBindings(Input::Pad::K1SELECT).toString();
+    KeyConfigData.bindName[Input::Pad::S1A] = input->getBindings(Input::Pad::S1A).toString();
+    KeyConfigData.bindName[Input::Pad::K21] = input->getBindings(Input::Pad::K21).toString();
+    KeyConfigData.bindName[Input::Pad::K22] = input->getBindings(Input::Pad::K22).toString();
+    KeyConfigData.bindName[Input::Pad::K23] = input->getBindings(Input::Pad::K23).toString();
+    KeyConfigData.bindName[Input::Pad::K24] = input->getBindings(Input::Pad::K24).toString();
+    KeyConfigData.bindName[Input::Pad::K25] = input->getBindings(Input::Pad::K25).toString();
+    KeyConfigData.bindName[Input::Pad::K26] = input->getBindings(Input::Pad::K26).toString();
+    KeyConfigData.bindName[Input::Pad::K27] = input->getBindings(Input::Pad::K27).toString();
+    KeyConfigData.bindName[Input::Pad::K28] = input->getBindings(Input::Pad::K28).toString();
+    KeyConfigData.bindName[Input::Pad::K29] = input->getBindings(Input::Pad::K29).toString();
+    KeyConfigData.bindName[Input::Pad::S2L] = input->getBindings(Input::Pad::S2L).toString();
+    KeyConfigData.bindName[Input::Pad::S2R] = input->getBindings(Input::Pad::S2R).toString();
+    KeyConfigData.bindName[Input::Pad::K2START] = input->getBindings(Input::Pad::K2START).toString();
+    KeyConfigData.bindName[Input::Pad::K2SELECT] = input->getBindings(Input::Pad::K2SELECT).toString();
+    KeyConfigData.bindName[Input::Pad::S2A] = input->getBindings(Input::Pad::S2A).toString();
 }
 
 }

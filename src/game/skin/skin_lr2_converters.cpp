@@ -6,7 +6,6 @@
 #include "game/ruleset/ruleset.h"
 #include "game/ruleset/ruleset_bms.h"
 #include "game/data/data_types.h"
-#include "game/arena/arena_data.h"
 
 namespace lunaticvibes
 {
@@ -18,141 +17,141 @@ const char* timer(int n)
 {
     static const std::map<int, const char*> timers =
     {
-        { 0, "system.scene" }, // ƒƒCƒ“ƒ^ƒCƒ}[
-        { 1, "system.start_input" }, // “ü—ÍŠJnƒ^ƒCƒ}[
-        { 2, "system.fadeout" }, // ƒtƒF[ƒhƒAƒEƒgƒ^ƒCƒ}[
-        { 3, "play.fail" }, // •Â“Xƒ^ƒCƒ}[
-        { 4, "select.input_end" }, // •¶š“ü—ÍI—¹ƒ^ƒCƒ}[
-        { 10, "select.list_move" }, // ‹ÈƒŠƒXƒgˆÚ“®ƒ^ƒCƒ}[
-        { 11, "select.list_entry_change" }, // ‹È•ÏXƒ^ƒCƒ}[
-        // 12 ‹ÈƒŠƒXƒgãˆÚ“®ƒ^ƒCƒ}[ (–¢)
-        // 13 ‹ÈƒŠƒXƒg‰ºˆÚ“®ƒ^ƒCƒ}[ (–¢)
-        // 14 ‹ÈƒŠƒXƒg’â~ƒ^ƒCƒ}[ (–¢)
-        { 15, "select.readme_open" }, // ƒŠ[ƒhƒ~[ŠJnƒ^ƒCƒ}[
-        { 16, "select.readme_close" }, // ƒŠ[ƒhƒ~[I—¹ƒ^ƒCƒ}[
-        // 17 ƒR[ƒXƒZƒŒƒNƒgŠJnƒ^ƒCƒ}[
-        // 18 ƒR[ƒXƒZƒŒƒNƒgI—¹ƒ^ƒCƒ}[
-        { 21, "select.panel1_start" }, // ƒpƒlƒ‹1‹N“®
-        { 22, "select.panel2_start" }, // ƒpƒlƒ‹2‹N“®
-        { 23, "select.panel3_start" }, // ƒpƒlƒ‹3‹N“®
-        { 24, "select.panel4_start" }, // ƒpƒlƒ‹4‹N“®
-        { 25, "select.panel5_start" }, // ƒpƒlƒ‹5‹N“®
-        { 26, "select.panel6_start" }, // ƒpƒlƒ‹6‹N“®
-        { 27, "select.panel7_start" }, // ƒpƒlƒ‹7‹N“®
-        { 28, "select.panel8_start" }, // ƒpƒlƒ‹8‹N“®
-        { 29, "select.panel9_start" }, // ƒpƒlƒ‹9‹N“®
-        { 31, "select.panel1_end" }, // ƒpƒlƒ‹1I—¹
-        { 32, "select.panel2_end" }, // ƒpƒlƒ‹2I—¹
-        { 33, "select.panel3_end" }, // ƒpƒlƒ‹3I—¹
-        { 34, "select.panel4_end" }, // ƒpƒlƒ‹4I—¹
-        { 35, "select.panel5_end" }, // ƒpƒlƒ‹5I—¹
-        { 36, "select.panel6_end" }, // ƒpƒlƒ‹6I—¹
-        { 37, "select.panel7_end" }, // ƒpƒlƒ‹7I—¹
-        { 38, "select.panel8_end" }, // ƒpƒlƒ‹8I—¹
-        { 39, "select.panel9_end" }, // ƒpƒlƒ‹9I—¹
+        { 0, "system.scene" }, // ãƒ¡ã‚¤ãƒ³ã‚¿ã‚¤ãƒãƒ¼
+        { 1, "system.start_input" }, // å…¥åŠ›é–‹å§‹ã‚¿ã‚¤ãƒãƒ¼
+        { 2, "system.fadeout" }, // ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¢ã‚¦ãƒˆã‚¿ã‚¤ãƒãƒ¼
+        { 3, "play.fail" }, // é–‰åº—ã‚¿ã‚¤ãƒãƒ¼
+        { 4, "select.input_end" }, // æ–‡å­—å…¥åŠ›çµ‚äº†ã‚¿ã‚¤ãƒãƒ¼
+        { 10, "select.list_move" }, // æ›²ãƒªã‚¹ãƒˆç§»å‹•ã‚¿ã‚¤ãƒãƒ¼
+        { 11, "select.list_entry_change" }, // æ›²å¤‰æ›´ã‚¿ã‚¤ãƒãƒ¼
+        // 12 æ›²ãƒªã‚¹ãƒˆä¸Šç§»å‹•ã‚¿ã‚¤ãƒãƒ¼ (æœª)
+        // 13 æ›²ãƒªã‚¹ãƒˆä¸‹ç§»å‹•ã‚¿ã‚¤ãƒãƒ¼ (æœª)
+        // 14 æ›²ãƒªã‚¹ãƒˆåœæ­¢ã‚¿ã‚¤ãƒãƒ¼ (æœª)
+        { 15, "select.readme_open" }, // ãƒªãƒ¼ãƒ‰ãƒŸãƒ¼é–‹å§‹ã‚¿ã‚¤ãƒãƒ¼
+        { 16, "select.readme_close" }, // ãƒªãƒ¼ãƒ‰ãƒŸãƒ¼çµ‚äº†ã‚¿ã‚¤ãƒãƒ¼
+        // 17 ã‚³ãƒ¼ã‚¹ã‚»ãƒ¬ã‚¯ãƒˆé–‹å§‹ã‚¿ã‚¤ãƒãƒ¼
+        // 18 ã‚³ãƒ¼ã‚¹ã‚»ãƒ¬ã‚¯ãƒˆçµ‚äº†ã‚¿ã‚¤ãƒãƒ¼
+        { 21, "select.panel1_start" }, // ãƒ‘ãƒãƒ«1èµ·å‹•
+        { 22, "select.panel2_start" }, // ãƒ‘ãƒãƒ«2èµ·å‹•
+        { 23, "select.panel3_start" }, // ãƒ‘ãƒãƒ«3èµ·å‹•
+        { 24, "select.panel4_start" }, // ãƒ‘ãƒãƒ«4èµ·å‹•
+        { 25, "select.panel5_start" }, // ãƒ‘ãƒãƒ«5èµ·å‹•
+        { 26, "select.panel6_start" }, // ãƒ‘ãƒãƒ«6èµ·å‹•
+        { 27, "select.panel7_start" }, // ãƒ‘ãƒãƒ«7èµ·å‹•
+        { 28, "select.panel8_start" }, // ãƒ‘ãƒãƒ«8èµ·å‹•
+        { 29, "select.panel9_start" }, // ãƒ‘ãƒãƒ«9èµ·å‹•
+        { 31, "select.panel1_end" }, // ãƒ‘ãƒãƒ«1çµ‚äº†
+        { 32, "select.panel2_end" }, // ãƒ‘ãƒãƒ«2çµ‚äº†
+        { 33, "select.panel3_end" }, // ãƒ‘ãƒãƒ«3çµ‚äº†
+        { 34, "select.panel4_end" }, // ãƒ‘ãƒãƒ«4çµ‚äº†
+        { 35, "select.panel5_end" }, // ãƒ‘ãƒãƒ«5çµ‚äº†
+        { 36, "select.panel6_end" }, // ãƒ‘ãƒãƒ«6çµ‚äº†
+        { 37, "select.panel7_end" }, // ãƒ‘ãƒãƒ«7çµ‚äº†
+        { 38, "select.panel8_end" }, // ãƒ‘ãƒãƒ«8çµ‚äº†
+        { 39, "select.panel9_end" }, // ãƒ‘ãƒãƒ«9çµ‚äº†
         { 40, "play.ready" }, // READY
-        { 41, "play.play_start" }, // ƒvƒŒƒCŠJn
-        { 42, "play.gauge_up_1p" }, // ƒQ[ƒWã¸ƒ^ƒCƒ}[ 1P
-        { 43, "play.gauge_up_2p" }, // ƒQ[ƒWã¸ƒ^ƒCƒ}[ 2P
-        { 44, "play.gauge_max_1p" }, // ƒQ[ƒWƒ}ƒbƒNƒXƒ^ƒCƒ}[ 1P
-        { 45, "play.gauge_max_2p" }, // ƒQ[ƒWƒ}ƒbƒNƒXƒ^ƒCƒ}[ 2P
-        { 46, "play.judge_1p" }, // ƒWƒƒƒbƒWƒ^ƒCƒ}[ 1P
-        { 47, "play.judge_2p" }, // ƒWƒƒƒbƒWƒ^ƒCƒ}[ 2P
-        { 48, "play.fullcombo_1p" }, // ƒtƒ‹ƒRƒ“ƒ^ƒCƒ}[ 1P
-        { 49, "play.fullcombo_2p" }, // ƒtƒ‹ƒRƒ“ƒ^ƒCƒ}[ 2P
-        { 50, "play.bomb_s_1p" }, // 1Pƒ{ƒ€ƒ^ƒCƒ}[ M
-        { 51, "play.bomb_1_1p" }, // 1Pƒ{ƒ€ƒ^ƒCƒ}[ 1Œ®
-        { 52, "play.bomb_2_1p" }, // 1Pƒ{ƒ€ƒ^ƒCƒ}[ 2Œ®
-        { 53, "play.bomb_3_1p" }, // 1Pƒ{ƒ€ƒ^ƒCƒ}[ 3Œ®
-        { 54, "play.bomb_4_1p" }, // 1Pƒ{ƒ€ƒ^ƒCƒ}[ 4Œ®
-        { 55, "play.bomb_5_1p" }, // 1Pƒ{ƒ€ƒ^ƒCƒ}[ 5Œ®
-        { 56, "play.bomb_6_1p" }, // 1Pƒ{ƒ€ƒ^ƒCƒ}[ 6Œ®
-        { 57, "play.bomb_7_1p" }, // 1Pƒ{ƒ€ƒ^ƒCƒ}[ 7Œ®
-        { 58, "play.bomb_8_1p" }, // 1Pƒ{ƒ€ƒ^ƒCƒ}[ 8Œ®
-        { 59, "play.bomb_9_1p" }, // 1Pƒ{ƒ€ƒ^ƒCƒ}[ 9Œ®
-        { 60, "play.bomb_s_2p" }, // 2pƒ{ƒ€ƒ^ƒCƒ}[ M
-        { 61, "play.bomb_1_2p" }, // 2pƒ{ƒ€ƒ^ƒCƒ}[ 1Œ®
-        { 62, "play.bomb_2_2p" }, // 2pƒ{ƒ€ƒ^ƒCƒ}[ 2Œ®
-        { 63, "play.bomb_3_2p" }, // 2pƒ{ƒ€ƒ^ƒCƒ}[ 3Œ®
-        { 64, "play.bomb_4_2p" }, // 2pƒ{ƒ€ƒ^ƒCƒ}[ 4Œ®
-        { 65, "play.bomb_5_2p" }, // 2pƒ{ƒ€ƒ^ƒCƒ}[ 5Œ®
-        { 66, "play.bomb_6_2p" }, // 2pƒ{ƒ€ƒ^ƒCƒ}[ 6Œ®
-        { 67, "play.bomb_7_2p" }, // 2pƒ{ƒ€ƒ^ƒCƒ}[ 7Œ®
-        { 68, "play.bomb_8_2p" }, // 2pƒ{ƒ€ƒ^ƒCƒ}[ 8Œ®
-        { 69, "play.bomb_9_2p" }, // 2pƒ{ƒ€ƒ^ƒCƒ}[ 9Œ®
-        { 70, "play.bomb_ln_s_1p" }, // 1PLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ M
-        { 71, "play.bomb_ln_1_1p" }, // 1PLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 1Œ®
-        { 72, "play.bomb_ln_2_1p" }, // 1PLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 2Œ®
-        { 73, "play.bomb_ln_3_1p" }, // 1PLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 3Œ®
-        { 74, "play.bomb_ln_4_1p" }, // 1PLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 4Œ®
-        { 75, "play.bomb_ln_5_1p" }, // 1PLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 5Œ®
-        { 76, "play.bomb_ln_6_1p" }, // 1PLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 6Œ®
-        { 77, "play.bomb_ln_7_1p" }, // 1PLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 7Œ®
-        { 78, "play.bomb_ln_8_1p" }, // 1PLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 8Œ®
-        { 79, "play.bomb_ln_9_1p" }, // 1PLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 9Œ®
-        { 80, "play.bomb_ln_s_2p" }, // 2pLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ M
-        { 81, "play.bomb_ln_1_2p" }, // 2pLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 1Œ®
-        { 82, "play.bomb_ln_2_2p" }, // 2pLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 2Œ®
-        { 83, "play.bomb_ln_3_2p" }, // 2pLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 3Œ®
-        { 84, "play.bomb_ln_4_2p" }, // 2pLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 4Œ®
-        { 85, "play.bomb_ln_5_2p" }, // 2pLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 5Œ®
-        { 86, "play.bomb_ln_6_2p" }, // 2pLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 6Œ®
-        { 87, "play.bomb_ln_7_2p" }, // 2pLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 7Œ®
-        { 88, "play.bomb_ln_8_2p" }, // 2pLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 8Œ®
-        { 89, "play.bomb_ln_9_2p" }, // 2pLNƒGƒtƒFƒNƒgƒ^ƒCƒ}[ 9Œ®
-        { 100, "system.key_on_s_1p" }, // 1PƒL[ƒIƒ“ƒ^ƒCƒ}[ M
-        { 101, "system.key_on_1_1p" }, // 1PƒL[ƒIƒ“ƒ^ƒCƒ}[ 1Œ®
-        { 102, "system.key_on_2_1p" }, // 1PƒL[ƒIƒ“ƒ^ƒCƒ}[ 2Œ®
-        { 103, "system.key_on_3_1p" }, // 1PƒL[ƒIƒ“ƒ^ƒCƒ}[ 3Œ®
-        { 104, "system.key_on_4_1p" }, // 1PƒL[ƒIƒ“ƒ^ƒCƒ}[ 4Œ®
-        { 105, "system.key_on_5_1p" }, // 1PƒL[ƒIƒ“ƒ^ƒCƒ}[ 5Œ®
-        { 106, "system.key_on_6_1p" }, // 1PƒL[ƒIƒ“ƒ^ƒCƒ}[ 6Œ®
-        { 107, "system.key_on_7_1p" }, // 1PƒL[ƒIƒ“ƒ^ƒCƒ}[ 7Œ®
-        { 108, "system.key_on_8_1p" }, // 1PƒL[ƒIƒ“ƒ^ƒCƒ}[ 8Œ®
-        { 109, "system.key_on_9_1p" }, // 1PƒL[ƒIƒ“ƒ^ƒCƒ}[ 9Œ®
-        { 110, "system.key_on_s_2p" }, // 2pƒL[ƒIƒ“ƒ^ƒCƒ}[ M
-        { 111, "system.key_on_1_2p" }, // 2pƒL[ƒIƒ“ƒ^ƒCƒ}[ 1Œ®
-        { 112, "system.key_on_2_2p" }, // 2pƒL[ƒIƒ“ƒ^ƒCƒ}[ 2Œ®
-        { 113, "system.key_on_3_2p" }, // 2pƒL[ƒIƒ“ƒ^ƒCƒ}[ 3Œ®
-        { 114, "system.key_on_4_2p" }, // 2pƒL[ƒIƒ“ƒ^ƒCƒ}[ 4Œ®
-        { 115, "system.key_on_5_2p" }, // 2pƒL[ƒIƒ“ƒ^ƒCƒ}[ 5Œ®
-        { 116, "system.key_on_6_2p" }, // 2pƒL[ƒIƒ“ƒ^ƒCƒ}[ 6Œ®
-        { 117, "system.key_on_7_2p" }, // 2pƒL[ƒIƒ“ƒ^ƒCƒ}[ 7Œ®
-        { 118, "system.key_on_8_2p" }, // 2pƒL[ƒIƒ“ƒ^ƒCƒ}[ 8Œ®
-        { 119, "system.key_on_9_2p" }, // 2pƒL[ƒIƒ“ƒ^ƒCƒ}[ 9Œ®
-        { 120, "system.key_off_s_1p" }, // 1PƒL[ƒIƒtƒ^ƒCƒ}[ M
-        { 121, "system.key_off_1_1p" }, // 1PƒL[ƒIƒtƒ^ƒCƒ}[ 1Œ®
-        { 122, "system.key_off_2_1p" }, // 1PƒL[ƒIƒtƒ^ƒCƒ}[ 2Œ®
-        { 123, "system.key_off_3_1p" }, // 1PƒL[ƒIƒtƒ^ƒCƒ}[ 3Œ®
-        { 124, "system.key_off_4_1p" }, // 1PƒL[ƒIƒtƒ^ƒCƒ}[ 4Œ®
-        { 125, "system.key_off_5_1p" }, // 1PƒL[ƒIƒtƒ^ƒCƒ}[ 5Œ®
-        { 126, "system.key_off_6_1p" }, // 1PƒL[ƒIƒtƒ^ƒCƒ}[ 6Œ®
-        { 127, "system.key_off_7_1p" }, // 1PƒL[ƒIƒtƒ^ƒCƒ}[ 7Œ®
-        { 128, "system.key_off_8_1p" }, // 1PƒL[ƒIƒtƒ^ƒCƒ}[ 8Œ®
-        { 129, "system.key_off_9_1p" }, // 1PƒL[ƒIƒtƒ^ƒCƒ}[ 9Œ®
-        { 130, "system.key_off_s_2p" }, // 2pƒL[ƒIƒtƒ^ƒCƒ}[ M
-        { 131, "system.key_off_1_2p" }, // 2pƒL[ƒIƒtƒ^ƒCƒ}[ 1Œ®
-        { 132, "system.key_off_2_2p" }, // 2pƒL[ƒIƒtƒ^ƒCƒ}[ 2Œ®
-        { 133, "system.key_off_3_2p" }, // 2pƒL[ƒIƒtƒ^ƒCƒ}[ 3Œ®
-        { 134, "system.key_off_4_2p" }, // 2pƒL[ƒIƒtƒ^ƒCƒ}[ 4Œ®
-        { 135, "system.key_off_5_2p" }, // 2pƒL[ƒIƒtƒ^ƒCƒ}[ 5Œ®
-        { 136, "system.key_off_6_2p" }, // 2pƒL[ƒIƒtƒ^ƒCƒ}[ 6Œ®
-        { 137, "system.key_off_7_2p" }, // 2pƒL[ƒIƒtƒ^ƒCƒ}[ 7Œ®
-        { 138, "system.key_off_8_2p" }, // 2pƒL[ƒIƒtƒ^ƒCƒ}[ 8Œ®
-        { 139, "system.key_off_9_2p" }, // 2pƒL[ƒIƒtƒ^ƒCƒ}[ 9Œ®
-        // 140 ƒŠƒYƒ€ƒ^ƒCƒ}[
-        { 143, "play.last_note_1p" }, // ÅIƒm[ƒgƒ^ƒCƒ}[ 1P
-        { 144, "play.last_note_2p" }, // ÅIƒm[ƒgƒ^ƒCƒ}[ 2P
-        { 150, "result.graph_start" }, // ƒŠƒUƒ‹ƒgƒOƒ‰ƒt•`‰æŠJnƒ^ƒCƒ}[
-        { 151, "result.graph_end" }, // ƒŠƒUƒ‹ƒgƒOƒ‰ƒt•`‰æI—¹ƒ^ƒCƒ}[(ƒvƒŒƒCƒ‰ƒ“ƒN•\¦ƒ^ƒCƒ}[
-        { 152, "result.sub_page" }, // ƒŠƒUƒ‹ƒgƒnƒCƒXƒRƒAXVƒ^ƒCƒ}[
-        // 170 ƒf[ƒ^ƒx[ƒXƒ[ƒh’†ƒ^ƒCƒ}[
-        // 171 ƒf[ƒ^ƒx[ƒXƒ[ƒhŠ®—¹ƒ^ƒCƒ}[
-        // 172 IR Ú‘±ŠJnƒ^ƒCƒ}[
-        // 173 IR Ú‘±¬Œ÷ƒ^ƒCƒ}[
-        // 174 IR Ú‘±¸”sƒ^ƒCƒ}[
-        { 180, "select.course_edit_start" }, // ƒR[ƒXƒGƒfƒBƒ^[ŠJnƒ^ƒCƒ}[
-        { 181, "select.course_edit_end" }, // ƒR[ƒXƒGƒfƒBƒ^[I—¹ƒ^ƒCƒ}[
+        { 41, "play.play_start" }, // ãƒ—ãƒ¬ã‚¤é–‹å§‹
+        { 42, "play.gauge_up_1p" }, // ã‚²ãƒ¼ã‚¸ä¸Šæ˜‡ã‚¿ã‚¤ãƒãƒ¼ 1P
+        { 43, "play.gauge_up_2p" }, // ã‚²ãƒ¼ã‚¸ä¸Šæ˜‡ã‚¿ã‚¤ãƒãƒ¼ 2P
+        { 44, "play.gauge_max_1p" }, // ã‚²ãƒ¼ã‚¸ãƒãƒƒã‚¯ã‚¹ã‚¿ã‚¤ãƒãƒ¼ 1P
+        { 45, "play.gauge_max_2p" }, // ã‚²ãƒ¼ã‚¸ãƒãƒƒã‚¯ã‚¹ã‚¿ã‚¤ãƒãƒ¼ 2P
+        { 46, "play.judge_1p" }, // ã‚¸ãƒ£ãƒƒã‚¸ã‚¿ã‚¤ãƒãƒ¼ 1P
+        { 47, "play.judge_2p" }, // ã‚¸ãƒ£ãƒƒã‚¸ã‚¿ã‚¤ãƒãƒ¼ 2P
+        { 48, "play.fullcombo_1p" }, // ãƒ•ãƒ«ã‚³ãƒ³ã‚¿ã‚¤ãƒãƒ¼ 1P
+        { 49, "play.fullcombo_2p" }, // ãƒ•ãƒ«ã‚³ãƒ³ã‚¿ã‚¤ãƒãƒ¼ 2P
+        { 50, "play.bomb_1p_s" }, // 1Pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ çš¿
+        { 51, "play.bomb_1p_k1" }, // 1Pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 1éµ
+        { 52, "play.bomb_1p_k2" }, // 1Pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 2éµ
+        { 53, "play.bomb_1p_k3" }, // 1Pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 3éµ
+        { 54, "play.bomb_1p_k4" }, // 1Pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 4éµ
+        { 55, "play.bomb_1p_k5" }, // 1Pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 5éµ
+        { 56, "play.bomb_1p_k6" }, // 1Pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 6éµ
+        { 57, "play.bomb_1p_k7" }, // 1Pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 7éµ
+        { 58, "play.bomb_1p_k8" }, // 1Pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 8éµ
+        { 59, "play.bomb_1p_k9" }, // 1Pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 9éµ
+        { 60, "play.bomb_2p_s" }, // 2pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ çš¿
+        { 61, "play.bomb_2p_k1" }, // 2pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 1éµ
+        { 62, "play.bomb_2p_k2" }, // 2pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 2éµ
+        { 63, "play.bomb_2p_k3" }, // 2pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 3éµ
+        { 64, "play.bomb_2p_k4" }, // 2pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 4éµ
+        { 65, "play.bomb_2p_k5" }, // 2pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 5éµ
+        { 66, "play.bomb_2p_k6" }, // 2pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 6éµ
+        { 67, "play.bomb_2p_k7" }, // 2pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 7éµ
+        { 68, "play.bomb_2p_k8" }, // 2pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 8éµ
+        { 69, "play.bomb_2p_k9" }, // 2pãƒœãƒ ã‚¿ã‚¤ãƒãƒ¼ 9éµ
+        { 70, "play.bomb_ln_1p_s" }, // 1PLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ çš¿
+        { 71, "play.bomb_ln_1p_k1" }, // 1PLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 1éµ
+        { 72, "play.bomb_ln_1p_k2" }, // 1PLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 2éµ
+        { 73, "play.bomb_ln_1p_k3" }, // 1PLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 3éµ
+        { 74, "play.bomb_ln_1p_k4" }, // 1PLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 4éµ
+        { 75, "play.bomb_ln_1p_k5" }, // 1PLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 5éµ
+        { 76, "play.bomb_ln_1p_k6" }, // 1PLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 6éµ
+        { 77, "play.bomb_ln_1p_k7" }, // 1PLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 7éµ
+        { 78, "play.bomb_ln_1p_k8" }, // 1PLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 8éµ
+        { 79, "play.bomb_ln_1p_k9" }, // 1PLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 9éµ
+        { 80, "play.bomb_ln_2p_s" }, // 2pLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ çš¿
+        { 81, "play.bomb_ln_2p_k1" }, // 2pLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 1éµ
+        { 82, "play.bomb_ln_2p_k2" }, // 2pLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 2éµ
+        { 83, "play.bomb_ln_2p_k3" }, // 2pLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 3éµ
+        { 84, "play.bomb_ln_2p_k4" }, // 2pLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 4éµ
+        { 85, "play.bomb_ln_2p_k5" }, // 2pLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 5éµ
+        { 86, "play.bomb_ln_2p_k6" }, // 2pLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 6éµ
+        { 87, "play.bomb_ln_2p_k7" }, // 2pLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 7éµ
+        { 88, "play.bomb_ln_2p_k8" }, // 2pLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 8éµ
+        { 89, "play.bomb_ln_2p_k9" }, // 2pLNã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒãƒ¼ 9éµ
+        { 100, "system.key_on_s_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ çš¿
+        { 101, "system.key_on_1_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 1éµ
+        { 102, "system.key_on_2_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 2éµ
+        { 103, "system.key_on_3_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 3éµ
+        { 104, "system.key_on_4_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 4éµ
+        { 105, "system.key_on_5_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 5éµ
+        { 106, "system.key_on_6_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 6éµ
+        { 107, "system.key_on_7_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 7éµ
+        { 108, "system.key_on_8_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 8éµ
+        { 109, "system.key_on_9_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 9éµ
+        { 110, "system.key_on_s_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ çš¿
+        { 111, "system.key_on_1_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 1éµ
+        { 112, "system.key_on_2_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 2éµ
+        { 113, "system.key_on_3_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 3éµ
+        { 114, "system.key_on_4_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 4éµ
+        { 115, "system.key_on_5_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 5éµ
+        { 116, "system.key_on_6_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 6éµ
+        { 117, "system.key_on_7_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 7éµ
+        { 118, "system.key_on_8_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 8éµ
+        { 119, "system.key_on_9_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ³ã‚¿ã‚¤ãƒãƒ¼ 9éµ
+        { 120, "system.key_off_s_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ çš¿
+        { 121, "system.key_off_1_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 1éµ
+        { 122, "system.key_off_2_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 2éµ
+        { 123, "system.key_off_3_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 3éµ
+        { 124, "system.key_off_4_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 4éµ
+        { 125, "system.key_off_5_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 5éµ
+        { 126, "system.key_off_6_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 6éµ
+        { 127, "system.key_off_7_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 7éµ
+        { 128, "system.key_off_8_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 8éµ
+        { 129, "system.key_off_9_1p" }, // 1Pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 9éµ
+        { 130, "system.key_off_s_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ çš¿
+        { 131, "system.key_off_1_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 1éµ
+        { 132, "system.key_off_2_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 2éµ
+        { 133, "system.key_off_3_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 3éµ
+        { 134, "system.key_off_4_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 4éµ
+        { 135, "system.key_off_5_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 5éµ
+        { 136, "system.key_off_6_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 6éµ
+        { 137, "system.key_off_7_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 7éµ
+        { 138, "system.key_off_8_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 8éµ
+        { 139, "system.key_off_9_2p" }, // 2pã‚­ãƒ¼ã‚ªãƒ•ã‚¿ã‚¤ãƒãƒ¼ 9éµ
+        // 140 ãƒªã‚ºãƒ ã‚¿ã‚¤ãƒãƒ¼ "play.beat" handled directly inside getTimerValue("")
+        { 143, "play.last_note_1p" }, // æœ€çµ‚ãƒãƒ¼ãƒˆã‚¿ã‚¤ãƒãƒ¼ 1P
+        { 144, "play.last_note_2p" }, // æœ€çµ‚ãƒãƒ¼ãƒˆã‚¿ã‚¤ãƒãƒ¼ 2P
+        { 150, "result.graph_start" }, // ãƒªã‚¶ãƒ«ãƒˆã‚°ãƒ©ãƒ•æç”»é–‹å§‹ã‚¿ã‚¤ãƒãƒ¼
+        { 151, "result.graph_end" }, // ãƒªã‚¶ãƒ«ãƒˆã‚°ãƒ©ãƒ•æç”»çµ‚äº†ã‚¿ã‚¤ãƒãƒ¼(ãƒ—ãƒ¬ã‚¤ãƒ©ãƒ³ã‚¯è¡¨ç¤ºã‚¿ã‚¤ãƒãƒ¼
+        { 152, "result.sub_page" }, // ãƒªã‚¶ãƒ«ãƒˆãƒã‚¤ã‚¹ã‚³ã‚¢æ›´æ–°ã‚¿ã‚¤ãƒãƒ¼
+        // 170 ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹ãƒ­ãƒ¼ãƒ‰ä¸­ã‚¿ã‚¤ãƒãƒ¼
+        // 171 ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹ãƒ­ãƒ¼ãƒ‰å®Œäº†ã‚¿ã‚¤ãƒãƒ¼
+        // 172 IR æ¥ç¶šé–‹å§‹ã‚¿ã‚¤ãƒãƒ¼
+        // 173 IR æ¥ç¶šæˆåŠŸã‚¿ã‚¤ãƒãƒ¼
+        // 174 IR æ¥ç¶šå¤±æ•—ã‚¿ã‚¤ãƒãƒ¼
+        { 180, "select.course_edit_start" }, // ã‚³ãƒ¼ã‚¹ã‚¨ãƒ‡ã‚£ã‚¿ãƒ¼é–‹å§‹ã‚¿ã‚¤ãƒãƒ¼
+        { 181, "select.course_edit_end" }, // ã‚³ãƒ¼ã‚¹ã‚¨ãƒ‡ã‚£ã‚¿ãƒ¼çµ‚äº†ã‚¿ã‚¤ãƒãƒ¼
 
         { 200, "system.key_on_sl_1p" },
         { 201, "system.key_off_sl_1p" },
@@ -195,12 +194,6 @@ const char* timer(int n)
     {
         return "";
     }
-}
-
-std::function<bool()> dst1(int n)
-{
-
-
 }
 
 }

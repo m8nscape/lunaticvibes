@@ -1,18 +1,20 @@
 #include "common/pch.h"
+
 #include "scene.h"
-#include "common/beat.h"
-#include "game/runtime/state.h"
-#include "game/runtime/generic_info.h"
-#include "game/skin/skin_mgr.h"
-#include "scene_context.h"
 #include "config/config_mgr.h"
+
+#include "game/graphics/texture_extra.h"
+#include "game/skin/skin_mgr.h"
 
 #include "imgui.h"
 #include "game/skin/skin_lr2_debug.h"
+#include "game/runtime/generic_info.h"
 #include "game/runtime/i18n.h"
 
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
+
+#include "game/data/data_types.h"
 
 namespace lunaticvibes
 {
@@ -30,14 +32,14 @@ SceneBase::SceneBase(SkinType skinType, unsigned rate, bool backgroundInput) :
 
     // Disable skin caching for now. dst options are changing all the time
     SkinMgr::unload(skinType);
-    SkinMgr::load(skinType, gInCustomize && skinType != SkinType::THEME_SELECT);
+    SkinMgr::load(skinType, skinType != SkinType::THEME_SELECT);
     pSkin = SkinMgr::get(skinType);
 
     int notificationPosY = 480;
     int notificationWidth = 640;
     const int notificationHeight = 20;
 
-    if (pSkin && !gInCustomize && skinType != SkinType::THEME_SELECT)
+    if (pSkin && skinType != SkinType::THEME_SELECT)
     {
         int x, y;
         switch (pSkin->info.resolution)
@@ -60,9 +62,9 @@ SceneBase::SceneBase(SkinType skinType, unsigned rate, bool backgroundInput) :
     {
         SpriteText::SpriteTextBuilder textBuilder;
         textBuilder.font = _fNotifications;
-        textBuilder.textInd = IndexText(size_t(IndexText::_OVERLAY_NOTIFICATION_0) + i);
-        textBuilder.align = TextAlign::TEXT_ALIGN_LEFT;
+        textBuilder.align = SpriteText::TextAlignType::Left;
         textBuilder.ptsize = textHeight;
+        textBuilder.textCallback = std::bind([](size_t i) { return SystemData.overlayTextManager.getNotification(i); }, i);
         _sNotifications[i] = textBuilder.build();
         _sNotifications[i]->setMotionLoopTo(0);
 
@@ -85,7 +87,7 @@ SceneBase::SceneBase(SkinType skinType, unsigned rate, bool backgroundInput) :
 
         f.param.rect.y += (notificationHeight - textHeight) / 2;
         f.param.rect.h = textHeight;
-        f.param.color = 0xffffffff;
+        f.param.color = 0xffffffff;        
         _sNotifications[i]->appendMotionKeyFrame(f);
     }
 
@@ -100,16 +102,14 @@ SceneBase::SceneBase(SkinType skinType, unsigned rate, bool backgroundInput) :
     if (pSkin &&
         !(SystemData.gNextScene == SceneType::SELECT && skinType == SkinType::THEME_SELECT))
     {
-        State::resetTimer();
+        resetTimers();
 
-        State::set(IndexText::_OVERLAY_TOPLEFT, "");
+        for (int i = 0; i < 4; i++)
+            SystemData.overlayTopLeftText[i] = "";
 
         // Skin may be cached. Reset mouse status
         pSkin->setHandleMouseEvents(true);
     }
-
-    if (!gInCustomize && skinType == SkinType::THEME_SELECT || gInCustomize && skinType != SkinType::THEME_SELECT)
-        _input.disableCountFPS();
 }
 
 SceneBase::~SceneBase()
@@ -127,7 +127,7 @@ SceneBase::~SceneBase()
 void SceneBase::update()
 {
     Time t;
-    gUpdateContext.updateTime = t;
+    SystemData.sceneUpdateTime = t;
 
     if (pSkin)
     {
@@ -138,38 +138,13 @@ void SceneBase::update()
 
         checkAndStartTextEdit();
 
-        // update notifications
-        {
-            std::unique_lock lock(gOverlayContext._mutex);
-
-            // notifications expire check
-            while (!gOverlayContext.notifications.empty() && (t - gOverlayContext.notifications.begin()->first).norm() > 10 * 1000) // 10s
-            {
-                gOverlayContext.notifications.pop_front();
-            }
-
-            // update notification texts
-            auto itNotifications = gOverlayContext.notifications.rbegin();
-            for (size_t i = 0; i < _sNotifications.size(); ++i)
-            {
-                if (itNotifications != gOverlayContext.notifications.rend())
-                {
-                    State::set(IndexText(size_t(IndexText::_OVERLAY_NOTIFICATION_0) + i), itNotifications->second);
-                    ++itNotifications;
-                }
-                else
-                {
-                    State::set(IndexText(size_t(IndexText::_OVERLAY_NOTIFICATION_0) + i), "");
-                }
-            }
-        }
+        SystemData.overlayTextManager.clearExpiredNotification();
 
         // update top-left texts
         for (size_t i = 0; i < _sNotifications.size(); ++i)
         {
             _sNotifications[i]->update(t);
             _sNotificationsBG[i]->update(t);
-
         }
 
 #ifndef VIDEO_DISABLED
@@ -179,7 +154,7 @@ void SceneBase::update()
     }
 
     // ImGui
-    if (!gInCustomize || _type == SceneType::CUSTOMIZE)
+    if (_type == SceneType::CUSTOMIZE)
     {
         ImGuiNewFrame();
 
@@ -230,22 +205,15 @@ void SceneBase::draw() const
     }
 
     {
-        std::shared_lock lock(gOverlayContext._mutex);
-        if (!gOverlayContext.notifications.empty())
+        auto l = SystemData.overlayTextManager.acquire();
+        // draw notifications at the bottom. One string per line
+        for (size_t i = 0; i < SystemData.overlayTextManager.MAX_NOTIFICATIONS; ++i)
         {
-            // draw notifications at the bottom. One string per line
-            auto itNotification = gOverlayContext.notifications.rbegin();
-            for (size_t i = 0; i < gOverlayContext.notifications.size() && i < _sNotifications.size(); ++i)
-            {
-                const auto& [timestamp, text] = *itNotification;
-                _sNotificationsBG[i]->draw();
-                _sNotifications[i]->updateText();
-                _sNotifications[i]->draw();
-            }
-        }
-        if (gOverlayContext.popupListShow && !gOverlayContext.popupList.empty())
-        {
-            // TODO draw list
+            const auto& s = SystemData.overlayTextManager.getNotification(i);
+            if (s.empty()) break;
+            _sNotificationsBG[i]->draw();
+            _sNotifications[i]->updateText();
+            _sNotifications[i]->draw();
         }
     }
 
@@ -253,12 +221,12 @@ void SceneBase::draw() const
     {
         Path p = "screenshot";
         p /= (boost::format("LV %04d-%02d-%02d %02d-%02d-%02d.png")
-            % State::get(IndexNumber::DATE_YEAR)
-            % State::get(IndexNumber::DATE_MON)
-            % State::get(IndexNumber::DATE_DAY)
-            % State::get(IndexNumber::DATE_HOUR)
-            % State::get(IndexNumber::DATE_MIN)
-            % State::get(IndexNumber::DATE_SEC)).str();
+            % SystemData.dateYear
+            % SystemData.dateMonthOfYear
+            % SystemData.dateDayOfMonth
+            % SystemData.timeHour
+            % SystemData.timeMin
+            % SystemData.timeSec).str();
 
         graphics_screenshot(p);
 
@@ -277,7 +245,7 @@ void SceneBase::_updateAsync1()
 {
     _updateAsync();
 
-    if (!gInCustomize && _type != SceneType::CUSTOMIZE || gInCustomize && _type == SceneType::CUSTOMIZE)
+    if (_type != SceneType::CUSTOMIZE)
         gFrameCount[FRAMECOUNT_IDX_SCENE]++;
 }
 
@@ -286,11 +254,13 @@ void SceneBase::updateImgui()
     assert(IsMainThread());
 
     bool showTextOverlay = false;
-    if (showFPS) showTextOverlay = true;
+    if (showFPS)
+    {
+        showTextOverlay = true;
+    }
     for (size_t i = 0; i < 4; ++i)
     {
-        IndexText idx = IndexText(int(IndexText::_OVERLAY_TOPLEFT) + i);
-        if (!State::get(idx).empty())
+        if (!SystemData.overlayTopLeftText[i].empty())
         {
             showTextOverlay = true;
             break;
@@ -305,10 +275,10 @@ void SceneBase::updateImgui()
             if (showFPS)
             {
                 ImGui::PushID("##fps");
-                ImGui::Text((boost::format("FPS: Render %d | Input %d | Update %d")
-                    % State::get(IndexNumber::FPS)
-                    % State::get(IndexNumber::INPUT_DETECT_FPS)
-                    % State::get(IndexNumber::SCENE_UPDATE_FPS)).str().c_str());
+                ImGui::Text("FPS: Render %d | Input %d | Update %d",
+                    SystemData.currentRenderFPS,
+                    SystemData.currentInputFPS,
+                    SystemData.currentUpdateFPS);
                 ImGui::PopID();
             }
 
@@ -322,11 +292,10 @@ void SceneBase::updateImgui()
             size_t count = 0;
             for (size_t i = 0; i < 4; ++i)
             {
-                IndexText idx = IndexText(int(IndexText::_OVERLAY_TOPLEFT) + i);
-                if (!State::get(idx).empty())
+                if (!SystemData.overlayTopLeftText[i].empty())
                 {
                     ImGui::PushID(overlayTextID[count++]);
-                    ImGui::Text(State::get(idx).c_str());
+                    ImGui::TextUnformatted(SystemData.overlayTopLeftText[i].c_str());
                     ImGui::PopID();
                 }
             }
@@ -375,7 +344,7 @@ void SceneBase::updateImgui()
 void SceneBase::DebugToggle(InputMask& p, const Time& t)
 {
 #ifdef _DEBUG
-    if (!(!gInCustomize || _type == SceneType::CUSTOMIZE)) return;
+    if (!(_type == SceneType::CUSTOMIZE)) return;
 
     if (p[Input::F1])
     {
@@ -416,11 +385,6 @@ void SceneBase::DebugToggle(InputMask& p, const Time& t)
 bool SceneBase::isInTextEdit() const
 {
     return inTextEdit;
-}
-
-IndexText SceneBase::textEditType() const
-{
-    return inTextEdit ? pSkin->textEditType() : IndexText::INVALID;
 }
 
 void SceneBase::startTextEdit(bool clear)

@@ -1,6 +1,7 @@
 #include "common/pch.h"
 #include "scene_play_retry_trans.h"
-#include "scene_context.h"
+#include "game/data/data_system.h"
+#include "game/data/data_play.h"
 
 namespace lunaticvibes
 {
@@ -10,7 +11,7 @@ ScenePlayRetryTrans::ScenePlayRetryTrans() : SceneBase(SkinType::RETRY_TRANS, 24
 	_type = SceneType::RETRY_TRANS;
 
 	LOG_DEBUG << "[PlayRetryTrans]";
-	clearContextPlayForRetry();
+	PlayData.clearContextPlayForRetry();
 	SystemData.gNextScene = SceneType::PLAY;
 }
 

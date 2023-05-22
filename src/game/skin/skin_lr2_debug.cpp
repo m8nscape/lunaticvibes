@@ -1,6 +1,5 @@
 #include "common/pch.h"
 #include "skin_lr2_debug.h"
-#include "game/runtime/state.h"
 #include "imgui.h"
 
 namespace lunaticvibes

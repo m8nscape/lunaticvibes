@@ -1,6 +1,5 @@
 #pragma once
 #include "scene.h"
-#include "scene_context.h"
 
 namespace lunaticvibes
 {

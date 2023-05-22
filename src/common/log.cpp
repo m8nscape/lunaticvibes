@@ -29,9 +29,9 @@ namespace plog
             ss << std::setfill(PLOG_NSTR(' ')) << std::setw(5) << std::left << severityToString(record.getSeverity()) << PLOG_NSTR(" ");
             ss << PLOG_NSTR("[") << record.getTid() << PLOG_NSTR("] ");
 #ifdef WIN32
-            ss << PLOG_NSTR("[") << fs::path(record.getFile()).filename().wstring() << PLOG_NSTR("@") << record.getLine() << PLOG_NSTR("] ");
+            ss << PLOG_NSTR("[") << std::filesystem::path(record.getFile()).filename().wstring() << PLOG_NSTR("@") << record.getLine() << PLOG_NSTR("] ");
 #else
-            ss << PLOG_NSTR("[") << fs::path(record.getFile()).filename().string() << PLOG_NSTR("@") << record.getLine() << PLOG_NSTR("] ");
+            ss << PLOG_NSTR("[") << std::filesystem::path(record.getFile()).filename().string() << PLOG_NSTR("@") << record.getLine() << PLOG_NSTR("] ");
 #endif
             ss << record.getMessage() << PLOG_NSTR("\n");
 

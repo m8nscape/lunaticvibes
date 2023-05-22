@@ -72,7 +72,6 @@ public:
     void stopSpriteVideoPlayback();
 
     bool textEditSpriteClicked() const;
-    IndexText textEditType() const;
     void startTextEdit(bool clear);
     void stopTextEdit(bool modify);
 

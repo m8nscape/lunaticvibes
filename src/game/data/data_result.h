@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace lunaticvibes::data
+namespace lunaticvibes
 {
 
 inline struct Struct_ResultData
@@ -10,6 +10,8 @@ inline struct Struct_ResultData
 
     bool cleared = false;
     bool flipResult = false;
+
+    bool playerCleared[2] = { false, false };
 
 } ResultData;
 

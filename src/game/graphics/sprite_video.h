@@ -1,11 +1,11 @@
 #pragma once
 #ifndef VIDEO_DISABLED
 
-namespace lunaticvibes
-{
-
 #include "sprite.h"
 #include "game/graphics/texture_extra.h"
+
+namespace lunaticvibes
+{
 
 class sVideo;
 struct AVFrame;

@@ -28,7 +28,7 @@ public:
 	enum CourseType
 	{
 		UNDEFINED,
-		GRADE,
+		CLASS,
 	} courseType = UNDEFINED;
 
 public:
@@ -43,7 +43,7 @@ public:
 		_addTime = addTime;
 		switch (lr2crs.type)
 		{
-		case 2: courseType = GRADE; break;
+		case 2: courseType = CLASS; break;
 		}
 		charts = lr2crs.chartHash;
 	}

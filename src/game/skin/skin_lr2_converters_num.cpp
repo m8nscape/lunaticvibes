@@ -6,148 +6,146 @@
 #include "game/chart/chart_types.h"
 #include "game/ruleset/ruleset.h"
 #include "game/ruleset/ruleset_bms.h"
+#include "game/ruleset/ruleset_bms_network.h"
 #include "game/data/data_types.h"
-#include "game/arena/arena_data.h"
 #include "db/db_score.h"
 
 namespace lunaticvibes
 {
 
-using namespace data;
-
 class NumberConverter
 {
 public:
-    static int num_arena_0(int player)
+    static int number_arena_0(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(player));
+        if (ArenaData.isOnline()) return 0;
+        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(ArenaData.getPlayerRuleset(player));
         if (!rbms) return 0;
         return int(rbms->getScore());
     }
-    static int num_arena_1(int player)
+    static int number_arena_1(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(player));
+        if (ArenaData.isOnline()) return 0;
+        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(ArenaData.getPlayerRuleset(player));
         if (!rbms) return 0;
         return int(rbms->getExScore());
     }
-    static int num_arena_2(int player)
+    static int number_arena_2(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto r = gArenaData.getPlayerRuleset(player);
+        if (ArenaData.isOnline()) return 0;
+        auto r = ArenaData.getPlayerRuleset(player);
         if (!r) return 0;
         return int(r->getData().combo);
     }
-    static int num_arena_3(int player)
+    static int number_arena_3(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto r = gArenaData.getPlayerRuleset(player);
+        if (ArenaData.isOnline()) return 0;
+        auto r = ArenaData.getPlayerRuleset(player);
         if (!r) return 0;
         return int(r->getData().maxCombo);
     }
-    static int num_arena_4(int player)
+    static int number_arena_4(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto r = gArenaData.getPlayerRuleset(player);
+        if (ArenaData.isOnline()) return 0;
+        auto r = ArenaData.getPlayerRuleset(player);
         if (!r) return 0;
         return int(r->getData().acc);
     }
-    static int num_arena_5(int player)
+    static int number_arena_5(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto r = gArenaData.getPlayerRuleset(player);
+        if (ArenaData.isOnline()) return 0;
+        auto r = ArenaData.getPlayerRuleset(player);
         if (!r) return 0;
         return int(r->getData().acc * 100) % 100;
     }
-    static int num_arena_6(int player)
+    static int number_arena_6(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto r = gArenaData.getPlayerRuleset(player);
+        if (ArenaData.isOnline()) return 0;
+        auto r = ArenaData.getPlayerRuleset(player);
         if (!r) return 0;
         return int(r->getNoteCount());
     }
-    static int num_arena_7(int player)
+    static int number_arena_7(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto r = gArenaData.getPlayerRuleset(player);
+        if (ArenaData.isOnline()) return 0;
+        auto r = ArenaData.getPlayerRuleset(player);
         if (!r) return 0;
         return int(r->getData().total_acc);
     }
-    static int num_arena_8(int player)
+    static int number_arena_8(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto r = gArenaData.getPlayerRuleset(player);
+        if (ArenaData.isOnline()) return 0;
+        auto r = ArenaData.getPlayerRuleset(player);
         if (!r) return 0;
         return int(r->getData().total_acc * 100) % 100;
     }
-    static int num_arena_9(int player)
+    static int number_arena_9(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(player));
+        if (ArenaData.isOnline()) return 0;
+        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(ArenaData.getPlayerRuleset(player));
         if (!rbms) return 0;
         return int(rbms->getJudgeCountEx(RulesetBMS::JudgeIndex::JUDGE_PERFECT));
     }
-    static int num_arena_10(int player)
+    static int number_arena_10(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(player));
+        if (ArenaData.isOnline()) return 0;
+        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(ArenaData.getPlayerRuleset(player));
         if (!rbms) return 0;
         return int(rbms->getJudgeCountEx(RulesetBMS::JudgeIndex::JUDGE_GOOD));
     }
-    static int num_arena_11(int player)
+    static int number_arena_11(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(player));
+        if (ArenaData.isOnline()) return 0;
+        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(ArenaData.getPlayerRuleset(player));
         if (!rbms) return 0;
         return int(rbms->getJudgeCountEx(RulesetBMS::JudgeIndex::JUDGE_BAD));
     }
-    static int num_arena_12(int player)
+    static int number_arena_12(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(player));
+        if (ArenaData.isOnline()) return 0;
+        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(ArenaData.getPlayerRuleset(player));
         if (!rbms) return 0;
         return int(rbms->getJudgeCountEx(RulesetBMS::JudgeIndex::JUDGE_POOR));
     }
-    static int num_arena_13(int player)
+    static int number_arena_13(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(player));
+        if (ArenaData.isOnline()) return 0;
+        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(ArenaData.getPlayerRuleset(player));
         if (!rbms) return 0;
         return int(rbms->getJudgeCountEx(RulesetBMS::JudgeIndex::JUDGE_KPOOR));
     }
-    static int num_arena_14(int player)
+    static int number_arena_14(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(player));
+        if (ArenaData.isOnline()) return 0;
+        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(ArenaData.getPlayerRuleset(player));
         if (!rbms) return 0;
         return int(rbms->getJudgeCountEx(RulesetBMS::JudgeIndex::JUDGE_MISS));
     }
-    static int num_arena_15(int player)
+    static int number_arena_15(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(player));
+        if (ArenaData.isOnline()) return 0;
+        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(ArenaData.getPlayerRuleset(player));
         if (!rbms) return 0;
         return int(rbms->getJudgeCountEx(RulesetBMS::JudgeIndex::JUDGE_BP));
     }
-    static int num_arena_16(int player)
+    static int number_arena_16(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(player));
+        if (ArenaData.isOnline()) return 0;
+        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(ArenaData.getPlayerRuleset(player));
         if (!rbms) return 0;
         return int(rbms->getJudgeCountEx(RulesetBMS::JudgeIndex::JUDGE_CB));
     }
-    static int num_arena_17(int player)
+    static int number_arena_17(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto r = gArenaData.getPlayerRuleset(player);
+        if (ArenaData.isOnline()) return 0;
+        auto r = ArenaData.getPlayerRuleset(player);
         if (!r) return 0;
         return int(r->getData().health);
     }
-    static int num_arena_18(int player)
+    static int number_arena_18(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(player));
+        if (ArenaData.isOnline()) return 0;
+        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(ArenaData.getPlayerRuleset(player));
         if (!rbms) return 0;
         int score = (int)rbms->getExScore();
         int max = rbms->getMaxScore();
@@ -155,61 +153,61 @@ public:
         int nextRankSection = section == 0 ? 2 : section == 9 ? 9 : section + 1;
         return score - (max * nextRankSection / 9);
     }
-    static int num_arena_19(int player)
+    static int number_arena_19(int player)
     {
-        if (gArenaData.isOnline()) return 0;
-        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(player));
+        if (ArenaData.isOnline()) return 0;
+        auto rbms = std::dynamic_pointer_cast<RulesetBMS>(ArenaData.getPlayerRuleset(player));
         if (!rbms) return 0;
         auto r1 = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         return r1 ? int(r1->getMaxScore() - rbms->getMaxScore()) : -int(rbms->getMaxScore());
     }
 
-    static int num_0() { return 0; }
+    static int number_0() { return 0; }
 
-    static int num_10() { return int(PlayData.player[PLAYER_SLOT_PLAYER].hispeed * 100); }
-    static int num_11() { return int(PlayData.player[PLAYER_SLOT_TARGET].hispeed * 100); }
-    static int num_12() { return PlayData.player[PLAYER_SLOT_PLAYER].offsetVisual; }
-    static int num_13() { return PlayData.targetRate; }
-    static int num_14() { return PlayData.player[PLAYER_SLOT_PLAYER].lanecoverTop / 10; }
-    static int num_15() { return PlayData.player[PLAYER_SLOT_PLAYER].lanecoverBottom / 10; }
-    static int num_20() { return (int)SystemData.currentRenderFPS; }
-    static int num_21() { return (int)SystemData.dateYear; }
-    static int num_22() { return (int)SystemData.dateMonthOfYear; }
-    static int num_23() { return (int)SystemData.dateDayOfMonth; }
-    static int num_24() { return (int)SystemData.timeHour; }
-    static int num_25() { return (int)SystemData.timeMin; }
-    static int num_26() { return (int)SystemData.timeSec; }
-    static int num_30() { return ProfileData.playCount; }
-    static int num_31() { return ProfileData.clearCount; }
-    static int num_32() { return ProfileData.failCount; }
-    static int num_33() { return 1234; }
-    static int num_34() { return 5678; }
-    static int num_35() { return 111; }
-    static int num_36() { return 22; }
-    static int num_37() { return 3; }
-    static int num_38() { return 0; }
-    static int num_39() { return 3076; }
-    static int num_40() { return 999; }
-    static int num_41() { return 0; }
+    static int number_10() { return int(PlayData.player[PLAYER_SLOT_PLAYER].hispeed * 100); }
+    static int number_11() { return int(PlayData.player[PLAYER_SLOT_TARGET].hispeed * 100); }
+    static int number_12() { return PlayData.player[PLAYER_SLOT_PLAYER].offsetVisual; }
+    static int number_13() { return PlayData.targetRate; }
+    static int number_14() { return PlayData.player[PLAYER_SLOT_PLAYER].lanecoverTop / 10; }
+    static int number_15() { return PlayData.player[PLAYER_SLOT_PLAYER].lanecoverBottom / 10; }
+    static int number_20() { return (int)SystemData.currentRenderFPS; }
+    static int number_21() { return (int)SystemData.dateYear; }
+    static int number_22() { return (int)SystemData.dateMonthOfYear; }
+    static int number_23() { return (int)SystemData.dateDayOfMonth; }
+    static int number_24() { return (int)SystemData.timeHour; }
+    static int number_25() { return (int)SystemData.timeMin; }
+    static int number_26() { return (int)SystemData.timeSec; }
+    static int number_30() { return ProfileData.playCount; }
+    static int number_31() { return ProfileData.clearCount; }
+    static int number_32() { return ProfileData.failCount; }
+    static int number_33() { return 1234; }
+    static int number_34() { return 5678; }
+    static int number_35() { return 111; }
+    static int number_36() { return 22; }
+    static int number_37() { return 3; }
+    static int number_38() { return 0; }
+    static int number_39() { return 3076; }
+    static int number_40() { return 999; }
+    static int number_41() { return 0; }
 
-    static int num_45() { return -1; }
-    static int num_46() { return -1; }
-    static int num_47() { return -1; }
-    static int num_48() { return -1; }
-    static int num_49() { return -1; }
+    static int number_45() { return -1; }
+    static int number_46() { return -1; }
+    static int number_47() { return -1; }
+    static int number_48() { return -1; }
+    static int number_49() { return -1; }
 
-    static int num_50() { return SystemData.equalizerVal62_5hz; }
-    static int num_51() { return SystemData.equalizerVal160hz; }
-    static int num_52() { return SystemData.equalizerVal400hz; }
-    static int num_53() { return SystemData.equalizerVal1khz; }
-    static int num_54() { return SystemData.equalizerVal2_5khz; }
-    static int num_55() { return SystemData.equalizerVal6_25khz; }
-    static int num_56() { return SystemData.equalizerVal16khz; }
-    static int num_57() { return int(SystemData.volumeMaster * 100); }
-    static int num_58() { return int(SystemData.volumeKey * 100); }
-    static int num_59() { return int(SystemData.volumeBgm * 100); }
-    static int num_60() { return int(SystemData.fxVal * 100); }
-    static int num_66() { return int(SystemData.freqVal * 100); }
+    static int number_50() { return SystemData.equalizerVal62_5hz; }
+    static int number_51() { return SystemData.equalizerVal160hz; }
+    static int number_52() { return SystemData.equalizerVal400hz; }
+    static int number_53() { return SystemData.equalizerVal1khz; }
+    static int number_54() { return SystemData.equalizerVal2_5khz; }
+    static int number_55() { return SystemData.equalizerVal6_25khz; }
+    static int number_56() { return SystemData.equalizerVal16khz; }
+    static int number_57() { return int(SystemData.volumeMaster * 100); }
+    static int number_58() { return int(SystemData.volumeKey * 100); }
+    static int number_59() { return int(SystemData.volumeBgm * 100); }
+    static int number_60() { return int(SystemData.fxVal * 100); }
+    static int number_66() { return int(SystemData.freqVal * 100); }
 
     static std::shared_ptr<EntryChart> getCurrentSelectedEntryChart()
     {
@@ -218,6 +216,15 @@ public:
         if (SelectData.entries[SelectData.selectedEntryIndex].first->type() != eEntryType::CHART)
             return nullptr;
         return std::dynamic_pointer_cast<EntryChart>(SelectData.entries[SelectData.selectedEntryIndex].first);
+    }
+
+    static std::shared_ptr<ScoreBase> getCurrentSelectedEntryScore()
+    {
+        if (SelectData.entries.empty())
+            return nullptr;
+        if (SelectData.entries[SelectData.selectedEntryIndex].first->type() != eEntryType::CHART)
+            return nullptr;
+        return SelectData.entries[SelectData.selectedEntryIndex].second;
     }
 
     static std::shared_ptr<ChartFormatBase> getCurrentSelectedChart()
@@ -254,8 +261,188 @@ public:
         return p->getSongEntry();
     }
 
+    static int number_70() {
+        auto s = getCurrentSelectedEntryScore();
+        if (s)
+        {
+            return s->score;
+        }
+        return 0;
+    }
+    static int number_71() {
+        auto s = std::dynamic_pointer_cast<ScoreBMS>(getCurrentSelectedEntryScore());
+        if (s)
+        {
+            return s->exscore;
+        }
+        return 0;
+    }
+    static int number_72() {
+        auto s = getCurrentSelectedEntryScore();
+        if (s)
+        {
+            return s->notes * 2;
+        }
+        return 0;
+    }
+    static int number_73() {
+        auto s = getCurrentSelectedEntryScore();
+        if (s)
+        {
+            return int(s->rate);
+        }
+        return 0;
+    }
+    static int number_74() {
+        auto s = getCurrentSelectedEntryScore();
+        if (s)
+        {
+            return s->notes * 2;
+        }
+        return 0;
+    }
+    static int number_75() {
+        auto s = getCurrentSelectedEntryScore();
+        if (s)
+        {
+            return s->maxcombo;
+        }
+        return 0;
+    }
+    static int number_76() {
+        auto s = std::dynamic_pointer_cast<ScoreBMS>(getCurrentSelectedEntryScore());
+        if (s)
+        {
+            return s->bp;
+        }
+        return 0;
+    }
+    static int number_77() {
+        auto s = getCurrentSelectedEntryScore();
+        if (s)
+        {
+            return s->playcount;
+        }
+        return 0;
+    }
+    static int number_78() {
+        auto s = getCurrentSelectedEntryScore();
+        if (s)
+        {
+            return s->clearcount;
+        }
+        return 0;
+    }
+    static int number_79() {
+        auto s = getCurrentSelectedEntryScore();
+        if (s)
+        {
+            return s->playcount - s->clearcount;
+        }
+        return 0;
+    }
 
-    static int num_100() {
+    static int number_80() {
+        auto s = std::dynamic_pointer_cast<ScoreBMS>(getCurrentSelectedEntryScore());
+        if (s)
+        {
+            return s->pgreat;
+        }
+        return 0;
+    }
+    static int number_81() {
+        auto s = std::dynamic_pointer_cast<ScoreBMS>(getCurrentSelectedEntryScore());
+        if (s)
+        {
+            return s->great;
+        }
+        return 0;
+    }
+    static int number_82() {
+        auto s = std::dynamic_pointer_cast<ScoreBMS>(getCurrentSelectedEntryScore());
+        if (s)
+        {
+            return s->good;
+        }
+        return 0;
+    }
+    static int number_83() {
+        auto s = std::dynamic_pointer_cast<ScoreBMS>(getCurrentSelectedEntryScore());
+        if (s)
+        {
+            return s->bad;
+        }
+        return 0;
+    }
+    static int number_84() {
+        auto s = std::dynamic_pointer_cast<ScoreBMS>(getCurrentSelectedEntryScore());
+        if (s)
+        {
+            return s->miss + s->kpoor;
+        }
+        return 0;
+    }
+    static int number_85() {
+        auto s = std::dynamic_pointer_cast<ScoreBMS>(getCurrentSelectedEntryScore());
+        if (s)
+        {
+            return int(double(s->pgreat) / s->notes / 2);
+        }
+        return 0;
+    }
+    static int number_86() {
+        auto s = std::dynamic_pointer_cast<ScoreBMS>(getCurrentSelectedEntryScore());
+        if (s)
+        {
+            return int(double(s->great) / s->notes / 2);
+        }
+        return 0;
+    }
+    static int number_87() {
+        auto s = std::dynamic_pointer_cast<ScoreBMS>(getCurrentSelectedEntryScore());
+        if (s)
+        {
+            return int(double(s->good) / s->notes / 2);
+        }
+        return 0;
+    }
+    static int number_88() {
+        auto s = std::dynamic_pointer_cast<ScoreBMS>(getCurrentSelectedEntryScore());
+        if (s)
+        {
+            return int(double(s->bad) / s->notes / 2);
+        }
+        return 0;
+    }
+    static int number_89() {
+        auto s = std::dynamic_pointer_cast<ScoreBMS>(getCurrentSelectedEntryScore());
+        if (s)
+        {
+            return int(double(s->kpoor + s->miss) / s->notes / 2);
+        }
+        return 0;
+    }
+
+    static int number_90()
+    {
+        auto c = getCurrentSelectedChart();
+        if (c)
+        {
+            return int(c->maxBPM);
+        }
+        return 0;
+    }
+    static int number_91()
+    {
+        auto c = getCurrentSelectedChart();
+        if (c)
+        {
+            return int(c->minBPM);
+        }
+        return 0;
+    }
+
+    static int number_100() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -263,7 +450,7 @@ public:
         }
         return 0;
     }
-    static int num_101() {
+    static int number_101() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -271,7 +458,7 @@ public:
         }
         return 0;
     }
-    static int num_102() {
+    static int number_102() {
         auto r = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
         if (r)
         {
@@ -279,7 +466,7 @@ public:
         }
         return 0;
     }
-    static int num_103() {
+    static int number_103() {
         auto r = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
         if (r)
         {
@@ -287,15 +474,16 @@ public:
         }
         return 0;
     }
-    static int num_104() {
+    static int number_104() {
         auto r = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
         if (r)
         {
-            return (int)r->getData().combo;
+            auto& d = r->getData();
+            return (int)d.combo + d.comboEx;
         }
         return 0;
     }
-    static int num_105() {
+    static int number_105() {
         auto r = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
         if (r)
         {
@@ -303,7 +491,7 @@ public:
         }
         return 0;
     }
-    static int num_106() {
+    static int number_106() {
         auto r = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
         if (r)
         {
@@ -311,7 +499,7 @@ public:
         }
         return 0;
     }
-    static int num_107() {
+    static int number_107() {
         auto r = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
         if (r)
         {
@@ -319,7 +507,7 @@ public:
         }
         return 0;
     }
-    static int num_108() {
+    static int number_108() {
         auto r1 = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         auto r2 = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r1)
@@ -330,7 +518,7 @@ public:
         }
         return 0;
     }
-    static int num_109() {
+    static int number_109() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -340,8 +528,9 @@ public:
             int nextRankSection = section == 0 ? 2 : section == 9 ? 9 : section + 1;
             return score - (max * nextRankSection / 9);
         }
+        return 0;
     }
-    static int num_110() {
+    static int number_110() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -349,7 +538,7 @@ public:
         }
         return 0;
     }
-    static int num_111() {
+    static int number_111() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -357,7 +546,7 @@ public:
         }
         return 0;
     }
-    static int num_112() {
+    static int number_112() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -365,7 +554,7 @@ public:
         }
         return 0;
     }
-    static int num_113() {
+    static int number_113() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -373,7 +562,7 @@ public:
         }
         return 0;
     }
-    static int num_114() {
+    static int number_114() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -381,7 +570,7 @@ public:
         }
         return 0;
     }
-    static int num_115() {
+    static int number_115() {
         auto r = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
         if (r)
         {
@@ -389,7 +578,7 @@ public:
         }
         return 0;
     }
-    static int num_116() {
+    static int number_116() {
         auto r = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
         if (r)
         {
@@ -397,7 +586,7 @@ public:
         }
         return 0;
     }
-    static int num_120() {
+    static int number_120() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r)
         {
@@ -405,7 +594,7 @@ public:
         }
         return 0;
     }
-    static int num_121() {
+    static int number_121() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r)
         {
@@ -413,7 +602,7 @@ public:
         }
         return 0;
     }
-    static int num_122() {
+    static int number_122() {
         auto r = PlayData.player[PLAYER_SLOT_TARGET].ruleset;
         if (r)
         {
@@ -421,7 +610,7 @@ public:
         }
         return 0;
     }
-    static int num_123() {
+    static int number_123() {
         auto r = PlayData.player[PLAYER_SLOT_TARGET].ruleset;
         if (r)
         {
@@ -429,15 +618,16 @@ public:
         }
         return 0;
     }
-    static int num_124() {
+    static int number_124() {
         auto r = PlayData.player[PLAYER_SLOT_TARGET].ruleset;
         if (r)
         {
-            return (int)r->getData().combo;
+            auto& d = r->getData();
+            return (int)d.combo + d.comboEx;
         }
         return 0;
     }
-    static int num_125() {
+    static int number_125() {
         auto r = PlayData.player[PLAYER_SLOT_TARGET].ruleset;
         if (r)
         {
@@ -445,7 +635,7 @@ public:
         }
         return 0;
     }
-    static int num_126() {
+    static int number_126() {
         auto r = PlayData.player[PLAYER_SLOT_TARGET].ruleset;
         if (r)
         {
@@ -453,7 +643,7 @@ public:
         }
         return 0;
     }
-    static int num_127() {
+    static int number_127() {
         auto r = PlayData.player[PLAYER_SLOT_TARGET].ruleset;
         if (r)
         {
@@ -461,7 +651,7 @@ public:
         }
         return 0;
     }
-    static int num_128() {
+    static int number_128() {
         auto r1 = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         auto r2 = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r1)
@@ -472,7 +662,7 @@ public:
         }
         return 0;
     }
-    static int num_129() {
+    static int number_129() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r)
         {
@@ -482,8 +672,9 @@ public:
             int nextRankSection = section == 0 ? 2 : section == 9 ? 9 : section + 1;
             return score - (max * nextRankSection / 9);
         }
+        return 0;
     }
-    static int num_130() {
+    static int number_130() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r)
         {
@@ -491,7 +682,7 @@ public:
         }
         return 0;
     }
-    static int num_131() {
+    static int number_131() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r)
         {
@@ -499,7 +690,7 @@ public:
         }
         return 0;
     }
-    static int num_132() {
+    static int number_132() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r)
         {
@@ -507,7 +698,7 @@ public:
         }
         return 0;
     }
-    static int num_133() {
+    static int number_133() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r)
         {
@@ -515,7 +706,7 @@ public:
         }
         return 0;
     }
-    static int num_134() {
+    static int number_134() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r)
         {
@@ -523,7 +714,7 @@ public:
         }
         return 0;
     }
-    static int num_135() {
+    static int number_135() {
         auto r = PlayData.player[PLAYER_SLOT_TARGET].ruleset;
         if (r)
         {
@@ -531,7 +722,7 @@ public:
         }
         return 0;
     }
-    static int num_136() {
+    static int number_136() {
         auto r = PlayData.player[PLAYER_SLOT_TARGET].ruleset;
         if (r)
         {
@@ -539,7 +730,7 @@ public:
         }
         return 0;
     }
-    static int num_150() {
+    static int number_150() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_MYBEST].ruleset);
         if (r)
         {
@@ -547,8 +738,8 @@ public:
         }
         return 0;
     }
-    static constexpr int (*num_151)() = num_121;
-    static int num_152() {
+    static int number_151() { return number_121(); }
+    static int number_152() {
         auto r1 = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         auto r2 = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_MYBEST].ruleset);
         if (r1)
@@ -559,9 +750,9 @@ public:
         }
         return 0;
     }
-    static constexpr int (*num_153)() = num_108;
-    static constexpr int (*num_154)() = num_109;
-    static int num_155() {
+    static int number_153() { return number_108(); }
+    static int number_154() { return number_109(); }
+    static int number_155() {
         auto r = PlayData.player[PLAYER_SLOT_MYBEST].ruleset;
         if (r)
         {
@@ -569,7 +760,7 @@ public:
         }
         return 0;
     }
-    static int num_156() {
+    static int number_156() {
         auto r = PlayData.player[PLAYER_SLOT_MYBEST].ruleset;
         if (r)
         {
@@ -577,9 +768,9 @@ public:
         }
         return 0;
     }
-    static constexpr int (*num_157)() = num_122;
-    static constexpr int (*num_158)() = num_123;
-    static int num_160() {
+    static int number_157() { return number_122(); }
+    static int number_158() { return number_123(); }
+    static int number_160() {
         auto c = PlayData.player[PLAYER_SLOT_PLAYER].chartObj;
         if (c)
         {
@@ -587,17 +778,17 @@ public:
         }
         return 0;
     }
-    static int num_161() {
+    static int number_161() {
         if (SystemData.gNextScene == SceneType::PLAY && PlayData.playStarted)
             return int((Time().norm() - PlayData.timers["play_start"]) / 1000 / 60);
         return 0;
     }
-    static int num_162() {
+    static int number_162() {
         if (SystemData.gNextScene == SceneType::PLAY && PlayData.playStarted)
             return int((Time().norm() - PlayData.timers["play_start"]) / 1000 % 60);
         return 0;
     }
-    static int num_163() {
+    static int number_163() {
         auto c = PlayData.player[PLAYER_SLOT_PLAYER].chartObj;
         if (c && SystemData.gNextScene == SceneType::PLAY)
         {
@@ -608,7 +799,7 @@ public:
         }
         return 0;
     }
-    static int num_164() {
+    static int number_164() {
         auto c = PlayData.player[PLAYER_SLOT_PLAYER].chartObj;
         if (c && SystemData.gNextScene == SceneType::PLAY)
         {
@@ -619,12 +810,12 @@ public:
         }
         return 0;
     }
-    static int num_165() { return int((PlayData.loadProgressWav + PlayData.loadProgressBga) * 100 / 2); };
-    static int num_166() { return 100; };
-    static int num_167() { return int(PlayData.loadProgressWav * 100); };
-    static int num_168() { return int(PlayData.loadProgressBga * 100); };
+    static int number_165() { return int((PlayData.loadProgressWav + PlayData.loadProgressBga) * 100 / 2); };
+    static int number_166() { return 100; };
+    static int number_167() { return int(PlayData.loadProgressWav * 100); };
+    static int number_168() { return int(PlayData.loadProgressBga * 100); };
 
-    static int num_170() {
+    static int number_170() {
         auto c = PlayData.player[PLAYER_SLOT_PLAYER].chartObj;
         if (c)
         {
@@ -633,8 +824,8 @@ public:
         }
         return 0;
     }
-    static constexpr int (*num_171)() = num_101;
-    static int num_172() {
+    static int number_171() { return number_101(); }
+    static int number_172() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -652,7 +843,7 @@ public:
         }
         return 0;
     }
-    static int num_173() {
+    static int number_173() {
         auto c = PlayData.player[PLAYER_SLOT_PLAYER].chartObj;
         if (c)
         {
@@ -661,8 +852,8 @@ public:
         }
         return 0;
     }
-    static constexpr int (*num_174)() = num_105;
-    static int num_175() {
+    static int number_174() { return number_105(); }
+    static int number_175() {
         auto r = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
         if (r)
         {
@@ -680,7 +871,7 @@ public:
         }
         return 0;
     }
-    static int num_176() {
+    static int number_176() {
         auto c = PlayData.player[PLAYER_SLOT_PLAYER].chartObj;
         if (c)
         {
@@ -689,7 +880,7 @@ public:
         }
         return 0;
     }
-    static int num_177() {
+    static int number_177() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -697,7 +888,7 @@ public:
         }
         return 0;
     }
-    static int num_178() {
+    static int number_178() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -715,7 +906,7 @@ public:
         }
         return 0;
     }
-    static int num_183() {
+    static int number_183() {
         auto c = PlayData.player[PLAYER_SLOT_PLAYER].chartObj;
         if (c)
         {
@@ -724,7 +915,7 @@ public:
         }
         return 0;
     }
-    static int num_184() {
+    static int number_184() {
         auto c = PlayData.player[PLAYER_SLOT_PLAYER].chartObj;
         if (c)
         {
@@ -733,7 +924,7 @@ public:
         }
         return 0;
     }
-    static int num_201() {
+    static int number_201() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -741,10 +932,10 @@ public:
         }
         return 0;
     }
-    static int num_213() {
+    static int number_213() {
         int slot = PLAYER_SLOT_PLAYER;
         int side = 1;
-        if (PlayData.isBattle)
+        if (PlayData.battleType == PlayModifierBattleType::LocalBattle)
         {
             slot = PLAYER_SLOT_TARGET;
             side = 0;
@@ -756,7 +947,7 @@ public:
         }
         return 0;
     }
-    static int num_210() {
+    static int number_210() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -782,10 +973,10 @@ public:
         }
         return 0;
     }
-    static int num_211() {
+    static int number_211() {
         int slot = PLAYER_SLOT_PLAYER;
         int side = 1;
-        if (PlayData.isBattle)
+        if (PlayData.battleType == PlayModifierBattleType::LocalBattle)
         {
             slot = PLAYER_SLOT_TARGET;
             side = 0;
@@ -815,7 +1006,7 @@ public:
         }
         return 0;
     }
-    static int num_212() {
+    static int number_212() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -823,7 +1014,7 @@ public:
         }
         return 0;
     }
-    static int num_214() {
+    static int number_214() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -831,7 +1022,7 @@ public:
         }
         return 0;
     }
-    static int num_217() {
+    static int number_217() {
         auto r = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
         if (r)
         {
@@ -839,7 +1030,7 @@ public:
         }
         return 0;
     }
-    static int num_218() {
+    static int number_218() {
         auto r = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
         if (r)
         {
@@ -847,49 +1038,49 @@ public:
         }
         return 0;
     }
-    static int num_250() {
+    static int number_250() {
         if (PlayData.courseStageData.size() >= 1)
             return PlayData.courseStageData[0].level;
         return 0;
     }
-    static int num_251() {
+    static int number_251() {
         if (PlayData.courseStageData.size() >= 2)
             return PlayData.courseStageData[1].level;
         return 0;
     }
-    static int num_252() {
+    static int number_252() {
         if (PlayData.courseStageData.size() >= 3)
             return PlayData.courseStageData[2].level;
         return 0;
     }
-    static int num_253() {
+    static int number_253() {
         if (PlayData.courseStageData.size() >= 4)
             return PlayData.courseStageData[3].level;
         return 0;
     }
-    static int num_254() {
+    static int number_254() {
         if (PlayData.courseStageData.size() >= 5)
             return PlayData.courseStageData[4].level;
         return 0;
     }
-    static int num_301() {
+    static int number_301() {
         auto f = getCurrentSelectedChartBMSMeta();
         if (f == nullptr)
             return 0;
         return f->total;
     }
 
-    static int num_302() { return int(PlayData.player[PLAYER_SLOT_PLAYER].greenNumber); };
-    static int num_304() { return int(PlayData.player[PLAYER_SLOT_PLAYER].greenNumberMinBPM); };
-    static int num_305() { return int(PlayData.player[PLAYER_SLOT_PLAYER].greenNumberMaxBPM); };
-    static int num_301() { return PlayData.player[PLAYER_SLOT_PLAYER].lanecoverTop; };
-    static int num_306() { return PlayData.player[PLAYER_SLOT_PLAYER].lanecoverBottom; };
+    static int number_302() { return int(PlayData.player[PLAYER_SLOT_PLAYER].greenNumber); };
+    static int number_304() { return int(PlayData.player[PLAYER_SLOT_PLAYER].greenNumberMinBPM); };
+    static int number_305() { return int(PlayData.player[PLAYER_SLOT_PLAYER].greenNumberMaxBPM); };
+    static int number_303() { return PlayData.player[PLAYER_SLOT_PLAYER].lanecoverTop; };
+    static int number_306() { return PlayData.player[PLAYER_SLOT_PLAYER].lanecoverBottom; };
 
-    static int num_342() { return int(PlayData.player[PLAYER_SLOT_TARGET].greenNumber); };
-    static int num_344() { return int(PlayData.player[PLAYER_SLOT_TARGET].greenNumberMinBPM); };
-    static int num_345() { return int(PlayData.player[PLAYER_SLOT_TARGET].greenNumberMaxBPM); };
-    static int num_341() { return PlayData.player[PLAYER_SLOT_TARGET].lanecoverTop; };
-    static int num_346() { return PlayData.player[PLAYER_SLOT_TARGET].lanecoverBottom; };
+    static int number_342() { return int(PlayData.player[PLAYER_SLOT_TARGET].greenNumber); };
+    static int number_344() { return int(PlayData.player[PLAYER_SLOT_TARGET].greenNumberMinBPM); };
+    static int number_345() { return int(PlayData.player[PLAYER_SLOT_TARGET].greenNumberMaxBPM); };
+    static int number_343() { return PlayData.player[PLAYER_SLOT_TARGET].lanecoverTop; };
+    static int number_346() { return PlayData.player[PLAYER_SLOT_TARGET].lanecoverBottom; };
 
     /*
 
@@ -929,38 +1120,38 @@ public:
 
     */
 
-    static int num_350() {
+    static int number_350() {
         auto f = getCurrentSelectedChartBMSMeta();
         if (f == nullptr)
             return 0;
         return (int)f->notes_key;
     }
-    static int num_351() {
+    static int number_351() {
         auto f = getCurrentSelectedChartBMSMeta();
         if (f == nullptr)
             return 0;
         return (int)(f->notes_key_ln + f->notes_scratch_ln);
     }
-    static int num_352() {
+    static int number_352() {
         auto f = getCurrentSelectedChartBMSMeta();
         if (f == nullptr)
             return 0;
         return (int)f->notes_scratch;
     }
-    static int num_353() {
+    static int number_353() {
         auto f = getCurrentSelectedChartBMSMeta();
         if (f == nullptr)
             return 0;
         return (int)f->notes_scratch_ln;
     }
-    static int num_354() {
+    static int number_354() {
         auto f = getCurrentSelectedChartBMSMeta();
         if (f == nullptr)
             return 0;
         return (int)f->notes_mine;
     }
 
-    static int num_360() {
+    static int number_360() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -968,9 +1159,9 @@ public:
         }
         return 0;
     }
-    static constexpr int (*num_361)() = num_212;
-    static constexpr int (*num_362)() = num_214;
-    static int num_363() {
+    static int number_361() { return number_212(); }
+    static int number_362() { return number_214(); }
+    static int number_363() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -978,7 +1169,7 @@ public:
         }
         return 0;
     }
-    static int num_364() {
+    static int number_364() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
         if (r)
         {
@@ -986,7 +1177,7 @@ public:
         }
         return 0;
     }
-    static int num_370() {
+    static int number_370() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r)
         {
@@ -994,7 +1185,7 @@ public:
         }
         return 0;
     }
-    static int num_371() {
+    static int number_371() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r)
         {
@@ -1002,7 +1193,7 @@ public:
         }
         return 0;
     }
-    static int num_372() {
+    static int number_372() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r)
         {
@@ -1010,7 +1201,7 @@ public:
         }
         return 0;
     }
-    static int num_373() {
+    static int number_373() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r)
         {
@@ -1018,7 +1209,7 @@ public:
         }
         return 0;
     }
-    static int num_374() {
+    static int number_374() {
         auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset);
         if (r)
         {
@@ -1027,435 +1218,415 @@ public:
         return 0;
     }
 
-    static int num_380() { return int((360 + int(PlayData.scratchAxis[0]) % 360) % 360 / 360.0 * 256); };
-    static int num_381() { return int((360 + int(PlayData.scratchAxis[1]) % 360) % 360 / 360.0 * 256); };
+    static int number_380() { return int((360 + int(PlayData.scratchAxis[0]) % 360) % 360 / 360.0 * 256); };
+    static int number_381() { return int((360 + int(PlayData.scratchAxis[1]) % 360) % 360 / 360.0 * 256); };
 
 };
 
-#define define_has_member(index)                                                            \
-class has_number_##index                                                                    \
-{                                                                                           \
-private:                                                                                    \
-    typedef long yes_type;                                                                  \
-    typedef char no_type;                                                                   \
-    template <typename U> static yes_type test(decltype(&U::num_##index));                  \
-    template <typename U> static no_type  test(...);                                        \
-public:                                                                                     \
-    static constexpr bool has_func = sizeof(test<NumberConverter>()) == sizeof(yes_type);   \
-private:                                                                                    \
-    template <typename U, typename = std::enable_if_t<!has_func>>                           \
-    static constexpr int(*func())() { return &U::num_0; }                                   \
-    template <typename U, typename = std::enable_if_t<has_func>>                            \
-    static constexpr int(*func())() { return &U::num_##index; }                             \
-public:                                                                                     \
-    static constexpr int(*value)() = func<NumberConverter>();                               \
-}
+#pragma region declare_member
 
-#define has_number(index)  has_number_##index::has_func
-#define number(index) has_number_##index::value
+declare_member(NumberConverter, int, number, 0);
+declare_member(NumberConverter, int, number, 1);
+declare_member(NumberConverter, int, number, 2);
+declare_member(NumberConverter, int, number, 3);
+declare_member(NumberConverter, int, number, 4);
+declare_member(NumberConverter, int, number, 5);
+declare_member(NumberConverter, int, number, 6);
+declare_member(NumberConverter, int, number, 7);
+declare_member(NumberConverter, int, number, 8);
+declare_member(NumberConverter, int, number, 9);
+declare_member(NumberConverter, int, number, 10);
+declare_member(NumberConverter, int, number, 11);
+declare_member(NumberConverter, int, number, 12);
+declare_member(NumberConverter, int, number, 13);
+declare_member(NumberConverter, int, number, 14);
+declare_member(NumberConverter, int, number, 15);
+declare_member(NumberConverter, int, number, 16);
+declare_member(NumberConverter, int, number, 17);
+declare_member(NumberConverter, int, number, 18);
+declare_member(NumberConverter, int, number, 19);
+declare_member(NumberConverter, int, number, 20);
+declare_member(NumberConverter, int, number, 21);
+declare_member(NumberConverter, int, number, 22);
+declare_member(NumberConverter, int, number, 23);
+declare_member(NumberConverter, int, number, 24);
+declare_member(NumberConverter, int, number, 25);
+declare_member(NumberConverter, int, number, 26);
+declare_member(NumberConverter, int, number, 27);
+declare_member(NumberConverter, int, number, 28);
+declare_member(NumberConverter, int, number, 29);
+declare_member(NumberConverter, int, number, 30);
+declare_member(NumberConverter, int, number, 31);
+declare_member(NumberConverter, int, number, 32);
+declare_member(NumberConverter, int, number, 33);
+declare_member(NumberConverter, int, number, 34);
+declare_member(NumberConverter, int, number, 35);
+declare_member(NumberConverter, int, number, 36);
+declare_member(NumberConverter, int, number, 37);
+declare_member(NumberConverter, int, number, 38);
+declare_member(NumberConverter, int, number, 39);
+declare_member(NumberConverter, int, number, 40);
+declare_member(NumberConverter, int, number, 41);
+declare_member(NumberConverter, int, number, 42);
+declare_member(NumberConverter, int, number, 43);
+declare_member(NumberConverter, int, number, 44);
+declare_member(NumberConverter, int, number, 45);
+declare_member(NumberConverter, int, number, 46);
+declare_member(NumberConverter, int, number, 47);
+declare_member(NumberConverter, int, number, 48);
+declare_member(NumberConverter, int, number, 49);
+declare_member(NumberConverter, int, number, 50);
+declare_member(NumberConverter, int, number, 51);
+declare_member(NumberConverter, int, number, 52);
+declare_member(NumberConverter, int, number, 53);
+declare_member(NumberConverter, int, number, 54);
+declare_member(NumberConverter, int, number, 55);
+declare_member(NumberConverter, int, number, 56);
+declare_member(NumberConverter, int, number, 57);
+declare_member(NumberConverter, int, number, 58);
+declare_member(NumberConverter, int, number, 59);
+declare_member(NumberConverter, int, number, 60);
+declare_member(NumberConverter, int, number, 61);
+declare_member(NumberConverter, int, number, 62);
+declare_member(NumberConverter, int, number, 63);
+declare_member(NumberConverter, int, number, 64);
+declare_member(NumberConverter, int, number, 65);
+declare_member(NumberConverter, int, number, 66);
+declare_member(NumberConverter, int, number, 67);
+declare_member(NumberConverter, int, number, 68);
+declare_member(NumberConverter, int, number, 69);
+declare_member(NumberConverter, int, number, 70);
+declare_member(NumberConverter, int, number, 71);
+declare_member(NumberConverter, int, number, 72);
+declare_member(NumberConverter, int, number, 73);
+declare_member(NumberConverter, int, number, 74);
+declare_member(NumberConverter, int, number, 75);
+declare_member(NumberConverter, int, number, 76);
+declare_member(NumberConverter, int, number, 77);
+declare_member(NumberConverter, int, number, 78);
+declare_member(NumberConverter, int, number, 79);
+declare_member(NumberConverter, int, number, 80);
+declare_member(NumberConverter, int, number, 81);
+declare_member(NumberConverter, int, number, 82);
+declare_member(NumberConverter, int, number, 83);
+declare_member(NumberConverter, int, number, 84);
+declare_member(NumberConverter, int, number, 85);
+declare_member(NumberConverter, int, number, 86);
+declare_member(NumberConverter, int, number, 87);
+declare_member(NumberConverter, int, number, 88);
+declare_member(NumberConverter, int, number, 89);
+declare_member(NumberConverter, int, number, 90);
+declare_member(NumberConverter, int, number, 91);
+declare_member(NumberConverter, int, number, 92);
+declare_member(NumberConverter, int, number, 93);
+declare_member(NumberConverter, int, number, 94);
+declare_member(NumberConverter, int, number, 95);
+declare_member(NumberConverter, int, number, 96);
+declare_member(NumberConverter, int, number, 97);
+declare_member(NumberConverter, int, number, 98);
+declare_member(NumberConverter, int, number, 99);
+declare_member(NumberConverter, int, number, 100);
+declare_member(NumberConverter, int, number, 101);
+declare_member(NumberConverter, int, number, 102);
+declare_member(NumberConverter, int, number, 103);
+declare_member(NumberConverter, int, number, 104);
+declare_member(NumberConverter, int, number, 105);
+declare_member(NumberConverter, int, number, 106);
+declare_member(NumberConverter, int, number, 107);
+declare_member(NumberConverter, int, number, 108);
+declare_member(NumberConverter, int, number, 109);
+declare_member(NumberConverter, int, number, 110);
+declare_member(NumberConverter, int, number, 111);
+declare_member(NumberConverter, int, number, 112);
+declare_member(NumberConverter, int, number, 113);
+declare_member(NumberConverter, int, number, 114);
+declare_member(NumberConverter, int, number, 115);
+declare_member(NumberConverter, int, number, 116);
+declare_member(NumberConverter, int, number, 117);
+declare_member(NumberConverter, int, number, 118);
+declare_member(NumberConverter, int, number, 119);
+declare_member(NumberConverter, int, number, 120);
+declare_member(NumberConverter, int, number, 121);
+declare_member(NumberConverter, int, number, 122);
+declare_member(NumberConverter, int, number, 123);
+declare_member(NumberConverter, int, number, 124);
+declare_member(NumberConverter, int, number, 125);
+declare_member(NumberConverter, int, number, 126);
+declare_member(NumberConverter, int, number, 127);
+declare_member(NumberConverter, int, number, 128);
+declare_member(NumberConverter, int, number, 129);
+declare_member(NumberConverter, int, number, 130);
+declare_member(NumberConverter, int, number, 131);
+declare_member(NumberConverter, int, number, 132);
+declare_member(NumberConverter, int, number, 133);
+declare_member(NumberConverter, int, number, 134);
+declare_member(NumberConverter, int, number, 135);
+declare_member(NumberConverter, int, number, 136);
+declare_member(NumberConverter, int, number, 137);
+declare_member(NumberConverter, int, number, 138);
+declare_member(NumberConverter, int, number, 139);
+declare_member(NumberConverter, int, number, 140);
+declare_member(NumberConverter, int, number, 141);
+declare_member(NumberConverter, int, number, 142);
+declare_member(NumberConverter, int, number, 143);
+declare_member(NumberConverter, int, number, 144);
+declare_member(NumberConverter, int, number, 145);
+declare_member(NumberConverter, int, number, 146);
+declare_member(NumberConverter, int, number, 147);
+declare_member(NumberConverter, int, number, 148);
+declare_member(NumberConverter, int, number, 149);
+declare_member(NumberConverter, int, number, 150);
+declare_member(NumberConverter, int, number, 151);
+declare_member(NumberConverter, int, number, 152);
+declare_member(NumberConverter, int, number, 153);
+declare_member(NumberConverter, int, number, 154);
+declare_member(NumberConverter, int, number, 155);
+declare_member(NumberConverter, int, number, 156);
+declare_member(NumberConverter, int, number, 157);
+declare_member(NumberConverter, int, number, 158);
+declare_member(NumberConverter, int, number, 159);
+declare_member(NumberConverter, int, number, 160);
+declare_member(NumberConverter, int, number, 161);
+declare_member(NumberConverter, int, number, 162);
+declare_member(NumberConverter, int, number, 163);
+declare_member(NumberConverter, int, number, 164);
+declare_member(NumberConverter, int, number, 165);
+declare_member(NumberConverter, int, number, 166);
+declare_member(NumberConverter, int, number, 167);
+declare_member(NumberConverter, int, number, 168);
+declare_member(NumberConverter, int, number, 169);
+declare_member(NumberConverter, int, number, 170);
+declare_member(NumberConverter, int, number, 171);
+declare_member(NumberConverter, int, number, 172);
+declare_member(NumberConverter, int, number, 173);
+declare_member(NumberConverter, int, number, 174);
+declare_member(NumberConverter, int, number, 175);
+declare_member(NumberConverter, int, number, 176);
+declare_member(NumberConverter, int, number, 177);
+declare_member(NumberConverter, int, number, 178);
+declare_member(NumberConverter, int, number, 179);
+declare_member(NumberConverter, int, number, 180);
+declare_member(NumberConverter, int, number, 181);
+declare_member(NumberConverter, int, number, 182);
+declare_member(NumberConverter, int, number, 183);
+declare_member(NumberConverter, int, number, 184);
+declare_member(NumberConverter, int, number, 185);
+declare_member(NumberConverter, int, number, 186);
+declare_member(NumberConverter, int, number, 187);
+declare_member(NumberConverter, int, number, 188);
+declare_member(NumberConverter, int, number, 189);
+declare_member(NumberConverter, int, number, 190);
+declare_member(NumberConverter, int, number, 191);
+declare_member(NumberConverter, int, number, 192);
+declare_member(NumberConverter, int, number, 193);
+declare_member(NumberConverter, int, number, 194);
+declare_member(NumberConverter, int, number, 195);
+declare_member(NumberConverter, int, number, 196);
+declare_member(NumberConverter, int, number, 197);
+declare_member(NumberConverter, int, number, 198);
+declare_member(NumberConverter, int, number, 199);
+declare_member(NumberConverter, int, number, 200);
+declare_member(NumberConverter, int, number, 201);
+declare_member(NumberConverter, int, number, 202);
+declare_member(NumberConverter, int, number, 203);
+declare_member(NumberConverter, int, number, 204);
+declare_member(NumberConverter, int, number, 205);
+declare_member(NumberConverter, int, number, 206);
+declare_member(NumberConverter, int, number, 207);
+declare_member(NumberConverter, int, number, 208);
+declare_member(NumberConverter, int, number, 209);
+declare_member(NumberConverter, int, number, 210);
+declare_member(NumberConverter, int, number, 211);
+declare_member(NumberConverter, int, number, 212);
+declare_member(NumberConverter, int, number, 213);
+declare_member(NumberConverter, int, number, 214);
+declare_member(NumberConverter, int, number, 215);
+declare_member(NumberConverter, int, number, 216);
+declare_member(NumberConverter, int, number, 217);
+declare_member(NumberConverter, int, number, 218);
+declare_member(NumberConverter, int, number, 219);
+declare_member(NumberConverter, int, number, 220);
+declare_member(NumberConverter, int, number, 221);
+declare_member(NumberConverter, int, number, 222);
+declare_member(NumberConverter, int, number, 223);
+declare_member(NumberConverter, int, number, 224);
+declare_member(NumberConverter, int, number, 225);
+declare_member(NumberConverter, int, number, 226);
+declare_member(NumberConverter, int, number, 227);
+declare_member(NumberConverter, int, number, 228);
+declare_member(NumberConverter, int, number, 229);
+declare_member(NumberConverter, int, number, 230);
+declare_member(NumberConverter, int, number, 231);
+declare_member(NumberConverter, int, number, 232);
+declare_member(NumberConverter, int, number, 233);
+declare_member(NumberConverter, int, number, 234);
+declare_member(NumberConverter, int, number, 235);
+declare_member(NumberConverter, int, number, 236);
+declare_member(NumberConverter, int, number, 237);
+declare_member(NumberConverter, int, number, 238);
+declare_member(NumberConverter, int, number, 239);
+declare_member(NumberConverter, int, number, 240);
+declare_member(NumberConverter, int, number, 241);
+declare_member(NumberConverter, int, number, 242);
+declare_member(NumberConverter, int, number, 243);
+declare_member(NumberConverter, int, number, 244);
+declare_member(NumberConverter, int, number, 245);
+declare_member(NumberConverter, int, number, 246);
+declare_member(NumberConverter, int, number, 247);
+declare_member(NumberConverter, int, number, 248);
+declare_member(NumberConverter, int, number, 249);
+declare_member(NumberConverter, int, number, 250);
+declare_member(NumberConverter, int, number, 251);
+declare_member(NumberConverter, int, number, 252);
+declare_member(NumberConverter, int, number, 253);
+declare_member(NumberConverter, int, number, 254);
+declare_member(NumberConverter, int, number, 255);
+declare_member(NumberConverter, int, number, 256);
+declare_member(NumberConverter, int, number, 257);
+declare_member(NumberConverter, int, number, 258);
+declare_member(NumberConverter, int, number, 259);
+declare_member(NumberConverter, int, number, 260);
+declare_member(NumberConverter, int, number, 261);
+declare_member(NumberConverter, int, number, 262);
+declare_member(NumberConverter, int, number, 263);
+declare_member(NumberConverter, int, number, 264);
+declare_member(NumberConverter, int, number, 265);
+declare_member(NumberConverter, int, number, 266);
+declare_member(NumberConverter, int, number, 267);
+declare_member(NumberConverter, int, number, 268);
+declare_member(NumberConverter, int, number, 269);
+declare_member(NumberConverter, int, number, 270);
+declare_member(NumberConverter, int, number, 271);
+declare_member(NumberConverter, int, number, 272);
+declare_member(NumberConverter, int, number, 273);
+declare_member(NumberConverter, int, number, 274);
+declare_member(NumberConverter, int, number, 275);
+declare_member(NumberConverter, int, number, 276);
+declare_member(NumberConverter, int, number, 277);
+declare_member(NumberConverter, int, number, 278);
+declare_member(NumberConverter, int, number, 279);
+declare_member(NumberConverter, int, number, 280);
+declare_member(NumberConverter, int, number, 281);
+declare_member(NumberConverter, int, number, 282);
+declare_member(NumberConverter, int, number, 283);
+declare_member(NumberConverter, int, number, 284);
+declare_member(NumberConverter, int, number, 285);
+declare_member(NumberConverter, int, number, 286);
+declare_member(NumberConverter, int, number, 287);
+declare_member(NumberConverter, int, number, 288);
+declare_member(NumberConverter, int, number, 289);
+declare_member(NumberConverter, int, number, 290);
+declare_member(NumberConverter, int, number, 291);
+declare_member(NumberConverter, int, number, 292);
+declare_member(NumberConverter, int, number, 293);
+declare_member(NumberConverter, int, number, 294);
+declare_member(NumberConverter, int, number, 295);
+declare_member(NumberConverter, int, number, 296);
+declare_member(NumberConverter, int, number, 297);
+declare_member(NumberConverter, int, number, 298);
+declare_member(NumberConverter, int, number, 299);
+declare_member(NumberConverter, int, number, 300);
+declare_member(NumberConverter, int, number, 301);
+declare_member(NumberConverter, int, number, 302);
+declare_member(NumberConverter, int, number, 303);
+declare_member(NumberConverter, int, number, 304);
+declare_member(NumberConverter, int, number, 305);
+declare_member(NumberConverter, int, number, 306);
+declare_member(NumberConverter, int, number, 307);
+declare_member(NumberConverter, int, number, 308);
+declare_member(NumberConverter, int, number, 309);
+declare_member(NumberConverter, int, number, 310);
+declare_member(NumberConverter, int, number, 311);
+declare_member(NumberConverter, int, number, 312);
+declare_member(NumberConverter, int, number, 313);
+declare_member(NumberConverter, int, number, 314);
+declare_member(NumberConverter, int, number, 315);
+declare_member(NumberConverter, int, number, 316);
+declare_member(NumberConverter, int, number, 317);
+declare_member(NumberConverter, int, number, 318);
+declare_member(NumberConverter, int, number, 319);
+declare_member(NumberConverter, int, number, 320);
+declare_member(NumberConverter, int, number, 321);
+declare_member(NumberConverter, int, number, 322);
+declare_member(NumberConverter, int, number, 323);
+declare_member(NumberConverter, int, number, 324);
+declare_member(NumberConverter, int, number, 325);
+declare_member(NumberConverter, int, number, 326);
+declare_member(NumberConverter, int, number, 327);
+declare_member(NumberConverter, int, number, 328);
+declare_member(NumberConverter, int, number, 329);
+declare_member(NumberConverter, int, number, 330);
+declare_member(NumberConverter, int, number, 331);
+declare_member(NumberConverter, int, number, 332);
+declare_member(NumberConverter, int, number, 333);
+declare_member(NumberConverter, int, number, 334);
+declare_member(NumberConverter, int, number, 335);
+declare_member(NumberConverter, int, number, 336);
+declare_member(NumberConverter, int, number, 337);
+declare_member(NumberConverter, int, number, 338);
+declare_member(NumberConverter, int, number, 339);
+declare_member(NumberConverter, int, number, 340);
+declare_member(NumberConverter, int, number, 341);
+declare_member(NumberConverter, int, number, 342);
+declare_member(NumberConverter, int, number, 343);
+declare_member(NumberConverter, int, number, 344);
+declare_member(NumberConverter, int, number, 345);
+declare_member(NumberConverter, int, number, 346);
+declare_member(NumberConverter, int, number, 347);
+declare_member(NumberConverter, int, number, 348);
+declare_member(NumberConverter, int, number, 349);
+declare_member(NumberConverter, int, number, 350);
+declare_member(NumberConverter, int, number, 351);
+declare_member(NumberConverter, int, number, 352);
+declare_member(NumberConverter, int, number, 353);
+declare_member(NumberConverter, int, number, 354);
+declare_member(NumberConverter, int, number, 355);
+declare_member(NumberConverter, int, number, 356);
+declare_member(NumberConverter, int, number, 357);
+declare_member(NumberConverter, int, number, 358);
+declare_member(NumberConverter, int, number, 359);
+declare_member(NumberConverter, int, number, 360);
+declare_member(NumberConverter, int, number, 361);
+declare_member(NumberConverter, int, number, 362);
+declare_member(NumberConverter, int, number, 363);
+declare_member(NumberConverter, int, number, 364);
+declare_member(NumberConverter, int, number, 365);
+declare_member(NumberConverter, int, number, 366);
+declare_member(NumberConverter, int, number, 367);
+declare_member(NumberConverter, int, number, 368);
+declare_member(NumberConverter, int, number, 369);
+declare_member(NumberConverter, int, number, 370);
+declare_member(NumberConverter, int, number, 371);
+declare_member(NumberConverter, int, number, 372);
+declare_member(NumberConverter, int, number, 373);
+declare_member(NumberConverter, int, number, 374);
+declare_member(NumberConverter, int, number, 375);
+declare_member(NumberConverter, int, number, 376);
+declare_member(NumberConverter, int, number, 377);
+declare_member(NumberConverter, int, number, 378);
+declare_member(NumberConverter, int, number, 379);
+declare_member(NumberConverter, int, number, 380);
+declare_member(NumberConverter, int, number, 381);
+declare_member(NumberConverter, int, number, 382);
+declare_member(NumberConverter, int, number, 383);
+declare_member(NumberConverter, int, number, 384);
+declare_member(NumberConverter, int, number, 385);
+declare_member(NumberConverter, int, number, 386);
+declare_member(NumberConverter, int, number, 387);
+declare_member(NumberConverter, int, number, 388);
+declare_member(NumberConverter, int, number, 389);
+declare_member(NumberConverter, int, number, 390);
+declare_member(NumberConverter, int, number, 391);
+declare_member(NumberConverter, int, number, 392);
+declare_member(NumberConverter, int, number, 393);
+declare_member(NumberConverter, int, number, 394);
+declare_member(NumberConverter, int, number, 395);
+declare_member(NumberConverter, int, number, 396);
+declare_member(NumberConverter, int, number, 397);
+declare_member(NumberConverter, int, number, 398);
+declare_member(NumberConverter, int, number, 399);
 
-#pragma region define_has_member
-
-define_has_member(0);
-define_has_member(1);
-define_has_member(2);
-define_has_member(3);
-define_has_member(4);
-define_has_member(5);
-define_has_member(6);
-define_has_member(7);
-define_has_member(8);
-define_has_member(9);
-define_has_member(10);
-define_has_member(11);
-define_has_member(12);
-define_has_member(13);
-define_has_member(14);
-define_has_member(15);
-define_has_member(16);
-define_has_member(17);
-define_has_member(18);
-define_has_member(19);
-define_has_member(20);
-define_has_member(21);
-define_has_member(22);
-define_has_member(23);
-define_has_member(24);
-define_has_member(25);
-define_has_member(26);
-define_has_member(27);
-define_has_member(28);
-define_has_member(29);
-define_has_member(30);
-define_has_member(31);
-define_has_member(32);
-define_has_member(33);
-define_has_member(34);
-define_has_member(35);
-define_has_member(36);
-define_has_member(37);
-define_has_member(38);
-define_has_member(39);
-define_has_member(40);
-define_has_member(41);
-define_has_member(42);
-define_has_member(43);
-define_has_member(44);
-define_has_member(45);
-define_has_member(46);
-define_has_member(47);
-define_has_member(48);
-define_has_member(49);
-define_has_member(50);
-define_has_member(51);
-define_has_member(52);
-define_has_member(53);
-define_has_member(54);
-define_has_member(55);
-define_has_member(56);
-define_has_member(57);
-define_has_member(58);
-define_has_member(59);
-define_has_member(60);
-define_has_member(61);
-define_has_member(62);
-define_has_member(63);
-define_has_member(64);
-define_has_member(65);
-define_has_member(66);
-define_has_member(67);
-define_has_member(68);
-define_has_member(69);
-define_has_member(70);
-define_has_member(71);
-define_has_member(72);
-define_has_member(73);
-define_has_member(74);
-define_has_member(75);
-define_has_member(76);
-define_has_member(77);
-define_has_member(78);
-define_has_member(79);
-define_has_member(80);
-define_has_member(81);
-define_has_member(82);
-define_has_member(83);
-define_has_member(84);
-define_has_member(85);
-define_has_member(86);
-define_has_member(87);
-define_has_member(88);
-define_has_member(89);
-define_has_member(90);
-define_has_member(91);
-define_has_member(92);
-define_has_member(93);
-define_has_member(94);
-define_has_member(95);
-define_has_member(96);
-define_has_member(97);
-define_has_member(98);
-define_has_member(99);
-define_has_member(100);
-define_has_member(101);
-define_has_member(102);
-define_has_member(103);
-define_has_member(104);
-define_has_member(105);
-define_has_member(106);
-define_has_member(107);
-define_has_member(108);
-define_has_member(109);
-define_has_member(110);
-define_has_member(111);
-define_has_member(112);
-define_has_member(113);
-define_has_member(114);
-define_has_member(115);
-define_has_member(116);
-define_has_member(117);
-define_has_member(118);
-define_has_member(119);
-define_has_member(120);
-define_has_member(121);
-define_has_member(122);
-define_has_member(123);
-define_has_member(124);
-define_has_member(125);
-define_has_member(126);
-define_has_member(127);
-define_has_member(128);
-define_has_member(129);
-define_has_member(130);
-define_has_member(131);
-define_has_member(132);
-define_has_member(133);
-define_has_member(134);
-define_has_member(135);
-define_has_member(136);
-define_has_member(137);
-define_has_member(138);
-define_has_member(139);
-define_has_member(140);
-define_has_member(141);
-define_has_member(142);
-define_has_member(143);
-define_has_member(144);
-define_has_member(145);
-define_has_member(146);
-define_has_member(147);
-define_has_member(148);
-define_has_member(149);
-define_has_member(150);
-define_has_member(151);
-define_has_member(152);
-define_has_member(153);
-define_has_member(154);
-define_has_member(155);
-define_has_member(156);
-define_has_member(157);
-define_has_member(158);
-define_has_member(159);
-define_has_member(160);
-define_has_member(161);
-define_has_member(162);
-define_has_member(163);
-define_has_member(164);
-define_has_member(165);
-define_has_member(166);
-define_has_member(167);
-define_has_member(168);
-define_has_member(169);
-define_has_member(170);
-define_has_member(171);
-define_has_member(172);
-define_has_member(173);
-define_has_member(174);
-define_has_member(175);
-define_has_member(176);
-define_has_member(177);
-define_has_member(178);
-define_has_member(179);
-define_has_member(180);
-define_has_member(181);
-define_has_member(182);
-define_has_member(183);
-define_has_member(184);
-define_has_member(185);
-define_has_member(186);
-define_has_member(187);
-define_has_member(188);
-define_has_member(189);
-define_has_member(190);
-define_has_member(191);
-define_has_member(192);
-define_has_member(193);
-define_has_member(194);
-define_has_member(195);
-define_has_member(196);
-define_has_member(197);
-define_has_member(198);
-define_has_member(199);
-define_has_member(200);
-define_has_member(201);
-define_has_member(202);
-define_has_member(203);
-define_has_member(204);
-define_has_member(205);
-define_has_member(206);
-define_has_member(207);
-define_has_member(208);
-define_has_member(209);
-define_has_member(210);
-define_has_member(211);
-define_has_member(212);
-define_has_member(213);
-define_has_member(214);
-define_has_member(215);
-define_has_member(216);
-define_has_member(217);
-define_has_member(218);
-define_has_member(219);
-define_has_member(220);
-define_has_member(221);
-define_has_member(222);
-define_has_member(223);
-define_has_member(224);
-define_has_member(225);
-define_has_member(226);
-define_has_member(227);
-define_has_member(228);
-define_has_member(229);
-define_has_member(230);
-define_has_member(231);
-define_has_member(232);
-define_has_member(233);
-define_has_member(234);
-define_has_member(235);
-define_has_member(236);
-define_has_member(237);
-define_has_member(238);
-define_has_member(239);
-define_has_member(240);
-define_has_member(241);
-define_has_member(242);
-define_has_member(243);
-define_has_member(244);
-define_has_member(245);
-define_has_member(246);
-define_has_member(247);
-define_has_member(248);
-define_has_member(249);
-define_has_member(250);
-define_has_member(251);
-define_has_member(252);
-define_has_member(253);
-define_has_member(254);
-define_has_member(255);
-define_has_member(256);
-define_has_member(257);
-define_has_member(258);
-define_has_member(259);
-define_has_member(260);
-define_has_member(261);
-define_has_member(262);
-define_has_member(263);
-define_has_member(264);
-define_has_member(265);
-define_has_member(266);
-define_has_member(267);
-define_has_member(268);
-define_has_member(269);
-define_has_member(270);
-define_has_member(271);
-define_has_member(272);
-define_has_member(273);
-define_has_member(274);
-define_has_member(275);
-define_has_member(276);
-define_has_member(277);
-define_has_member(278);
-define_has_member(279);
-define_has_member(280);
-define_has_member(281);
-define_has_member(282);
-define_has_member(283);
-define_has_member(284);
-define_has_member(285);
-define_has_member(286);
-define_has_member(287);
-define_has_member(288);
-define_has_member(289);
-define_has_member(290);
-define_has_member(291);
-define_has_member(292);
-define_has_member(293);
-define_has_member(294);
-define_has_member(295);
-define_has_member(296);
-define_has_member(297);
-define_has_member(298);
-define_has_member(299);
-define_has_member(300);
-define_has_member(301);
-define_has_member(302);
-define_has_member(303);
-define_has_member(304);
-define_has_member(305);
-define_has_member(306);
-define_has_member(307);
-define_has_member(308);
-define_has_member(309);
-define_has_member(310);
-define_has_member(311);
-define_has_member(312);
-define_has_member(313);
-define_has_member(314);
-define_has_member(315);
-define_has_member(316);
-define_has_member(317);
-define_has_member(318);
-define_has_member(319);
-define_has_member(320);
-define_has_member(321);
-define_has_member(322);
-define_has_member(323);
-define_has_member(324);
-define_has_member(325);
-define_has_member(326);
-define_has_member(327);
-define_has_member(328);
-define_has_member(329);
-define_has_member(330);
-define_has_member(331);
-define_has_member(332);
-define_has_member(333);
-define_has_member(334);
-define_has_member(335);
-define_has_member(336);
-define_has_member(337);
-define_has_member(338);
-define_has_member(339);
-define_has_member(340);
-define_has_member(341);
-define_has_member(342);
-define_has_member(343);
-define_has_member(344);
-define_has_member(345);
-define_has_member(346);
-define_has_member(347);
-define_has_member(348);
-define_has_member(349);
-define_has_member(350);
-define_has_member(351);
-define_has_member(352);
-define_has_member(353);
-define_has_member(354);
-define_has_member(355);
-define_has_member(356);
-define_has_member(357);
-define_has_member(358);
-define_has_member(359);
-define_has_member(360);
-define_has_member(361);
-define_has_member(362);
-define_has_member(363);
-define_has_member(364);
-define_has_member(365);
-define_has_member(366);
-define_has_member(367);
-define_has_member(368);
-define_has_member(369);
-define_has_member(370);
-define_has_member(371);
-define_has_member(372);
-define_has_member(373);
-define_has_member(374);
-define_has_member(375);
-define_has_member(376);
-define_has_member(377);
-define_has_member(378);
-define_has_member(379);
-define_has_member(380);
-define_has_member(381);
-define_has_member(382);
-define_has_member(383);
-define_has_member(384);
-define_has_member(385);
-define_has_member(386);
-define_has_member(387);
-define_has_member(388);
-define_has_member(389);
-define_has_member(390);
-define_has_member(391);
-define_has_member(392);
-define_has_member(393);
-define_has_member(394);
-define_has_member(395);
-define_has_member(396);
-define_has_member(397);
-define_has_member(398);
-define_has_member(399);
+#define number(index) member(NumberConverter, int, number, index)
 
 #pragma endregion
 
@@ -1485,26 +1656,26 @@ std::function<int()> convertNumberIndex(int n)
 
         switch (index)
         {
-        case 0: return std::bind(NumberConverter::num_arena_0, player);
-        case 1: return std::bind(NumberConverter::num_arena_1, player);
-        case 2: return std::bind(NumberConverter::num_arena_2, player);
-        case 3: return std::bind(NumberConverter::num_arena_3, player);
-        case 4: return std::bind(NumberConverter::num_arena_4, player);
-        case 5: return std::bind(NumberConverter::num_arena_5, player);
-        case 6: return std::bind(NumberConverter::num_arena_6, player);
-        case 7: return std::bind(NumberConverter::num_arena_7, player);
-        case 8: return std::bind(NumberConverter::num_arena_8, player);
-        case 9: return std::bind(NumberConverter::num_arena_9, player);
-        case 10: return std::bind(NumberConverter::num_arena_10, player);
-        case 11: return std::bind(NumberConverter::num_arena_11, player);
-        case 12: return std::bind(NumberConverter::num_arena_12, player);
-        case 13: return std::bind(NumberConverter::num_arena_13, player);
-        case 14: return std::bind(NumberConverter::num_arena_14, player);
-        case 15: return std::bind(NumberConverter::num_arena_15, player);
-        case 16: return std::bind(NumberConverter::num_arena_16, player);
-        case 17: return std::bind(NumberConverter::num_arena_17, player);
-        case 18: return std::bind(NumberConverter::num_arena_18, player);
-        case 19: return std::bind(NumberConverter::num_arena_19, player);
+        case 0: return std::bind(NumberConverter::number_arena_0, player);
+        case 1: return std::bind(NumberConverter::number_arena_1, player);
+        case 2: return std::bind(NumberConverter::number_arena_2, player);
+        case 3: return std::bind(NumberConverter::number_arena_3, player);
+        case 4: return std::bind(NumberConverter::number_arena_4, player);
+        case 5: return std::bind(NumberConverter::number_arena_5, player);
+        case 6: return std::bind(NumberConverter::number_arena_6, player);
+        case 7: return std::bind(NumberConverter::number_arena_7, player);
+        case 8: return std::bind(NumberConverter::number_arena_8, player);
+        case 9: return std::bind(NumberConverter::number_arena_9, player);
+        case 10: return std::bind(NumberConverter::number_arena_10, player);
+        case 11: return std::bind(NumberConverter::number_arena_11, player);
+        case 12: return std::bind(NumberConverter::number_arena_12, player);
+        case 13: return std::bind(NumberConverter::number_arena_13, player);
+        case 14: return std::bind(NumberConverter::number_arena_14, player);
+        case 15: return std::bind(NumberConverter::number_arena_15, player);
+        case 16: return std::bind(NumberConverter::number_arena_16, player);
+        case 17: return std::bind(NumberConverter::number_arena_17, player);
+        case 18: return std::bind(NumberConverter::number_arena_18, player);
+        case 19: return std::bind(NumberConverter::number_arena_19, player);
         }
     }
     else if (n >= 0 && n <= 399)

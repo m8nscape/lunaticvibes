@@ -6,18 +6,15 @@
 #include "game/input/input_mgr.h"
 #include "game/skin/skin_lr2.h"
 #include "game/skin/skin_mgr.h"
-#include "game/scene/scene_context.h"
 #include "game/runtime/generic_info.h"
+#include "game/data/data_types.h"
 
 #include "common/chartformat/chartformat_bms.h"
 
 #include "game/runtime/i18n.h"
 
-#include "game/arena/arena_data.h"
 #include "game/arena/arena_client.h"
 #include "game/arena/arena_host.h"
-
-#include "data/data_system.h"
 
 #include "imgui.h"
 
@@ -142,7 +139,7 @@ int main(int argc, char* argv[])
 	InputMgr::updateDevices();
 
     // reset globals
-    lv::data::loadConfigs();
+    loadConfigs();
 
     // language
     i18n::init();
@@ -163,52 +160,50 @@ int main(int argc, char* argv[])
     fontAtlas.AddFontFromFileTTF(imguiFontPath.u8string().c_str(), 24, &fontConfig, fontAtlas.GetGlyphRangesChineseFull());
 
     // etc
-    SoundMgr::setVolume(SampleChannel::MASTER, (float)State::get(IndexSlider::VOLUME_MASTER));
-    SoundMgr::setVolume(SampleChannel::KEY, (float)State::get(IndexSlider::VOLUME_KEY));
-    SoundMgr::setVolume(SampleChannel::BGM, (float)State::get(IndexSlider::VOLUME_BGM));
+    SoundMgr::setVolume(SampleChannel::MASTER, SystemData.volumeMaster);
+    SoundMgr::setVolume(SampleChannel::KEY, SystemData.volumeKey);
+    SoundMgr::setVolume(SampleChannel::BGM, SystemData.volumeBgm);
 
-    if (State::get(IndexSwitch::SOUND_FX0))
-        SoundMgr::setDSP((DSPType)State::get(IndexOption::SOUND_FX0), 0, (SampleChannel)State::get(IndexOption::SOUND_TARGET_FX0), State::get(IndexSlider::FX0_P1), State::get(IndexSlider::FX0_P2));
-    if (State::get(IndexSwitch::SOUND_FX1))
-        SoundMgr::setDSP((DSPType)State::get(IndexOption::SOUND_FX1), 1, (SampleChannel)State::get(IndexOption::SOUND_TARGET_FX1), State::get(IndexSlider::FX1_P1), State::get(IndexSlider::FX1_P2));
-    if (State::get(IndexSwitch::SOUND_FX2))
-        SoundMgr::setDSP((DSPType)State::get(IndexOption::SOUND_FX2), 2, (SampleChannel)State::get(IndexOption::SOUND_TARGET_FX2), State::get(IndexSlider::FX2_P1), State::get(IndexSlider::FX2_P2));
+    if (SystemData.fxType != FXType::Off)
+        SoundMgr::setDSP(SystemData.fxType, 0, SampleChannel::MASTER, SystemData.fxVal, SystemData.fxVal);
 
-    if (State::get(IndexSwitch::SOUND_PITCH))
+    if (SystemData.freqType != FreqModifierType::Off)
     {
         static const double tick = std::pow(2, 1.0 / 12);
-        double f = std::pow(tick, State::get(IndexNumber::PITCH));
-        switch (State::get(IndexOption::SOUND_PITCH_TYPE))
+        double f = std::pow(tick, SystemData.freqVal);
+        switch (SystemData.freqType)
         {
-        case 0: // FREQUENCY
+        case FreqModifierType::Frequency:
             SoundMgr::setFreqFactor(f);
-            gSelectContext.pitchSpeed = f;
+            SystemData.pitchSpeed = f;
             break;
-        case 1: // PITCH
+        case FreqModifierType::PitchOnly:
             SoundMgr::setFreqFactor(1.0);
             SoundMgr::setPitch(f);
-            gSelectContext.pitchSpeed = 1.0;
+            SystemData.pitchSpeed = 1.0;
             break;
-        case 2: // SPEED (freq up, pitch down)
+        case FreqModifierType::SpeedOnly:
             SoundMgr::setFreqFactor(1.0);
             SoundMgr::setSpeed(f);
-            gSelectContext.pitchSpeed = f;
+            SystemData.pitchSpeed = f;
             break;
         default:
             break;
         }
     }
 
-    if (State::get(IndexSwitch::SOUND_EQ))
+    if (SystemData.equalizerEnabled)
     {
-        for (int idx = 0; idx < 7; ++idx)
-        {
-            int val = State::get(IndexNumber(idx + (int)IndexNumber::EQ0));
-            SoundMgr::setEQ((EQFreq)idx, val);
-        }
+        SoundMgr::setEQ(EQFreq::_62_5, SystemData.equalizerVal62_5hz);
+        SoundMgr::setEQ(EQFreq::_160, SystemData.equalizerVal160hz);
+        SoundMgr::setEQ(EQFreq::_400, SystemData.equalizerVal400hz);
+        SoundMgr::setEQ(EQFreq::_1000, SystemData.equalizerVal1khz);
+        SoundMgr::setEQ(EQFreq::_2500, SystemData.equalizerVal2_5khz);
+        SoundMgr::setEQ(EQFreq::_6250, SystemData.equalizerVal6_25khz);
+        SoundMgr::setEQ(EQFreq::_16k, SystemData.equalizerVal16khz);
     }
 
-    gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
+    SelectData.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
 
     // load songs / tables at ScenePreSelect
 
@@ -216,10 +211,10 @@ int main(int argc, char* argv[])
     if (argc >= 2)
     {
         SystemData.gNextScene = SceneType::PLAY;
-        gQuitOnFinish = true;
+        SystemData.quitOnFinish = true;
 
         std::shared_ptr<ChartFormatBMS> bms = std::make_shared<ChartFormatBMS>(argv[1], std::time(NULL));
-        gChartContext = ChartContextParams{
+        SelectData.selectedChart = ChartMetadata{
             argv[1],
             md5file(argv[1]),
             bms,
@@ -281,18 +276,18 @@ int main(int argc, char* argv[])
 
     ///////////////////////////////////////////////////////////
 
-    if (gArenaData.isOnline())
+    if (ArenaData.isOnline())
     {
-        if (gArenaData.isClient())
+        if (ArenaData.isClient())
         {
-            if (gArenaData.isOnline())
+            if (ArenaData.isOnline())
                 g_pArenaClient->leaveLobby();
             g_pArenaClient->loopEnd();
             g_pArenaClient.reset();
         }
-        if (gArenaData.isServer())
+        if (ArenaData.isServer())
         {
-            if (gArenaData.isOnline())
+            if (ArenaData.isOnline())
                 g_pArenaHost->disbandLobby();
             g_pArenaHost->loopEnd();
             g_pArenaHost.reset();
@@ -325,7 +320,7 @@ int main(int argc, char* argv[])
 }
 
 
-void lv::mainLoop()
+void lunaticvibes::mainLoop()
 {
     gGenericInfo.loopStart();
 
@@ -338,52 +333,11 @@ void lv::mainLoop()
         event_handle();
         if (gEventQuit)
         {
-            gAppIsExiting = true;
+            SystemData.isAppExiting = true;
         }
 
         // Scene change
-        static pScene sceneCustomize = nullptr;
-        if (gInCustomize)
-        {
-            if (sceneCustomize == nullptr)
-            {
-                sceneCustomize = SceneMgr::get(SceneType::CUSTOMIZE);
-                sceneCustomize->loopStart();
-                sceneCustomize->inputLoopStart();
-            }
-            if (gExitingCustomize && sceneCustomize)
-            {
-                gInCustomize = false;
-                sceneCustomize->inputLoopEnd();
-                sceneCustomize->loopEnd();
-                sceneCustomize.reset();
-                SystemData.gNextScene = SceneType::SELECT;
-            }
-        }
-        if (gInCustomize && gCustomizeSceneChanged || !gInCustomize && currentScene != SystemData.gNextScene || gExitingCustomize)
-        {
-            if (!gInCustomize) gExitingCustomize = false;
-            gCustomizeSceneChanged = false;
-
-            if (scene)
-            {
-                scene->inputLoopEnd();
-                scene->loopEnd();
-                scene.reset();
-            }
-
-            clearCustomDstOpt();
-            currentScene = SystemData.gNextScene;
-            if (currentScene != SceneType::EXIT && currentScene != SceneType::NOT_INIT)
-            {
-                scene = SceneMgr::get(currentScene);
-                assert(scene != nullptr);
-                scene->loopStart();
-                scene->inputLoopStart();
-                if (gInCustomize) scene->disableMouseInput();
-            }
-        }
-
+        // 
         // draw
         {
             graphics_clear();
@@ -392,11 +346,6 @@ void lv::mainLoop()
             {
                 scene->update();
                 scene->draw();
-            }
-            if (sceneCustomize)
-            {
-                sceneCustomize->update();
-                sceneCustomize->draw();
             }
             graphics_flush();
         }

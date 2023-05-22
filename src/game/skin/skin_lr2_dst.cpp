@@ -1,7 +1,5 @@
 #include "common/pch.h"
 #include "skin_lr2.h"
-#include "game/scene/scene_context.h"
-#include "game/arena/arena_data.h"
 
 #include "game/chart/chart_types.h"
 
@@ -41,7 +39,7 @@ inline bool get(int idx)
 bool getDstOpt(int d)
 {
 	bool result = false;
-	dst_option op = (dst_option)std::abs(d);
+	int op = std::abs(d);
 
 	std::shared_lock l(_mutex);
 	if (d == 9999)	// Lunatic Vibes flag
@@ -82,8 +80,6 @@ void updateDstOpt()
 
 	for (auto& [i, o] : _extendedOp)
 		o = false;
-
-	using namespace data;
 
 	auto getCurrentSelectedEntry = []() -> std::shared_ptr<EntryBase>
 	{
@@ -223,6 +219,7 @@ void updateDstOpt()
 			else if (rate >= 100.0 * 2 / 9) return RankType::E;
 			else if (rate >= 100.0 * 1 / 9) return RankType::F;
 		}
+		return RankType::_;
 	};
 
 	// 0 常にtrue
@@ -281,7 +278,7 @@ void updateDstOpt()
 		case SkinType::PLAY10:
 		case SkinType::PLAY14:
 			set({ 10, 12 });
-			if (PlayData.isBattle)
+			if (PlayData.battleType == PlayModifierBattleType::GhostBattle)
 				set(13);
 			break;
 		}
@@ -359,13 +356,13 @@ void updateDstOpt()
 			set(42);
 			break;
 		case PlayModifierGaugeType::EXHARD:
-		case PlayModifierGaugeType::GRADE_DEATH:
+		case PlayModifierGaugeType::CLASS_DEATH:
 		case PlayModifierGaugeType::DEATH:
 			set(48);
 			[[ fallthrough ]];
 		case PlayModifierGaugeType::HARD:
-		case PlayModifierGaugeType::GRADE_NORMAL:
-		case PlayModifierGaugeType::GRADE_HARD:
+		case PlayModifierGaugeType::CLASS_NORMAL:
+		case PlayModifierGaugeType::CLASS_HARD:
 		case PlayModifierGaugeType::PATTACK:
 		case PlayModifierGaugeType::GATTACK:
 			set(43);
@@ -379,13 +376,13 @@ void updateDstOpt()
 			set(44);
 			break;
 		case PlayModifierGaugeType::EXHARD:
-		case PlayModifierGaugeType::GRADE_DEATH:
+		case PlayModifierGaugeType::CLASS_DEATH:
 		case PlayModifierGaugeType::DEATH:
 			set(49);
 			[[ fallthrough ]];
 		case PlayModifierGaugeType::HARD:
-		case PlayModifierGaugeType::GRADE_NORMAL:
-		case PlayModifierGaugeType::GRADE_HARD:
+		case PlayModifierGaugeType::CLASS_NORMAL:
+		case PlayModifierGaugeType::CLASS_HARD:
 		case PlayModifierGaugeType::PATTACK:
 		case PlayModifierGaugeType::GATTACK:
 			set(45);
@@ -427,38 +424,42 @@ void updateDstOpt()
 			set(56);
 	}
 
-	// 60 スコアセーブ不可能
-	// 61 スコアセーブ可能
-	set(60, !PlayData.canSaveScore);
-	set(61, PlayData.canSaveScore);
-
-	// 62 クリアセーブ不可能
-	// 63 EASYゲージ （仕様書では「イージーでセーブ」）
-	// 64 NORMALゲージ （仕様書では「ノーマルでセーブ」）
-	// 65 HARD/G-ATTACKゲージ （仕様書では「ハードでセーブ」）
-	// 66 DEATH/P-ATTACKゲージ （仕様書では「フルコンのみ」）
-	switch (PlayData.saveLampType)
 	{
-	case LampType::NOPLAY:
-	case LampType::FAILED:
-		set(62);
-		break;
-	case LampType::ASSIST:
-	case LampType::EASY:
-		set(63);
-		break;
-	case LampType::NORMAL:
-		set(64);
-		break;
-	case LampType::HARD:
-	case LampType::EXHARD:
-		set(65);
-		break;
-	case LampType::FULLCOMBO:
-	case LampType::PERFECT:
-	case LampType::MAX:
-		set(66);
-		break;
+		auto [score, lamp] = getMaxSaveScoreType();
+
+		// 60 スコアセーブ不可能
+		// 61 スコアセーブ可能
+		set(60, !score);
+		set(61, score);
+
+		// 62 クリアセーブ不可能
+		// 63 EASYゲージ （仕様書では「イージーでセーブ」）
+		// 64 NORMALゲージ （仕様書では「ノーマルでセーブ」）
+		// 65 HARD/G-ATTACKゲージ （仕様書では「ハードでセーブ」）
+		// 66 DEATH/P-ATTACKゲージ （仕様書では「フルコンのみ」）
+		switch (lamp)
+		{
+		case LampType::NOPLAY:
+		case LampType::FAILED:
+			set(62);
+			break;
+		case LampType::ASSIST:
+		case LampType::EASY:
+			set(63);
+			break;
+		case LampType::NORMAL:
+			set(64);
+			break;
+		case LampType::HARD:
+		case LampType::EXHARD:
+			set(65);
+			break;
+		case LampType::FULLCOMBO:
+		case LampType::PERFECT:
+		case LampType::MAX:
+			set(66);
+			break;
+		}
 	}
 
 	// 70 同フォルダbeginnerのレベルが規定値を越えていない(5/10keysはLV9、7/14keysはLV12、9keysはLV42以内)
@@ -534,16 +535,16 @@ void updateDstOpt()
 		{
 			switch (s->lamp)
 			{
-			case ScoreBMS::Lamp::NOPLAY:    set(100, get(5));   break;
-			case ScoreBMS::Lamp::FAILED:    set(101);           break;
-			case ScoreBMS::Lamp::ASSIST:    set(102); set(109); break;
-			case ScoreBMS::Lamp::EASY:      set(102); set(146); break;
-			case ScoreBMS::Lamp::NORMAL:    set(103);           break;
-			case ScoreBMS::Lamp::HARD:      set(104); set(147); break;
-			case ScoreBMS::Lamp::EXHARD:    set(104); set(106); break;
-			case ScoreBMS::Lamp::FULLCOMBO: set(105); set(148); break;
-			case ScoreBMS::Lamp::PERFECT:   set(105); set(107); break;
-			case ScoreBMS::Lamp::MAX:       set(105); set(108); break;
+			case LampType::NOPLAY:    set(100, get(5));   break;
+			case LampType::FAILED:    set(101);           break;
+			case LampType::ASSIST:    set(102); set(109); break;
+			case LampType::EASY:      set(102); set(146); break;
+			case LampType::NORMAL:    set(103);           break;
+			case LampType::HARD:      set(104); set(147); break;
+			case LampType::EXHARD:    set(104); set(106); break;
+			case LampType::FULLCOMBO: set(105); set(148); break;
+			case LampType::PERFECT:   set(105); set(107); break;
+			case LampType::MAX:       set(105); set(108); break;
 			}
 		}
 	}
@@ -905,11 +906,11 @@ void updateDstOpt()
 	// 264 2P BAD
 	// 265 2P POOR
 	// 266 2P 空POOR
-	auto rbms = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[
-		PlayData.isBattle ? PLAYER_SLOT_TARGET : PLAYER_SLOT_PLAYER].ruleset);
+	bool is2Pis2P = PlayData.battleType == PlayModifierBattleType::LocalBattle || PlayData.battleType == PlayModifierBattleType::GhostBattle;
+	auto rbms = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[is2Pis2P ? PLAYER_SLOT_TARGET : PLAYER_SLOT_PLAYER].ruleset);
 	if (rbms)
 	{
-		auto lastJudge = rbms->getLastJudge(PlayData.isBattle ? 0 : 1);
+		auto lastJudge = rbms->getLastJudge(is2Pis2P ? 0 : 1);
 		switch (lastJudge.area)
 		{
 		case RulesetBMS::JudgeArea::EARLY_KPOOR:
@@ -998,15 +999,12 @@ void updateDstOpt()
 	// (注意 例えばSTAGE3が最終ステージの場合、ステージFINALが優先され、283オン、282オフとなります。)
 	// (現在は実装していませんが、今後の拡張に備えて284-288にあたるSTAGE5-9の画像もあらかじめ作っておいた方がいいかもしれません。
 	// Note: LR2 handle single song as FINAL
-	if (PlayData.isCourse)
+	if (PlayData.courseStage >= 0 && PlayData.courseStage < 9)
 	{
-		if (PlayData.courseStage >= 0 && PlayData.courseStage < 9)
-		{
-			if (PlayData.courseStage + 1 == PlayData.courseStageData.size())
-				set(289);
-			else
-				set(PlayData.courseStage - 280);
-		}
+		if (PlayData.courseStage + 1 == PlayData.courseStageData.size())
+			set(289);
+		else
+			set(PlayData.courseStage - 280);
 	}
 	else
 	{
@@ -1023,7 +1021,7 @@ void updateDstOpt()
 		auto c = std::dynamic_pointer_cast<EntryCourse>(currentEntry);
 		if (c)
 		{
-			set(293, c->courseType == EntryCourse::CourseType::GRADE);
+			set(293, c->courseType == EntryCourse::CourseType::CLASS);
 		}
 	}
 
@@ -1114,7 +1112,7 @@ void updateDstOpt()
 	// 352 1PWIN 2PLOSE
 	// 353 1PLOSE 2PWIN
 	// 354 DRAW
-	if (PlayData.isBattle)
+	if (PlayData.battleType == PlayModifierBattleType::LocalBattle || PlayData.battleType == PlayModifierBattleType::GhostBattle)
 	{
 		auto r1 = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
 		auto r2 = PlayData.player[PLAYER_SLOT_TARGET].ruleset;
@@ -1267,7 +1265,7 @@ void updateDstOpt()
 	// 587 コースstage数8以上
 	// 588 コースstage数9以上
 	// 589 コースstage数10以上
-	if (PlayData.isCourse)
+	if (!PlayData.courseStageData.empty())
 	{
 		switch (PlayData.courseStageData.size())
 		{
@@ -1457,11 +1455,11 @@ void updateDstOpt()
     set(811, PlayData.player[PLAYER_SLOT_TARGET].mods.hispeedFix != PlayModifierHispeedFixType::NONE);
 
 	// 1000: arena Online
-	if (gArenaData.isOnline())
+	if (ArenaData.isOnline())
 	{
 		set(1000);
 
-		switch (gArenaData.getPlayerCount())
+		switch (ArenaData.getPlayerCount())
 		{
 		case 8: set(1008);
 		case 7: set(1007);
@@ -1473,12 +1471,12 @@ void updateDstOpt()
 		case 1: set(1001);
 		}
 
-		set(1400, gArenaData.isSelfReady());
+		set(1400, ArenaData.isSelfReady());
 
 		for (size_t i = 0; i < MAX_ARENA_PLAYERS; ++i)
         {
             int offset = 50 * i;
-			auto ruleset = gArenaData.getPlayerRuleset(i);
+			auto ruleset = ArenaData.getPlayerRuleset(i);
 			if (ruleset)
 			{
 				switch (getCurrentRankType(ruleset))
@@ -1525,7 +1523,7 @@ void updateDstOpt()
                 }
                 else if (d.health >= ruleset->getClearHealth())
                 {
-                    if (auto prb = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(i)); prb)
+                    if (auto prb = std::dynamic_pointer_cast<RulesetBMS>(ArenaData.getPlayerRuleset(i)); prb)
                     {
                         switch (prb->getGaugeType())
                         {
@@ -1543,7 +1541,7 @@ void updateDstOpt()
                 }
 			}
 
-			set(1401 + i, gArenaData.isPlayerReady(i));
+			set(1401 + i, ArenaData.isPlayerReady(i));
 		}
 	}
 }

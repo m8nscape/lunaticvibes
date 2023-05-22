@@ -2,7 +2,6 @@
 #include "skin.h"
 #include "game/graphics/sprite_lane.h"
 #include "game/graphics/sprite_video.h"
-#include "game/scene/scene_context.h"
 #include "game/data/data_types.h"
 
 namespace lunaticvibes
@@ -19,9 +18,9 @@ SkinBase::SkinBase()
         preDefinedTextures["Black"] = std::make_shared<TextureFull>(0x000000ff);
         preDefinedTextures["White"] = std::make_shared<TextureFull>(0xffffffff);
         preDefinedTextures["Error"] = std::make_shared<TextureFull>(0xff00ffff);
-        preDefinedTextures["STAGEFILE"] = std::shared_ptr<Texture>(&gChartContext.texStagefile, [](Texture*) {});
-        preDefinedTextures["BACKBMP"] = std::shared_ptr<Texture>(&gChartContext.texBackbmp, [](Texture*) {});
-        preDefinedTextures["BANNER"] = std::shared_ptr<Texture>(&gChartContext.texBanner, [](Texture*) {});
+        preDefinedTextures["STAGEFILE"] = std::shared_ptr<Texture>(&SelectData.selectedChart.texStagefile, [](Texture*) {});
+        preDefinedTextures["BACKBMP"] = std::shared_ptr<Texture>(&SelectData.selectedChart.texBackbmp, [](Texture*) {});
+        preDefinedTextures["BANNER"] = std::shared_ptr<Texture>(&SelectData.selectedChart.texBanner, [](Texture*) {});
         preDefinedTextures["THUMBNAIL"] = std::make_shared<Texture>(1920, 1080, Texture::PixelFormat::RGB24, true);
     }
     for (auto& [key, texture] : preDefinedTextures)
@@ -42,19 +41,20 @@ SkinBase::~SkinBase()
 void SkinBase::update()
 {
     // current beat, measure
-    if (data::PlayData.player[data::PLAYER_SLOT_PLAYER].chartObj != nullptr)
+    if (PlayData.player[PLAYER_SLOT_PLAYER].chartObj != nullptr)
     {
-        auto c = data::PlayData.player[data::PLAYER_SLOT_PLAYER].chartObj;
-        gUpdateContext.metre = c->getCurrentMetre();
-        gUpdateContext.bar = c->getCurrentBar();
+        auto c = PlayData.player[PLAYER_SLOT_PLAYER].chartObj;
+        PlayData.chartCurrentBar = c->getCurrentBar();
+        PlayData.chartCurrentMetre = c->getCurrentMetre();
     }
 
-    auto updateSpriteLambda = [](const std::shared_ptr<SpriteBase>& s)
+    Time t;
+    auto updateSpriteLambda = [t](const std::shared_ptr<SpriteBase>& s)
     {
         // reset
         s->_draw = false;
 
-        s->update(gUpdateContext.updateTime);
+        s->update(t);
     };
 
 #ifdef _DEBUG
@@ -109,20 +109,20 @@ void SkinBase::update_mouse_click(int x, int y)
     bool invokedText = false;
     pSpriteLastClicked = nullptr;
 #if _DEBUG
-    for (auto it = _sprites.rbegin(); it != _sprites.rend() && !invoked; ++it)
-    {
-        if ((*it)->type() != SpriteTypes::MOUSE_CURSOR && (*it)->isDraw() && !(*it)->isHidden())
-        {
-            const RectF& rc = (*it)->_current.rect;
-            if (x >= rc.x && y >= rc.y && x < rc.x + rc.w && y < rc.y + rc.h)
-            {
-                // createNotification((boost::format("Clicked sprite #%d (%d,%d)[%dx%d] (Line:%d)") %
-                    (int)std::distance(it, _sprites.rend()) %
-                    (*it)->_current.rect.x % (*it)->_current.rect.y % (*it)->_current.rect.w % (*it)->_current.rect.h % (*it)->srcLine).str());
-                break;
-            }
-        }
-    }
+    //for (auto it = _sprites.rbegin(); it != _sprites.rend() && !invoked; ++it)
+    //{
+    //    if ((*it)->type() != SpriteTypes::MOUSE_CURSOR && (*it)->isDraw() && !(*it)->isHidden())
+    //    {
+    //        const RectF& rc = (*it)->_current.rect;
+    //        if (x >= rc.x && y >= rc.y && x < rc.x + rc.w && y < rc.y + rc.h)
+    //        {
+    //            createNotification((boost::format("Clicked sprite #%d (%d,%d)[%dx%d] (Line:%d)") %
+    //                (int)std::distance(it, _sprites.rend()) %
+    //                (*it)->_current.rect.x % (*it)->_current.rect.y % (*it)->_current.rect.w % (*it)->_current.rect.h % (*it)->srcLine).str());
+    //            break;
+    //        }
+    //    }
+    //}
 #endif
     for (auto it = _sprites.rbegin(); it != _sprites.rend() && !invoked; ++it)
     {
@@ -201,12 +201,7 @@ void SkinBase::stopSpriteVideoPlayback()
 
 bool SkinBase::textEditSpriteClicked() const
 {
-    return pSpriteTextEditing != nullptr && pSpriteTextEditing == pSpriteLastClicked;
-}
-
-IndexText SkinBase::textEditType() const
-{
-    return pSpriteTextEditing ? pSpriteTextEditing->getInd() : IndexText::INVALID;
+    return pSpriteTextEditing != nullptr && pSpriteTextEditing == pSpriteLastClicked && pSpriteTextEditing->isEditable();
 }
 
 void SkinBase::startTextEdit(bool clear)

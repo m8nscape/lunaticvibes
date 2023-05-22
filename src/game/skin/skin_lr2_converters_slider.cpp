@@ -6,12 +6,9 @@
 #include "game/ruleset/ruleset.h"
 #include "game/ruleset/ruleset_bms.h"
 #include "game/data/data_types.h"
-#include "game/arena/arena_data.h"
 
 namespace lunaticvibes
 {
-
-using namespace data;
 
 class SliderConverter
 {
@@ -39,8 +36,8 @@ public:
     }
     static Ratio slider_7()
     {
-        if (!LR2CustomizeData.optionsMap.empty())
-            return double(LR2CustomizeData.topOptionIndex) / (LR2CustomizeData.optionsMap.size() - 1);
+        //if (!LR2CustomizeData.optionsMap.empty())
+        //    return double(LR2CustomizeData.topOptionIndex) / (LR2CustomizeData.optionsMap.size() - 1);
         return 0.0;
     }
     static Ratio slider_10() { return (SystemData.equalizerVal62_5hz + 12) / 24.0; }
@@ -310,130 +307,110 @@ public:
     }
 };
 
-#define define_has_member(index)                                                            \
-class has_slider_##index                                                                  \
-{                                                                                           \
-private:                                                                                    \
-    typedef long yes_type;                                                                  \
-    typedef char no_type;                                                                   \
-    template <typename U> static yes_type test(decltype(&U::slider_##index));             \
-    template <typename U> static no_type  test(...);                                        \
-public:                                                                                     \
-    static constexpr bool has_func = sizeof(test<SliderConverter>()) == sizeof(yes_type); \
-private:                                                                                    \
-    template <typename U, typename = std::enable_if_t<!has_func>>                           \
-    static constexpr Ratio(*func())() { return &U::slider_0; }                            \
-    template <typename U, typename = std::enable_if_t<has_func>>                            \
-    static constexpr Ratio(*func())() { return &U::slider_##index; }                      \
-public:                                                                                     \
-    static constexpr Ratio(*value)() = func<SliderConverter>();                           \
-}
+#pragma region declare_member1
 
-#define has_slider(index)  has_slider_##index::has_func
-#define slider(index) has_slider_##index::value
+declare_member(SliderConverter, Ratio, slider, 0);
+declare_member(SliderConverter, Ratio, slider, 1);
+declare_member(SliderConverter, Ratio, slider, 2);
+declare_member(SliderConverter, Ratio, slider, 3);
+declare_member(SliderConverter, Ratio, slider, 4);
+declare_member(SliderConverter, Ratio, slider, 5);
+declare_member(SliderConverter, Ratio, slider, 6);
+declare_member(SliderConverter, Ratio, slider, 7);
+declare_member(SliderConverter, Ratio, slider, 8);
+declare_member(SliderConverter, Ratio, slider, 9);
+declare_member(SliderConverter, Ratio, slider, 10);
+declare_member(SliderConverter, Ratio, slider, 11);
+declare_member(SliderConverter, Ratio, slider, 12);
+declare_member(SliderConverter, Ratio, slider, 13);
+declare_member(SliderConverter, Ratio, slider, 14);
+declare_member(SliderConverter, Ratio, slider, 15);
+declare_member(SliderConverter, Ratio, slider, 16);
+declare_member(SliderConverter, Ratio, slider, 17);
+declare_member(SliderConverter, Ratio, slider, 18);
+declare_member(SliderConverter, Ratio, slider, 19);
+declare_member(SliderConverter, Ratio, slider, 20);
+declare_member(SliderConverter, Ratio, slider, 21);
+declare_member(SliderConverter, Ratio, slider, 22);
+declare_member(SliderConverter, Ratio, slider, 23);
+declare_member(SliderConverter, Ratio, slider, 24);
+declare_member(SliderConverter, Ratio, slider, 25);
+declare_member(SliderConverter, Ratio, slider, 26);
+declare_member(SliderConverter, Ratio, slider, 27);
+declare_member(SliderConverter, Ratio, slider, 28);
+declare_member(SliderConverter, Ratio, slider, 29);
+declare_member(SliderConverter, Ratio, slider, 30);
+declare_member(SliderConverter, Ratio, slider, 31);
+declare_member(SliderConverter, Ratio, slider, 32);
+declare_member(SliderConverter, Ratio, slider, 33);
+declare_member(SliderConverter, Ratio, slider, 34);
+declare_member(SliderConverter, Ratio, slider, 35);
+declare_member(SliderConverter, Ratio, slider, 36);
+declare_member(SliderConverter, Ratio, slider, 37);
+declare_member(SliderConverter, Ratio, slider, 38);
+declare_member(SliderConverter, Ratio, slider, 39);
+declare_member(SliderConverter, Ratio, slider, 40);
+declare_member(SliderConverter, Ratio, slider, 41);
+declare_member(SliderConverter, Ratio, slider, 42);
+declare_member(SliderConverter, Ratio, slider, 43);
+declare_member(SliderConverter, Ratio, slider, 44);
+declare_member(SliderConverter, Ratio, slider, 45);
+declare_member(SliderConverter, Ratio, slider, 46);
+declare_member(SliderConverter, Ratio, slider, 47);
+declare_member(SliderConverter, Ratio, slider, 48);
+declare_member(SliderConverter, Ratio, slider, 49);
+declare_member(SliderConverter, Ratio, slider, 50);
+declare_member(SliderConverter, Ratio, slider, 51);
+declare_member(SliderConverter, Ratio, slider, 52);
+declare_member(SliderConverter, Ratio, slider, 53);
+declare_member(SliderConverter, Ratio, slider, 54);
+declare_member(SliderConverter, Ratio, slider, 55);
+declare_member(SliderConverter, Ratio, slider, 56);
+declare_member(SliderConverter, Ratio, slider, 57);
+declare_member(SliderConverter, Ratio, slider, 58);
+declare_member(SliderConverter, Ratio, slider, 59);
+declare_member(SliderConverter, Ratio, slider, 60);
+declare_member(SliderConverter, Ratio, slider, 61);
+declare_member(SliderConverter, Ratio, slider, 62);
+declare_member(SliderConverter, Ratio, slider, 63);
+declare_member(SliderConverter, Ratio, slider, 64);
+declare_member(SliderConverter, Ratio, slider, 65);
+declare_member(SliderConverter, Ratio, slider, 66);
+declare_member(SliderConverter, Ratio, slider, 67);
+declare_member(SliderConverter, Ratio, slider, 68);
+declare_member(SliderConverter, Ratio, slider, 69);
+declare_member(SliderConverter, Ratio, slider, 70);
+declare_member(SliderConverter, Ratio, slider, 71);
+declare_member(SliderConverter, Ratio, slider, 72);
+declare_member(SliderConverter, Ratio, slider, 73);
+declare_member(SliderConverter, Ratio, slider, 74);
+declare_member(SliderConverter, Ratio, slider, 75);
+declare_member(SliderConverter, Ratio, slider, 76);
+declare_member(SliderConverter, Ratio, slider, 77);
+declare_member(SliderConverter, Ratio, slider, 78);
+declare_member(SliderConverter, Ratio, slider, 79);
+declare_member(SliderConverter, Ratio, slider, 80);
+declare_member(SliderConverter, Ratio, slider, 81);
+declare_member(SliderConverter, Ratio, slider, 82);
+declare_member(SliderConverter, Ratio, slider, 83);
+declare_member(SliderConverter, Ratio, slider, 84);
+declare_member(SliderConverter, Ratio, slider, 85);
+declare_member(SliderConverter, Ratio, slider, 86);
+declare_member(SliderConverter, Ratio, slider, 87);
+declare_member(SliderConverter, Ratio, slider, 88);
+declare_member(SliderConverter, Ratio, slider, 89);
+declare_member(SliderConverter, Ratio, slider, 90);
+declare_member(SliderConverter, Ratio, slider, 91);
+declare_member(SliderConverter, Ratio, slider, 92);
+declare_member(SliderConverter, Ratio, slider, 93);
+declare_member(SliderConverter, Ratio, slider, 94);
+declare_member(SliderConverter, Ratio, slider, 95);
+declare_member(SliderConverter, Ratio, slider, 96);
+declare_member(SliderConverter, Ratio, slider, 97);
+declare_member(SliderConverter, Ratio, slider, 98);
+declare_member(SliderConverter, Ratio, slider, 99);
 
-#pragma region define_has_member
-
-define_has_member(0);
-define_has_member(1);
-define_has_member(2);
-define_has_member(3);
-define_has_member(4);
-define_has_member(5);
-define_has_member(6);
-define_has_member(7);
-define_has_member(8);
-define_has_member(9);
-define_has_member(10);
-define_has_member(11);
-define_has_member(12);
-define_has_member(13);
-define_has_member(14);
-define_has_member(15);
-define_has_member(16);
-define_has_member(17);
-define_has_member(18);
-define_has_member(19);
-define_has_member(20);
-define_has_member(21);
-define_has_member(22);
-define_has_member(23);
-define_has_member(24);
-define_has_member(25);
-define_has_member(26);
-define_has_member(27);
-define_has_member(28);
-define_has_member(29);
-define_has_member(30);
-define_has_member(31);
-define_has_member(32);
-define_has_member(33);
-define_has_member(34);
-define_has_member(35);
-define_has_member(36);
-define_has_member(37);
-define_has_member(38);
-define_has_member(39);
-define_has_member(40);
-define_has_member(41);
-define_has_member(42);
-define_has_member(43);
-define_has_member(44);
-define_has_member(45);
-define_has_member(46);
-define_has_member(47);
-define_has_member(48);
-define_has_member(49);
-define_has_member(50);
-define_has_member(51);
-define_has_member(52);
-define_has_member(53);
-define_has_member(54);
-define_has_member(55);
-define_has_member(56);
-define_has_member(57);
-define_has_member(58);
-define_has_member(59);
-define_has_member(60);
-define_has_member(61);
-define_has_member(62);
-define_has_member(63);
-define_has_member(64);
-define_has_member(65);
-define_has_member(66);
-define_has_member(67);
-define_has_member(68);
-define_has_member(69);
-define_has_member(70);
-define_has_member(71);
-define_has_member(72);
-define_has_member(73);
-define_has_member(74);
-define_has_member(75);
-define_has_member(76);
-define_has_member(77);
-define_has_member(78);
-define_has_member(79);
-define_has_member(80);
-define_has_member(81);
-define_has_member(82);
-define_has_member(83);
-define_has_member(84);
-define_has_member(85);
-define_has_member(86);
-define_has_member(87);
-define_has_member(88);
-define_has_member(89);
-define_has_member(90);
-define_has_member(91);
-define_has_member(92);
-define_has_member(93);
-define_has_member(94);
-define_has_member(95);
-define_has_member(96);
-define_has_member(97);
-define_has_member(98);
-define_has_member(99);
+#define slider(index) member(SliderConverter, Ratio, slider, index)
 
 #pragma endregion
 

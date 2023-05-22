@@ -1,16 +1,12 @@
 
 #include "common/pch.h"
-
 #include "skin_lr2_slider_callbacks.h"
 
-#include "game/runtime/state.h"
-
+#include "config/config_mgr.h"
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
-
-#include "game/scene/scene_context.h"
-
-#include "config/config_mgr.h"
+#include "game/data/data_types.h"
+#include "game/input/input_mgr.h"
 
 namespace lunaticvibes
 {
@@ -22,20 +18,19 @@ namespace lr2skin::slider
 
 void select_pos(double p)
 {
-    if (gSelectContext.entries.empty()) return;
+    if (SelectData.entries.empty()) return;
 
-    size_t idx_new = (size_t)std::floor(p * gSelectContext.entries.size());
-    if (idx_new != gSelectContext.selectedEntryIndex)
+    size_t idx_new = (size_t)std::floor(p * SelectData.entries.size());
+    if (idx_new != SelectData.selectedEntryIndex)
     {
-        SelectData.selectedEntryIndexRolling = (double)idx_new / gSelectContext.entries.size();
-        gSelectContext.draggingListSlider = true;
+        SelectData.selectedEntryIndexRolling = (double)idx_new / SelectData.entries.size();
+        SelectData.draggingListSlider = true;
     }
 }
 
 void customize_scrollbar(double p)
 {
-    State::set(IndexSlider::SKIN_CONFIG_OPTIONS, p);
-    gCustomizeContext.optionDragging = true;
+    // LR2CustomizeData.optionDragging = true;
 }
 
 void ir_ranking_scrollbar(double p)
@@ -47,10 +42,18 @@ void eq(int idx, double p)
 {
     int val = int(p * 24) - 12;
     p = (val + 12) / 24.0;
-    State::set(IndexSlider(idx + (int)IndexSlider::EQ0), p);
-    State::set(IndexNumber(idx + (int)IndexNumber::EQ0), val);
+    switch (idx)
+    {
+    case 0: SystemData.equalizerVal62_5hz = val; break;
+    case 1: SystemData.equalizerVal160hz = val; break;
+    case 2: SystemData.equalizerVal400hz = val; break;
+    case 3: SystemData.equalizerVal1khz = val; break;
+    case 4: SystemData.equalizerVal2_5khz = val; break;
+    case 5: SystemData.equalizerVal6_25khz = val; break;
+    case 6: SystemData.equalizerVal16khz = val; break;
+    }
 
-    if (State::get(IndexSwitch::SOUND_EQ))
+    if (SystemData.equalizerEnabled)
     {
         SoundMgr::setEQ((EQFreq)idx, val);
     }
@@ -58,202 +61,82 @@ void eq(int idx, double p)
 
 void master_volume(double p)
 {
-    State::set(IndexSlider::VOLUME_MASTER, p);
-    State::set(IndexNumber::VOLUME_MASTER, int(std::round(p * 100)));
-
-    if (State::get(IndexSwitch::SOUND_VOLUME))
-        SoundMgr::setVolume(SampleChannel::MASTER, (float)p);
+    SystemData.volumeMaster = p;
+    SoundMgr::setVolume(SampleChannel::MASTER, (float)p);
 }
 
 void key_volume(double p)
 {
-    State::set(IndexSlider::VOLUME_KEY, p);
-    State::set(IndexNumber::VOLUME_KEY, int(std::round(p * 100)));
-
-    if (State::get(IndexSwitch::SOUND_VOLUME))
-        SoundMgr::setVolume(SampleChannel::KEY, (float)p);
+    SystemData.volumeKey = p;
+    SoundMgr::setVolume(SampleChannel::KEY, (float)p);
 }
 
 void bgm_volume(double p)
 {
-    State::set(IndexSlider::VOLUME_BGM, p);
-    State::set(IndexNumber::VOLUME_BGM, int(std::round(p * 100)));
-
-    if (State::get(IndexSwitch::SOUND_VOLUME))
-        SoundMgr::setVolume(SampleChannel::BGM, (float)p);
+    SystemData.volumeBgm = p;
+    SoundMgr::setVolume(SampleChannel::BGM, (float)p);
 }
 
 void fx0(int idx, double p)
 {
-    State::set(idx == 0 ? IndexSlider::FX0_P1 : IndexSlider::FX0_P2, p);
-    State::set(idx == 0 ? IndexNumber::FX0_P1 : IndexNumber::FX0_P2, int(std::round(p * 100)));
-
-    float p1 = (idx == 0) ? (float)p : State::get(IndexSlider::FX0_P1);
-    float p2 = (idx != 0) ? (float)p : State::get(IndexSlider::FX0_P2);
-
-    if (State::get(IndexSwitch::SOUND_FX0))
+    if (idx == 0)
     {
-        SampleChannel ch;
-        switch (State::get(IndexOption::SOUND_TARGET_FX0))
-        {
-        case 0: ch = SampleChannel::MASTER; break;
-        case 1: ch = SampleChannel::KEY; break;
-        case 2: ch = SampleChannel::BGM; break;
-        }
-        switch (State::get(IndexOption::SOUND_FX0))
-        {
-        case 0: SoundMgr::setDSP(DSPType::OFF, 0, ch, 0.f, 0.f); break;
-        case 1: SoundMgr::setDSP(DSPType::REVERB, 0, ch, p1, p2); break;
-        case 2: SoundMgr::setDSP(DSPType::DELAY, 0, ch, p1, p2); break;
-        case 3: SoundMgr::setDSP(DSPType::LOWPASS, 0, ch, p1, p2); break;
-        case 4: SoundMgr::setDSP(DSPType::HIGHPASS, 0, ch, p1, p2); break;
-        case 5: SoundMgr::setDSP(DSPType::FLANGER, 0, ch, p1, p2); break;
-        case 6: SoundMgr::setDSP(DSPType::CHORUS, 0, ch, p1, p2); break;
-        case 7: SoundMgr::setDSP(DSPType::DISTORTION, 0, ch, p1, p2); break;
-        }
+        SystemData.fxVal = p;
+        if (SystemData.fxType == FXType::Off)
+            SoundMgr::setDSP(DSPType::OFF, 0, SampleChannel::MASTER, 0.f, 0.f);
+        else
+            SoundMgr::setDSP(SystemData.fxType, 0, SampleChannel::MASTER, p, p);
     }
 }
 
 void fx1(int idx, double p)
 {
-    State::set(idx == 0 ? IndexSlider::FX1_P1 : IndexSlider::FX1_P2, p);
-    State::set(idx == 0 ? IndexNumber::FX1_P1 : IndexNumber::FX1_P2, int(std::round(p * 100)));
-
-    float p1 = (idx == 0) ? (float)p : State::get(IndexSlider::FX1_P1);
-    float p2 = (idx != 0) ? (float)p : State::get(IndexSlider::FX1_P2);
-
-    if (State::get(IndexSwitch::SOUND_FX1))
-    {
-        SampleChannel ch;
-        switch (State::get(IndexOption::SOUND_TARGET_FX1))
-        {
-        case 0: ch = SampleChannel::MASTER; break;
-        case 1: ch = SampleChannel::KEY; break;
-        case 2: ch = SampleChannel::BGM; break;
-        }
-        switch (State::get(IndexOption::SOUND_FX1))
-        {
-        case 0: SoundMgr::setDSP(DSPType::OFF, 1, ch, 0.f, 0.f); break;
-        case 1: SoundMgr::setDSP(DSPType::REVERB, 1, ch, p1, p2); break;
-        case 2: SoundMgr::setDSP(DSPType::DELAY, 1, ch, p1, p2); break;
-        case 3: SoundMgr::setDSP(DSPType::LOWPASS, 1, ch, p1, p2); break;
-        case 4: SoundMgr::setDSP(DSPType::HIGHPASS, 1, ch, p1, p2); break;
-        case 5: SoundMgr::setDSP(DSPType::FLANGER, 1, ch, p1, p2); break;
-        case 6: SoundMgr::setDSP(DSPType::CHORUS, 1, ch, p1, p2); break;
-        case 7: SoundMgr::setDSP(DSPType::DISTORTION, 1, ch, p1, p2); break;
-        }
-    }
 }
 
 void fx2(int idx, double p)
 {
-    State::set(idx == 0 ? IndexSlider::FX2_P1 : IndexSlider::FX2_P2, p);
-    State::set(idx == 0 ? IndexNumber::FX2_P1 : IndexNumber::FX2_P2, int(std::round(p * 100)));
-
-    float p1 = (idx == 0) ? (float)p : State::get(IndexSlider::FX2_P1);
-    float p2 = (idx != 0) ? (float)p : State::get(IndexSlider::FX2_P2);
-
-    if (State::get(IndexSwitch::SOUND_FX2))
-    {
-        SampleChannel ch;
-        switch (State::get(IndexOption::SOUND_TARGET_FX2))
-        {
-        case 0: ch = SampleChannel::MASTER; break;
-        case 1: ch = SampleChannel::KEY; break;
-        case 2: ch = SampleChannel::BGM; break;
-        }
-        switch (State::get(IndexOption::SOUND_FX2))
-        {
-        case 0: SoundMgr::setDSP(DSPType::OFF, 2, ch, 0.f, 0.f); break;
-        case 1: SoundMgr::setDSP(DSPType::REVERB, 2, ch, p1, p2); break;
-        case 2: SoundMgr::setDSP(DSPType::DELAY, 2, ch, p1, p2); break;
-        case 3: SoundMgr::setDSP(DSPType::LOWPASS, 2, ch, p1, p2); break;
-        case 4: SoundMgr::setDSP(DSPType::HIGHPASS, 2, ch, p1, p2); break;
-        case 5: SoundMgr::setDSP(DSPType::FLANGER, 2, ch, p1, p2); break;
-        case 6: SoundMgr::setDSP(DSPType::CHORUS, 2, ch, p1, p2); break;
-        case 7: SoundMgr::setDSP(DSPType::DISTORTION, 2, ch, p1, p2); break;
-        }
-    }
 }
 
 void pitch(double p)
 {
     int val = int(p * 24) - 12;
-    double ps = (val + 12) / 24.0;
-    State::set(IndexSlider::PITCH, ps);
-    State::set(IndexNumber::PITCH, val);
-
-    if (State::get(IndexSwitch::SOUND_PITCH))
-    {
-        static const double tick = std::pow(2, 1.0 / 12);
-        double f = std::pow(tick, val);
-        switch (State::get(IndexOption::SOUND_PITCH_TYPE))
-        {
-        case 0: // FREQUENCY
-            SoundMgr::setFreqFactor(f);
-            gSelectContext.pitchSpeed = f;
-            break;
-        case 1: // PITCH
-            SoundMgr::setFreqFactor(1.0);
-            SoundMgr::setPitch(f);
-            gSelectContext.pitchSpeed = 1.0;
-            break;
-        case 2: // SPEED (freq up, pitch down)
-            SoundMgr::setFreqFactor(1.0);
-            SoundMgr::setSpeed(f);
-            gSelectContext.pitchSpeed = f;
-            break;
-        default:
-            break;
-        }
-    }
-
-    const auto [score, lamp] = getSaveScoreType();
-    State::set(IndexSwitch::CHART_CAN_SAVE_SCORE, score);
-    State::set(IndexOption::CHART_SAVE_LAMP_TYPE, lamp);
+    setFreqModifier(SystemData.freqType, val);
 }
 
 void deadzone(int type, double p)
 {
     using namespace cfg;
-    int keys = 7;
-    switch (State::get(IndexOption::KEY_CONFIG_MODE))
-    {
-    case Option::KEYCFG_5: keys = 5; break;
-    case Option::KEYCFG_7: keys = 7; break;
-    case Option::KEYCFG_9: keys = 9; break;
-    default: return;
-    }
+    int keys = KeyConfigData.currentMode;
     switch (type)
     {
-    case 31: State::set(IndexSlider::DEADZONE_K11, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K11, p); break;
-    case 32: State::set(IndexSlider::DEADZONE_K12, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K12, p); break;
-    case 33: State::set(IndexSlider::DEADZONE_K13, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K13, p); break;
-    case 34: State::set(IndexSlider::DEADZONE_K14, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K14, p); break;
-    case 35: State::set(IndexSlider::DEADZONE_K15, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K15, p); break;
-    case 36: State::set(IndexSlider::DEADZONE_K16, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K16, p); break;
-    case 37: State::set(IndexSlider::DEADZONE_K17, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K17, p); break;
-    case 38: State::set(IndexSlider::DEADZONE_K18, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K18, p); break;
-    case 39: State::set(IndexSlider::DEADZONE_K19, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K19, p); break;
-    case 40: State::set(IndexSlider::DEADZONE_K1Start, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K1Start, p); break;
-    case 41: State::set(IndexSlider::DEADZONE_K1Select, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K1Select, p); break;
-    case 42: State::set(IndexSlider::DEADZONE_S1L, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_S1L, p); break;
-    case 43: State::set(IndexSlider::DEADZONE_S1R, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_S1R, p); break;
-    case 44: State::set(IndexSlider::SPEED_S1A, p); ConfigMgr::Input(keys)->set(I_INPUT_SPEED_S1A, p); break;
-    case 51: State::set(IndexSlider::DEADZONE_K21, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K21, p); break;
-    case 52: State::set(IndexSlider::DEADZONE_K22, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K22, p); break;
-    case 53: State::set(IndexSlider::DEADZONE_K23, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K23, p); break;
-    case 54: State::set(IndexSlider::DEADZONE_K24, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K24, p); break;
-    case 55: State::set(IndexSlider::DEADZONE_K25, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K25, p); break;
-    case 56: State::set(IndexSlider::DEADZONE_K26, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K26, p); break;
-    case 57: State::set(IndexSlider::DEADZONE_K27, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K27, p); break;
-    case 58: State::set(IndexSlider::DEADZONE_K28, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K28, p); break;
-    case 59: State::set(IndexSlider::DEADZONE_K29, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K29, p); break;
-    case 60: State::set(IndexSlider::DEADZONE_K2Start, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K2Start, p); break;
-    case 61: State::set(IndexSlider::DEADZONE_K2Select, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K2Select, p); break;
-    case 62: State::set(IndexSlider::DEADZONE_S2L, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_S2L, p); break;
-    case 63: State::set(IndexSlider::DEADZONE_S2R, p); ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_S2R, p); break;
-    case 64: State::set(IndexSlider::SPEED_S2A, p); ConfigMgr::Input(keys)->set(I_INPUT_SPEED_S2A, p); break;
+    case 31: KeyConfigData.deadzone[Input::Pad::K11] = p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K11, p); break;
+    case 32: KeyConfigData.deadzone[Input::Pad::K12], p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K12, p); break;
+    case 33: KeyConfigData.deadzone[Input::Pad::K13], p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K13, p); break;
+    case 34: KeyConfigData.deadzone[Input::Pad::K14], p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K14, p); break;
+    case 35: KeyConfigData.deadzone[Input::Pad::K15], p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K15, p); break;
+    case 36: KeyConfigData.deadzone[Input::Pad::K16], p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K16, p); break;
+    case 37: KeyConfigData.deadzone[Input::Pad::K17], p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K17, p); break;
+    case 38: KeyConfigData.deadzone[Input::Pad::K18], p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K18, p); break;
+    case 39: KeyConfigData.deadzone[Input::Pad::K19], p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K19, p); break;
+    case 40: KeyConfigData.deadzone[Input::Pad::K1START], p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K1Start, p); break;
+    case 41: KeyConfigData.deadzone[Input::Pad::K1SELECT], p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K1Select, p); break;
+    case 42: KeyConfigData.deadzone[Input::Pad::S1L], p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_S1L, p); break;
+    case 43: KeyConfigData.deadzone[Input::Pad::S1R], p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_S1R, p); break;
+    case 44: KeyConfigData.scratchAxisSpeed[0] = p; ConfigMgr::Input(keys)->set(I_INPUT_SPEED_S1A, p); break;
+    case 51: KeyConfigData.deadzone[Input::Pad::K21] = p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K21, p); break;
+    case 52: KeyConfigData.deadzone[Input::Pad::K22] = p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K22, p); break;
+    case 53: KeyConfigData.deadzone[Input::Pad::K23] = p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K23, p); break;
+    case 54: KeyConfigData.deadzone[Input::Pad::K24] = p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K24, p); break;
+    case 55: KeyConfigData.deadzone[Input::Pad::K25] = p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K25, p); break;
+    case 56: KeyConfigData.deadzone[Input::Pad::K26] = p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K26, p); break;
+    case 57: KeyConfigData.deadzone[Input::Pad::K27] = p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K27, p); break;
+    case 58: KeyConfigData.deadzone[Input::Pad::K28] = p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K28, p); break;
+    case 59: KeyConfigData.deadzone[Input::Pad::K29] = p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K29, p); break;
+    case 60: KeyConfigData.deadzone[Input::Pad::K2START] = p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K2Start, p); break;
+    case 61: KeyConfigData.deadzone[Input::Pad::K2SELECT] = p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_K2Select, p); break;
+    case 62: KeyConfigData.deadzone[Input::Pad::S2L] = p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_S2L, p); break;
+    case 63: KeyConfigData.deadzone[Input::Pad::S2R] = p; ConfigMgr::Input(keys)->set(I_INPUT_DEADZONE_S2R, p); break;
+    case 64: KeyConfigData.scratchAxisSpeed[1] = p; ConfigMgr::Input(keys)->set(I_INPUT_SPEED_S2A, p); break;
     }
     InputMgr::updateDeadzones(keys);
 }

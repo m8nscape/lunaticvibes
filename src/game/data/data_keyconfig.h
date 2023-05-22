@@ -1,6 +1,7 @@
 #pragma once
+#include "common/keymap.h"
 
-namespace lunaticvibes::data
+namespace lunaticvibes
 {
 
 inline struct Struct_KeyConfigData
@@ -9,6 +10,7 @@ inline struct Struct_KeyConfigData
 
     GameModeKeys currentMode;
     bool modeChanged = false;
+    bool skinHasAbsAxis = false;
 
     std::pair<Input::Pad, int> selecting = { Input::Pad::K11, 0 };
 

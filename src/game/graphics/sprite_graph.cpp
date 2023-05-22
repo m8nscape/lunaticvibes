@@ -1,6 +1,8 @@
 #include "common/pch.h"
 #include "sprite_graph.h"
-#include "game/scene/scene_context.h"
+#include "game/data/data_play.h"
+#include "game/data/data_shared.h"
+#include "game/ruleset/ruleset.h"
 
 namespace lunaticvibes
 {
@@ -37,7 +39,7 @@ void SpriteLine::updateProgress(const Time& t)
     int duration = _end - _start;
     if (duration > 0)
     {
-        long long rt = t.norm() - State::get(motionStartTimer);
+        long long rt = t.norm() - getTimerValue(motionStartTimer);
         if (rt >= _start)
         {
             _progress = (double)(rt - _start) / duration;
@@ -67,7 +69,8 @@ void SpriteLine::updateRects()
     }
     */
 
-    if (!gPlayContext.ruleset[_player]) return;
+    if (PlayData.player[_player].ruleset == nullptr)
+        return;
 
     auto pushRects = [this](int size, const std::vector<int>& points, unsigned maxh, std::function<bool(int val1, int val2)> cond = [](int, int) { return true; })
     {
@@ -199,12 +202,12 @@ void SpriteLine::updateRects()
         }
     };
 
-    int h = gPlayContext.ruleset[_player]->getClearHealth() * 100;
+    int h = PlayData.player[_player].ruleset->getClearHealth() * 100;
     switch (_ltype)
     {
     case LineType::GAUGE_F:
     {
-        auto p = gPlayContext.graphGauge[_player];
+        auto p = PlayData.player[_player].graphGauge;
         size_t s = p.size();
         pushRects(s, p, 100.0, [h](int val1, int val2) {return (val1 <= h && val2 <= h); });
         break;
@@ -212,7 +215,7 @@ void SpriteLine::updateRects()
 
     case LineType::GAUGE_C:
     {
-        auto p = gPlayContext.graphGauge[_player];
+        auto p = PlayData.player[_player].graphGauge;
         size_t s = p.size();
         pushRects(s, p, 100.0, [h](int val1, int val2) {return (val1 >= h && val2 >= h); });
         break;
@@ -220,7 +223,7 @@ void SpriteLine::updateRects()
 
     case LineType::SCORE:
     {
-        auto p = gPlayContext.graphAcc[_player];
+        auto p = PlayData.player[_player].graphRate;
         size_t s = p.size();
         pushRectsF(s, p, 100.0);
         break;
@@ -228,9 +231,9 @@ void SpriteLine::updateRects()
 
     case LineType::SCORE_MYBEST:
     {
-        if (gPlayContext.ruleset[PLAYER_SLOT_MYBEST])
+        if (PlayData.player[PLAYER_SLOT_MYBEST].ruleset)
         {
-            auto p = gPlayContext.graphAcc[PLAYER_SLOT_MYBEST];
+            auto p = PlayData.player[PLAYER_SLOT_MYBEST].graphRate;
             size_t s = p.size();
             pushRectsF(s, p, 100.0);
         }
@@ -239,7 +242,7 @@ void SpriteLine::updateRects()
 
     case LineType::SCORE_TARGET:
     {
-        auto pt = gPlayContext.graphAcc[PLAYER_SLOT_TARGET];
+        auto pt = PlayData.player[PLAYER_SLOT_TARGET].graphRate;
         size_t s = pt.size();
         pushRectsF(s, pt, 100.0);
         break;
@@ -265,12 +268,12 @@ bool SpriteLine::update(const Time& t)
             break;
 
         case LineType::GAUGE_C:
-            switch (gPlayContext.mods[_player].gauge)
+            switch (PlayData.player[_player].mods.gauge)
             {
             case PlayModifierGaugeType::EXHARD:
             case PlayModifierGaugeType::DEATH:
-            case PlayModifierGaugeType::GRADE_HARD:
-            case PlayModifierGaugeType::GRADE_DEATH:
+            case PlayModifierGaugeType::CLASS_HARD:
+            case PlayModifierGaugeType::CLASS_DEATH:
                 _current.color.g = _current.color.r;
                 break;
             default:

@@ -1,6 +1,5 @@
 #pragma once
 #include "scene.h"
-#include "scene_context.h"
 #include "scene_pre_select.h"
 
 namespace lunaticvibes
@@ -16,6 +15,8 @@ enum class eSelectState
 };
 
 class ChartFormatBase;
+class ChartObjectBase;
+class RulesetBase;
 class SceneCustomize;
 class SceneSelect : public SceneBase
 {

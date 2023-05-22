@@ -1,6 +1,6 @@
 #pragma once
 
-namespace lunaticvibes::data
+namespace lunaticvibes
 {
 
 inline struct Struct_ProfileData

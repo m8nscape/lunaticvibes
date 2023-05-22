@@ -1002,7 +1002,8 @@ void SoundDriverFMOD::setDSP(DSPType type, int dspIndex, SampleChannel ch, float
 	case DSPType::HIGHPASS:   fmodType = FMOD_DSP_TYPE_HIGHPASS; break;
 	case DSPType::FLANGER:    fmodType = FMOD_DSP_TYPE_FLANGE; break;
 	case DSPType::CHORUS:     fmodType = FMOD_DSP_TYPE_CHORUS; break;
-	case DSPType::DISTORTION: fmodType = FMOD_DSP_TYPE_DISTORTION; break;
+    case DSPType::DISTORTION: fmodType = FMOD_DSP_TYPE_DISTORTION; break;
+    case DSPType::COMPRESSOR: fmodType = FMOD_DSP_TYPE_COMPRESSOR; break;
     }
 
     if (fmodType == FMOD_DSP_TYPE_UNKNOWN)
@@ -1071,6 +1072,10 @@ void SoundDriverFMOD::setDSP(DSPType type, int dspIndex, SampleChannel ch, float
 
                 case FMOD_DSP_TYPE_DISTORTION:
                     dsp->setParameterFloat(FMOD_DSP_DISTORTION_LEVEL, std::clamp(p1, 0.0f, 1.0f));
+                    break;
+
+                case FMOD_DSP_TYPE_COMPRESSOR:
+                    dsp->setParameterFloat(FMOD_DSP_COMPRESSOR_RATIO, std::clamp(p1 * 49.0f + 1.0f, 1.0f, 50.0f));
                     break;
                 }
                 dsp->setBypass(false);

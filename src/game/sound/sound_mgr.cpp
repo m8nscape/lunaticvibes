@@ -127,6 +127,20 @@ void SoundMgr::setVolume(SampleChannel ch, float v)
     return _inst.driver->setVolume(ch, v);
 }
 
+void SoundMgr::setDSP(FXType type, int index, SampleChannel ch, float p1, float p2)
+{
+    if (!_inst._initialized) return;
+    switch (type)
+    {
+    case FXType::Off: return _inst.driver->setDSP(DSPType::OFF, index, ch, p1, p2);
+    case FXType::Compressor: return _inst.driver->setDSP(DSPType::COMPRESSOR, index, ch, p1, p2);
+    case FXType::Echo: return _inst.driver->setDSP(DSPType::DELAY, index, ch, p1, p2);
+    case FXType::SfxReverb: return _inst.driver->setDSP(DSPType::REVERB, index, ch, p1, p2);
+    case FXType::LowPass: return _inst.driver->setDSP(DSPType::LOWPASS, index, ch, p1, p2);
+    case FXType::HighPass: return _inst.driver->setDSP(DSPType::HIGHPASS, index, ch, p1, p2);
+    }
+}
+
 void SoundMgr::setDSP(DSPType type, int index, SampleChannel ch, float p1, float p2)
 {
     if (!_inst._initialized) return;

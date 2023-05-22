@@ -1,8 +1,5 @@
 #ifndef VIDEO_DISABLED
 
-namespace lunaticvibes
-{
-
 #include "common/pch.h"
 
 #include "sprite_video.h"
@@ -11,6 +8,9 @@ extern "C"
 #include "libavutil/frame.h"
 }
 #include "game/graphics/video.h"
+
+namespace lunaticvibes
+{
 
 SpriteVideo::SpriteVideo(int w, int h, std::shared_ptr<sVideo> pVid, int srcLine) :
 	SpriteStatic(std::make_shared<TextureVideo>(pVid), { 0, 0, w, h }, srcLine),

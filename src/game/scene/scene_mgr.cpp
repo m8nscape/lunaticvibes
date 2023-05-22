@@ -1,6 +1,5 @@
 #include "common/pch.h"
 #include "scene_mgr.h"
-#include "scene_context.h"
 #include "scene_pre_select.h"
 #include "scene_select.h"
 #include "scene_decide.h"
@@ -10,10 +9,10 @@
 #include "scene_play_retry_trans.h"
 #include "scene_course_result.h"
 #include "scene_keyconfig.h"
-#include "scene_customize.h"
 #include "scene_exit_trans.h"
 #include "game/skin/skin_mgr.h"
 #include "game/ruleset/ruleset.h"
+#include "game/data/data_types.h"
 
 namespace lunaticvibes
 {
@@ -22,11 +21,11 @@ SceneMgr SceneMgr::_inst;
 
 pScene SceneMgr::get(SceneType e)
 {
-    State::set(IndexTimer::SCENE_START, TIMER_NEVER);
-    State::set(IndexTimer::START_INPUT, TIMER_NEVER);
-    State::set(IndexTimer::_LOAD_START, TIMER_NEVER);
-    State::set(IndexTimer::PLAY_READY, TIMER_NEVER);
-    State::set(IndexTimer::PLAY_START, TIMER_NEVER);
+    SystemData.timers["scene"] = TIMER_NEVER;
+    SystemData.timers["start_input"] = TIMER_NEVER;
+    PlayData.timers["load_start"] = TIMER_NEVER;
+    PlayData.timers["ready"] = TIMER_NEVER;
+    PlayData.timers["play_start"] = TIMER_NEVER;
 
     pScene ps = nullptr;
     switch (e)
@@ -48,7 +47,7 @@ pScene SceneMgr::get(SceneType e)
         break;
 
     case SceneType::PLAY:
-        switch (gPlayContext.mode)
+        switch (PlayData.mode)
         {
         case SkinType::PLAY5:
         case SkinType::PLAY7:
@@ -62,7 +61,7 @@ pScene SceneMgr::get(SceneType e)
             break;
 
         default:
-            LOG_ERROR << "[Scene] Invalid mode: " << int(gPlayContext.mode);
+            LOG_ERROR << "[Scene] Invalid mode: " << int(PlayData.mode);
             return nullptr;
         }
         break;
@@ -72,7 +71,7 @@ pScene SceneMgr::get(SceneType e)
         break;
 
     case SceneType::RESULT:
-        switch (gPlayContext.mode)
+        switch (PlayData.mode)
         {
         case SkinType::PLAY5:
         case SkinType::PLAY7:
@@ -86,7 +85,7 @@ pScene SceneMgr::get(SceneType e)
             break;
 
         default:
-            LOG_ERROR << "[Scene] Invalid mode: " << int(gPlayContext.mode);
+            LOG_ERROR << "[Scene] Invalid mode: " << int(PlayData.mode);
             return nullptr;
         }
         break;
@@ -100,7 +99,6 @@ pScene SceneMgr::get(SceneType e)
         break;
 
     case SceneType::CUSTOMIZE:
-        ps = std::make_shared<SceneCustomize>();
         break;
 
     case SceneType::COURSE_RESULT:
@@ -116,8 +114,8 @@ pScene SceneMgr::get(SceneType e)
     }
 
     Time t;
-    State::set(IndexTimer::SCENE_START, t.norm());
-    State::set(IndexTimer::START_INPUT, t.norm() + (ps ? ps->getSkinInfo().timeIntro : 0));
+    SystemData.timers["scene"] = t.norm();
+    SystemData.timers["start_input"] = t.norm() + (ps ? ps->getSkinInfo().timeIntro : 0);
 
     return ps;
 }

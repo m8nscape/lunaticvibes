@@ -1,18 +1,15 @@
 #include "common/pch.h"
-#include "arena_data.h"
+#include "data_arena.h"
+#include "data_play.h"
 #include "game/arena/arena_client.h"
 #include "game/arena/arena_host.h"
+#include "game/ruleset/ruleset.h"
 #include "game/ruleset/ruleset_bms_network.h"
-#include "game/scene/scene_context.h"
-#include "game/data/data_play.h"
-#include "game/data/data_arena.h"
 
 namespace lunaticvibes
 {
 
-ArenaDataInternal gArenaData;
-
-void ArenaDataInternal::reset()
+void Class_ArenaData::reset()
 {
 	online = false;
 	expired = false;
@@ -35,41 +32,41 @@ void ArenaDataInternal::reset()
 	}
 }
 
-size_t ArenaDataInternal::getPlayerCount()
+size_t Class_ArenaData::getPlayerCount()
 {
 	return playerIDs.size();
 }
 
-const std::string& ArenaDataInternal::getPlayerName(size_t index)
+const std::string& Class_ArenaData::getPlayerName(size_t index)
 {
 	static const std::string empty = "";
 	return index < getPlayerCount() ? data[playerIDs[index]].name : empty;
 }
 
-std::shared_ptr<vRulesetNetwork> ArenaDataInternal::getPlayerRuleset(size_t index)
+std::shared_ptr<vRulesetNetwork> Class_ArenaData::getPlayerRuleset(size_t index)
 {
 	return index < getPlayerCount() && playing ? data[playerIDs[index]].ruleset : nullptr;
 }
 
-int ArenaDataInternal::getPlayerID(size_t index)
+int Class_ArenaData::getPlayerID(size_t index)
 {
 	return index < getPlayerCount() ? playerIDs[index] : -1;
 }
 
-bool ArenaDataInternal::isSelfReady()
+bool Class_ArenaData::isSelfReady()
 {
 	return ready;
 }
 
-bool ArenaDataInternal::isPlayerReady(size_t index)
+bool Class_ArenaData::isPlayerReady(size_t index)
 {
 	return index < getPlayerCount() ? data[playerIDs[index]].ready : false;
 }
 
-void ArenaDataInternal::initPlaying(RulesetType rulesetType)
+void Class_ArenaData::initPlaying(RulesetType rulesetType)
 {
 	unsigned keys = 7;
-	switch (gPlayContext.mode)
+	switch (PlayData.mode)
 	{
 	case SkinType::PLAY5:
 	case SkinType::PLAY5_2: keys = 5; break;
@@ -94,12 +91,12 @@ void ArenaDataInternal::initPlaying(RulesetType rulesetType)
 	}
 }
 
-void ArenaDataInternal::startPlaying()
+void Class_ArenaData::startPlaying()
 {
 	playing = true;
 }
 
-void ArenaDataInternal::stopPlaying()
+void Class_ArenaData::stopPlaying()
 {
 	ready = false;
 	playStartTimeMs = 0;
@@ -113,7 +110,7 @@ void ArenaDataInternal::stopPlaying()
 	}
 }
 
-void ArenaDataInternal::updateGlobals()
+void Class_ArenaData::updateGlobals()
 {
 	Time t;
 	std::vector<std::pair<unsigned, int*>> ranking;
@@ -125,15 +122,15 @@ void ArenaDataInternal::updateGlobals()
 			d.ruleset->update(t);
 			if (auto p = std::dynamic_pointer_cast<RulesetBMS>(d.ruleset); p)
 			{
-				ranking.push_back({ p->getExScore(), &lv::data::ArenaData.playerRanking[i] });
+				ranking.push_back({ p->getExScore(), &ArenaData.playerRanking[i] });
 			}
 		}
 	}
 
-	auto r = std::dynamic_pointer_cast<RulesetBMS>(lv::data::PlayData.player[lv::data::PLAYER_SLOT_PLAYER].ruleset);
+	auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset);
 	if (r)
 	{
-		ranking.push_back({ r->getExScore(), &lv::data::ArenaData.myRanking });
+		ranking.push_back({ r->getExScore(), &ArenaData.myRanking });
 	}
 
 	std::sort(ranking.begin(), ranking.end());
@@ -157,5 +154,6 @@ void ArenaDataInternal::updateGlobals()
 		*ranking = rank;
 	}
 }
+
 
 }

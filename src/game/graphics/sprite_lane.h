@@ -21,13 +21,13 @@ protected:
     bool _autoNotes = false;
 
 public:
-    unsigned playerSlot;
+    unsigned slot = 0;
     std::shared_ptr<SpriteAnimated> pNote;
 
 public:
     struct SpriteLaneVerticalBuilder : SpriteStaticBuilder
     {
-        int player = 0;
+        int slot = 0;
         bool autoNotes = false;
         double baseSpeed = 1.0;
         double laneSpeed = 1.0;
@@ -45,7 +45,7 @@ public:
 public:
     void setHeight(int h) { _noteAreaHeight = h; }
     virtual void setMotionLoopTo(int t);
-    virtual void setMotionStartTimer(IndexTimer t);
+    virtual void setMotionStartTimer(const std::string& t);
     virtual void appendMotionKeyFrame(const MotionKeyFrame& f);
 
     std::pair<chart::NoteLaneCategory, chart::NoteLaneIndex> getLane() const;
@@ -94,7 +94,7 @@ public:
     void buildNoteTail(const SpriteAnimated::SpriteAnimatedBuilder& builder);
 
 public:
-    virtual void setMotionStartTimer(IndexTimer t);
+    virtual void setMotionStartTimer(const std::string& t);
 
     virtual void updateNoteRect(const Time& t) override;
     virtual void draw() const;

@@ -1,6 +1,6 @@
 #include "common/pch.h"
 #include "scene_exit_trans.h"
-#include "scene_context.h"
+#include "game/data/data_system.h"
 
 namespace lunaticvibes
 {

@@ -1,7 +1,8 @@
 #include "common/pch.h"
 #include "ruleset_bms_replay.h"
+#include "game/data/data_play.h"
+#include "game/data/data_system.h"
 #include "game/scene/scene.h"
-#include "game/scene/scene_context.h"
 
 namespace lunaticvibes
 {
@@ -22,15 +23,15 @@ RulesetBMSReplay::RulesetBMSReplay(
 
     doJudge = false;
 
-    if (gPlayContext.mode == SkinType::PLAY5 || gPlayContext.mode == SkinType::PLAY5_2)
+    if (PlayData.mode == SkinType::PLAY5 || PlayData.mode == SkinType::PLAY5_2)
     {
-        if (gPlayContext.shift1PNotes5KFor7KSkin)
+        if (PlayData.shift1PNotes5KFor7KSkin)
         {
-            replayCmdMapIndex = gPlayContext.shift2PNotes5KFor7KSkin ? 3 : 2;
+            replayCmdMapIndex = PlayData.shift2PNotes5KFor7KSkin ? 3 : 2;
         }
         else
         {
-            replayCmdMapIndex = gPlayContext.shift2PNotes5KFor7KSkin ? 1 : 0;
+            replayCmdMapIndex = PlayData.shift2PNotes5KFor7KSkin ? 1 : 0;
         }
     }
 
@@ -45,15 +46,15 @@ RulesetBMSReplay::RulesetBMSReplay(
     {
     case RulesetBMS::PlaySide::AUTO:
     case RulesetBMS::PlaySide::AUTO_DOUBLE:
-        _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
+        _judgeScratch = !(PlayData.player[PLAYER_SLOT_PLAYER].mods.assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
         break;
 
     case RulesetBMS::PlaySide::AUTO_2P:
-        _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
+        _judgeScratch = !(PlayData.player[PLAYER_SLOT_TARGET].mods.assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
         break;
 
     case RulesetBMS::PlaySide::MYBEST:
-        _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_MYBEST].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
+        _judgeScratch = !(PlayData.player[PLAYER_SLOT_MYBEST].mods.assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
         break;
     }
 }
@@ -70,7 +71,7 @@ void RulesetBMSReplay::update(const Time& t)
     auto rt = t - _startTime.norm();
     using namespace chart;
 
-    while (itReplayCommand != replay->commands.end() && rt.norm() >= (long long)std::round(itReplayCommand->ms * playbackSpeed / gSelectContext.pitchSpeed))
+    while (itReplayCommand != replay->commands.end() && rt.norm() >= (long long)std::round(itReplayCommand->ms * playbackSpeed / SystemData.pitchSpeed))
     {
         auto cmd = itReplayCommand->type;
 
@@ -129,7 +130,7 @@ void RulesetBMSReplay::update(const Time& t)
                 }
             }
 
-            if (gPlayContext.mode == SkinType::PLAY5 || gPlayContext.mode == SkinType::PLAY5_2)
+            if (PlayData.mode == SkinType::PLAY5 || PlayData.mode == SkinType::PLAY5_2)
             {
                 if (REPLAY_CMD_INPUT_DOWN_MAP_5K[replayCmdMapIndex].find(cmd) != REPLAY_CMD_INPUT_DOWN_MAP_5K[replayCmdMapIndex].end())
                 {

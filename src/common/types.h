@@ -93,9 +93,9 @@ enum class PlayModifierGaugeType : uint8_t
     EXHARD,
     ASSISTEASY,
 
-    GRADE_NORMAL = 10,
-    GRADE_HARD,
-    GRADE_DEATH,
+    CLASS_NORMAL = 10,
+    CLASS_HARD,
+    CLASS_DEATH,
 
 };
 
@@ -163,6 +163,20 @@ enum class GaugeDisplayType
     ASSIST_EASY,    // 60+40
 };
 
+enum class LampType
+{
+    NOPLAY,
+    FAILED,
+    ASSIST,
+    EASY,
+    NORMAL,
+    HARD,
+    EXHARD,
+    FULLCOMBO,
+    PERFECT,
+    MAX,
+};
+
 class ScoreBase
 {
 public:
@@ -199,19 +213,7 @@ public:
 public:
     int exscore = 0;
 
-    enum class Lamp
-    {
-        NOPLAY,
-        FAILED,
-        ASSIST,
-        EASY,
-        NORMAL,
-        HARD,
-        EXHARD,
-        FULLCOMBO,
-        PERFECT,
-        MAX
-    } lamp = Lamp::NOPLAY;
+    LampType lamp = LampType::NOPLAY;
 
     int pgreat = 0;
     int great = 0;
@@ -225,7 +227,7 @@ public:
     // extended info
     unsigned rival_win = 3; // win / lose / draw / noplay
     double rival_rate = 0;
-    Lamp rival_lamp = Lamp::NOPLAY;
+    LampType rival_lamp = LampType::NOPLAY;
 
     virtual Type getType() const override { return Type::BMS; }
 };

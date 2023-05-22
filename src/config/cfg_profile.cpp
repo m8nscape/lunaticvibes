@@ -27,8 +27,6 @@ void ConfigProfile::setDefaults() noexcept
     set(P_HISPEED_2P, 1.0);
     set(P_SPEED_TYPE, P_SPEED_TYPE_NORMAL);
     set(P_TARGET_TYPE, P_TARGET_TYPE_MYBEST);
-    set(P_BGA_TYPE, P_BGA_TYPE_ON);
-    set(P_BGA_SIZE, P_BGA_SIZE_NORMAL);
     set(P_LANECOVER_TOP, 0);
     set(P_LANECOVER_TOP_2P, 0);
     set(P_LANECOVER_BOTTOM, 0);
@@ -37,8 +35,8 @@ void ConfigProfile::setDefaults() noexcept
     set(P_CHART_OP_2P, P_CHART_OP_NORMAL);
     set(P_GAUGE_OP, P_GAUGE_OP_NORMAL);
     set(P_GAUGE_OP_2P, P_GAUGE_OP_NORMAL);
-    set(P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE);
-    set(P_CHART_ASSIST_OP_2P, P_CHART_ASSIST_OP_NONE);
+    set(P_CHART_ASSIST_OP, 0);
+    set(P_CHART_ASSIST_OP_2P, 0);
     set(P_JUDGE_OFFSET, 0);
     set(P_GHOST_TYPE, false);
     set(P_GHOST_TYPE_2P, false);
@@ -47,7 +45,6 @@ void ConfigProfile::setDefaults() noexcept
     set(P_SORT_MODE, P_SORT_MODE_FOLDER);
     set(P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL);
     set(P_FLIP, false);
-    set(P_SCORE_GRAPH, false);
 
     set(P_LIST_SCROLL_TIME_INITIAL, 300);
     set(P_LIST_SCROLL_TIME_HOLD, 150);
@@ -65,25 +62,12 @@ void ConfigProfile::setDefaults() noexcept
     set(P_EQ5, 0.0);
     set(P_EQ6, 0.0);
 
-    set(P_FREQ, false);
-    set(P_FREQ_TYPE, P_FREQ_TYPE_FREQ);
+    set(P_FREQ_TYPE, "Off");
     set(P_FREQ_VAL, 0);
 
     set(P_FX0, false);
-    set(P_FX0_TARGET, P_FX_TARGET_MASTER);
     set(P_FX0_TYPE, false);
     set(P_FX0_P1, 0);
-    set(P_FX0_P2, 0);
-    set(P_FX1, false);
-    set(P_FX1_TARGET, P_FX_TARGET_MASTER);
-    set(P_FX1_TYPE, false);
-    set(P_FX1_P1, 0);
-    set(P_FX1_P2, 0);
-    set(P_FX2, false);
-    set(P_FX2_TARGET, P_FX_TARGET_MASTER);
-    set(P_FX2_TYPE, false);
-    set(P_FX2_P1, 0);
-    set(P_FX2_P2, 0);
 
     set(P_PREVIEW_DEDICATED, true);
     set(P_PREVIEW_DIRECT, true);

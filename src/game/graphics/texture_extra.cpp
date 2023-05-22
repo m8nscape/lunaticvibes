@@ -1,8 +1,8 @@
 #include "common/pch.h"
 
+#include "game/data/data_system.h"
 #include "game/chart/chart_bms.h"
 #include "texture_extra.h"
-#include "game/scene/scene_context.h"
 
 #ifndef VIDEO_DISABLED
 
@@ -182,7 +182,7 @@ bool TextureBmsBga::addBmp(size_t idx, Path pBmp)
 		{
 #ifndef VIDEO_DISABLED
 			objs[idx].type = obj::Ty::VIDEO;
-			objs[idx].pt = std::make_shared<TextureVideo>(std::make_shared<sVideo>(pBmp, gSelectContext.pitchSpeed, false));
+			objs[idx].pt = std::make_shared<TextureVideo>(std::make_shared<sVideo>(pBmp, SystemData.pitchSpeed, false));
 			LOG_DEBUG << "[TextureBmsBga] added video: " << pBmp.u8string();
 			return true;
 #else
@@ -510,7 +510,7 @@ void TextureBmsBga::setVideoSpeed()
 			if (objs[idx].type == obj::Ty::VIDEO)
 			{
 				auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[idx].pt);
-				pt->setSpeed(gSelectContext.pitchSpeed);
+				pt->setSpeed(SystemData.pitchSpeed);
 			}
 		}
 		//slotIt = slot.end();	// not found

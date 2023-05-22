@@ -47,6 +47,7 @@
 #endif
 
 // boost
+#include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 
 #define BOOST_ASIO_NO_EXCEPTIONS

@@ -5,13 +5,11 @@
 #include "game/chart/chart.h"
 #include "game/ruleset/ruleset.h"
 #include "game/ruleset/ruleset_bms.h"
+#include "game/ruleset/ruleset_bms_network.h"
 #include "game/data/data_types.h"
-#include "game/arena/arena_data.h"
 
 namespace lunaticvibes
 {
-
-using namespace data;
 
 class ButtonConverter
 {
@@ -28,20 +26,20 @@ private:
 
     static int getClearType(std::shared_ptr<RulesetBMS> r)
     {
-        RulesetBMS::LampType t = r ? r->getClearType() : RulesetBMS::LampType::NOPLAY;
+        LampType t = r ? r->getClearType() : LampType::NOPLAY;
         switch (t)
         {
 
-            case RulesetBMS::LampType::NOPLAY: return 0;
-            case RulesetBMS::LampType::FAILED: return 1;
-            case RulesetBMS::LampType::ASSIST: return 2;
-            case RulesetBMS::LampType::EASY: return 3;
-            case RulesetBMS::LampType::NORMAL: return 4;
-            case RulesetBMS::LampType::HARD: return 5;
-            case RulesetBMS::LampType::EXHARD: return 6;
-            case RulesetBMS::LampType::FULLCOMBO: return 7;
-            case RulesetBMS::LampType::PERFECT: return 8;
-            case RulesetBMS::LampType::MAX: return 9;
+            case LampType::NOPLAY: return 0;
+            case LampType::FAILED: return 1;
+            case LampType::ASSIST: return 2;
+            case LampType::EASY: return 3;
+            case LampType::NORMAL: return 4;
+            case LampType::HARD: return 5;
+            case LampType::EXHARD: return 6;
+            case LampType::FULLCOMBO: return 7;
+            case LampType::PERFECT: return 8;
+            case LampType::MAX: return 9;
         }
         return 0;
     }
@@ -550,14 +548,14 @@ public:
     static int button_270() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset)); }
     static int button_271() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset)); }
 
-    static int button_301() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(0))); }
-    static int button_302() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(1))); }
-    static int button_303() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(2))); }
-    static int button_304() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(3))); }
-    static int button_305() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(4))); }
-    static int button_306() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(5))); }
-    static int button_307() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(6))); }
-    static int button_308() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(7))); }
+    static int button_301() { return getClearType(std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(0))); }
+    static int button_302() { return getClearType(std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(1))); }
+    static int button_303() { return getClearType(std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(2))); }
+    static int button_304() { return getClearType(std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(3))); }
+    static int button_305() { return getClearType(std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(4))); }
+    static int button_306() { return getClearType(std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(5))); }
+    static int button_307() { return getClearType(std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(6))); }
+    static int button_308() { return getClearType(std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(7))); }
 
     static int button_310() { return ArenaData.myRanking; }
     static int button_311() { return ArenaData.playerRanking[0]; }
@@ -570,350 +568,330 @@ public:
     static int button_318() { return ArenaData.playerRanking[7]; }
 };
 
-#define define_has_member(index)                                                            \
-class has_button_##index                                                                    \
-{                                                                                           \
-private:                                                                                    \
-    typedef long yes_type;                                                                  \
-    typedef char no_type;                                                                   \
-    template <typename U> static yes_type test(decltype(&U::button_##index));               \
-    template <typename U> static no_type  test(...);                                        \
-public:                                                                                     \
-    static constexpr bool has_func = sizeof(test<ButtonConverter>()) == sizeof(yes_type);   \
-private:                                                                                    \
-    template <typename U, typename = std::enable_if_t<!has_func>>                           \
-    static constexpr int(*func())() { return &U::button_0; }                                \
-    template <typename U, typename = std::enable_if_t<has_func>>                            \
-    static constexpr int(*func())() { return &U::button_##index; }                          \
-public:                                                                                     \
-    static constexpr int(*value)() = func<ButtonConverter>();                               \
-}
+#pragma region declare_member
 
-#define has_button(index)  has_button_##index::has_func
-#define button(index) has_button_##index::value
+declare_member(ButtonConverter, int, button, 0);
+declare_member(ButtonConverter, int, button, 1);
+declare_member(ButtonConverter, int, button, 2);
+declare_member(ButtonConverter, int, button, 3);
+declare_member(ButtonConverter, int, button, 4);
+declare_member(ButtonConverter, int, button, 5);
+declare_member(ButtonConverter, int, button, 6);
+declare_member(ButtonConverter, int, button, 7);
+declare_member(ButtonConverter, int, button, 8);
+declare_member(ButtonConverter, int, button, 9);
+declare_member(ButtonConverter, int, button, 10);
+declare_member(ButtonConverter, int, button, 11);
+declare_member(ButtonConverter, int, button, 12);
+declare_member(ButtonConverter, int, button, 13);
+declare_member(ButtonConverter, int, button, 14);
+declare_member(ButtonConverter, int, button, 15);
+declare_member(ButtonConverter, int, button, 16);
+declare_member(ButtonConverter, int, button, 17);
+declare_member(ButtonConverter, int, button, 18);
+declare_member(ButtonConverter, int, button, 19);
+declare_member(ButtonConverter, int, button, 20);
+declare_member(ButtonConverter, int, button, 21);
+declare_member(ButtonConverter, int, button, 22);
+declare_member(ButtonConverter, int, button, 23);
+declare_member(ButtonConverter, int, button, 24);
+declare_member(ButtonConverter, int, button, 25);
+declare_member(ButtonConverter, int, button, 26);
+declare_member(ButtonConverter, int, button, 27);
+declare_member(ButtonConverter, int, button, 28);
+declare_member(ButtonConverter, int, button, 29);
+declare_member(ButtonConverter, int, button, 30);
+declare_member(ButtonConverter, int, button, 31);
+declare_member(ButtonConverter, int, button, 32);
+declare_member(ButtonConverter, int, button, 33);
+declare_member(ButtonConverter, int, button, 34);
+declare_member(ButtonConverter, int, button, 35);
+declare_member(ButtonConverter, int, button, 36);
+declare_member(ButtonConverter, int, button, 37);
+declare_member(ButtonConverter, int, button, 38);
+declare_member(ButtonConverter, int, button, 39);
+declare_member(ButtonConverter, int, button, 40);
+declare_member(ButtonConverter, int, button, 41);
+declare_member(ButtonConverter, int, button, 42);
+declare_member(ButtonConverter, int, button, 43);
+declare_member(ButtonConverter, int, button, 44);
+declare_member(ButtonConverter, int, button, 45);
+declare_member(ButtonConverter, int, button, 46);
+declare_member(ButtonConverter, int, button, 47);
+declare_member(ButtonConverter, int, button, 48);
+declare_member(ButtonConverter, int, button, 49);
+declare_member(ButtonConverter, int, button, 50);
+declare_member(ButtonConverter, int, button, 51);
+declare_member(ButtonConverter, int, button, 52);
+declare_member(ButtonConverter, int, button, 53);
+declare_member(ButtonConverter, int, button, 54);
+declare_member(ButtonConverter, int, button, 55);
+declare_member(ButtonConverter, int, button, 56);
+declare_member(ButtonConverter, int, button, 57);
+declare_member(ButtonConverter, int, button, 58);
+declare_member(ButtonConverter, int, button, 59);
+declare_member(ButtonConverter, int, button, 60);
+declare_member(ButtonConverter, int, button, 61);
+declare_member(ButtonConverter, int, button, 62);
+declare_member(ButtonConverter, int, button, 63);
+declare_member(ButtonConverter, int, button, 64);
+declare_member(ButtonConverter, int, button, 65);
+declare_member(ButtonConverter, int, button, 66);
+declare_member(ButtonConverter, int, button, 67);
+declare_member(ButtonConverter, int, button, 68);
+declare_member(ButtonConverter, int, button, 69);
+declare_member(ButtonConverter, int, button, 70);
+declare_member(ButtonConverter, int, button, 71);
+declare_member(ButtonConverter, int, button, 72);
+declare_member(ButtonConverter, int, button, 73);
+declare_member(ButtonConverter, int, button, 74);
+declare_member(ButtonConverter, int, button, 75);
+declare_member(ButtonConverter, int, button, 76);
+declare_member(ButtonConverter, int, button, 77);
+declare_member(ButtonConverter, int, button, 78);
+declare_member(ButtonConverter, int, button, 79);
+declare_member(ButtonConverter, int, button, 80);
+declare_member(ButtonConverter, int, button, 81);
+declare_member(ButtonConverter, int, button, 82);
+declare_member(ButtonConverter, int, button, 83);
+declare_member(ButtonConverter, int, button, 84);
+declare_member(ButtonConverter, int, button, 85);
+declare_member(ButtonConverter, int, button, 86);
+declare_member(ButtonConverter, int, button, 87);
+declare_member(ButtonConverter, int, button, 88);
+declare_member(ButtonConverter, int, button, 89);
+declare_member(ButtonConverter, int, button, 90);
+declare_member(ButtonConverter, int, button, 91);
+declare_member(ButtonConverter, int, button, 92);
+declare_member(ButtonConverter, int, button, 93);
+declare_member(ButtonConverter, int, button, 94);
+declare_member(ButtonConverter, int, button, 95);
+declare_member(ButtonConverter, int, button, 96);
+declare_member(ButtonConverter, int, button, 97);
+declare_member(ButtonConverter, int, button, 98);
+declare_member(ButtonConverter, int, button, 99);
+declare_member(ButtonConverter, int, button, 100);
+declare_member(ButtonConverter, int, button, 101);
+declare_member(ButtonConverter, int, button, 102);
+declare_member(ButtonConverter, int, button, 103);
+declare_member(ButtonConverter, int, button, 104);
+declare_member(ButtonConverter, int, button, 105);
+declare_member(ButtonConverter, int, button, 106);
+declare_member(ButtonConverter, int, button, 107);
+declare_member(ButtonConverter, int, button, 108);
+declare_member(ButtonConverter, int, button, 109);
+declare_member(ButtonConverter, int, button, 110);
+declare_member(ButtonConverter, int, button, 111);
+declare_member(ButtonConverter, int, button, 112);
+declare_member(ButtonConverter, int, button, 113);
+declare_member(ButtonConverter, int, button, 114);
+declare_member(ButtonConverter, int, button, 115);
+declare_member(ButtonConverter, int, button, 116);
+declare_member(ButtonConverter, int, button, 117);
+declare_member(ButtonConverter, int, button, 118);
+declare_member(ButtonConverter, int, button, 119);
+declare_member(ButtonConverter, int, button, 120);
+declare_member(ButtonConverter, int, button, 121);
+declare_member(ButtonConverter, int, button, 122);
+declare_member(ButtonConverter, int, button, 123);
+declare_member(ButtonConverter, int, button, 124);
+declare_member(ButtonConverter, int, button, 125);
+declare_member(ButtonConverter, int, button, 126);
+declare_member(ButtonConverter, int, button, 127);
+declare_member(ButtonConverter, int, button, 128);
+declare_member(ButtonConverter, int, button, 129);
+declare_member(ButtonConverter, int, button, 130);
+declare_member(ButtonConverter, int, button, 131);
+declare_member(ButtonConverter, int, button, 132);
+declare_member(ButtonConverter, int, button, 133);
+declare_member(ButtonConverter, int, button, 134);
+declare_member(ButtonConverter, int, button, 135);
+declare_member(ButtonConverter, int, button, 136);
+declare_member(ButtonConverter, int, button, 137);
+declare_member(ButtonConverter, int, button, 138);
+declare_member(ButtonConverter, int, button, 139);
+declare_member(ButtonConverter, int, button, 140);
+declare_member(ButtonConverter, int, button, 141);
+declare_member(ButtonConverter, int, button, 142);
+declare_member(ButtonConverter, int, button, 143);
+declare_member(ButtonConverter, int, button, 144);
+declare_member(ButtonConverter, int, button, 145);
+declare_member(ButtonConverter, int, button, 146);
+declare_member(ButtonConverter, int, button, 147);
+declare_member(ButtonConverter, int, button, 148);
+declare_member(ButtonConverter, int, button, 149);
+declare_member(ButtonConverter, int, button, 150);
+declare_member(ButtonConverter, int, button, 151);
+declare_member(ButtonConverter, int, button, 152);
+declare_member(ButtonConverter, int, button, 153);
+declare_member(ButtonConverter, int, button, 154);
+declare_member(ButtonConverter, int, button, 155);
+declare_member(ButtonConverter, int, button, 156);
+declare_member(ButtonConverter, int, button, 157);
+declare_member(ButtonConverter, int, button, 158);
+declare_member(ButtonConverter, int, button, 159);
+declare_member(ButtonConverter, int, button, 160);
+declare_member(ButtonConverter, int, button, 161);
+declare_member(ButtonConverter, int, button, 162);
+declare_member(ButtonConverter, int, button, 163);
+declare_member(ButtonConverter, int, button, 164);
+declare_member(ButtonConverter, int, button, 165);
+declare_member(ButtonConverter, int, button, 166);
+declare_member(ButtonConverter, int, button, 167);
+declare_member(ButtonConverter, int, button, 168);
+declare_member(ButtonConverter, int, button, 169);
+declare_member(ButtonConverter, int, button, 170);
+declare_member(ButtonConverter, int, button, 171);
+declare_member(ButtonConverter, int, button, 172);
+declare_member(ButtonConverter, int, button, 173);
+declare_member(ButtonConverter, int, button, 174);
+declare_member(ButtonConverter, int, button, 175);
+declare_member(ButtonConverter, int, button, 176);
+declare_member(ButtonConverter, int, button, 177);
+declare_member(ButtonConverter, int, button, 178);
+declare_member(ButtonConverter, int, button, 179);
+declare_member(ButtonConverter, int, button, 180);
+declare_member(ButtonConverter, int, button, 181);
+declare_member(ButtonConverter, int, button, 182);
+declare_member(ButtonConverter, int, button, 183);
+declare_member(ButtonConverter, int, button, 184);
+declare_member(ButtonConverter, int, button, 185);
+declare_member(ButtonConverter, int, button, 186);
+declare_member(ButtonConverter, int, button, 187);
+declare_member(ButtonConverter, int, button, 188);
+declare_member(ButtonConverter, int, button, 189);
+declare_member(ButtonConverter, int, button, 190);
+declare_member(ButtonConverter, int, button, 191);
+declare_member(ButtonConverter, int, button, 192);
+declare_member(ButtonConverter, int, button, 193);
+declare_member(ButtonConverter, int, button, 194);
+declare_member(ButtonConverter, int, button, 195);
+declare_member(ButtonConverter, int, button, 196);
+declare_member(ButtonConverter, int, button, 197);
+declare_member(ButtonConverter, int, button, 198);
+declare_member(ButtonConverter, int, button, 199);
+declare_member(ButtonConverter, int, button, 200);
+declare_member(ButtonConverter, int, button, 201);
+declare_member(ButtonConverter, int, button, 202);
+declare_member(ButtonConverter, int, button, 203);
+declare_member(ButtonConverter, int, button, 204);
+declare_member(ButtonConverter, int, button, 205);
+declare_member(ButtonConverter, int, button, 206);
+declare_member(ButtonConverter, int, button, 207);
+declare_member(ButtonConverter, int, button, 208);
+declare_member(ButtonConverter, int, button, 209);
+declare_member(ButtonConverter, int, button, 210);
+declare_member(ButtonConverter, int, button, 211);
+declare_member(ButtonConverter, int, button, 212);
+declare_member(ButtonConverter, int, button, 213);
+declare_member(ButtonConverter, int, button, 214);
+declare_member(ButtonConverter, int, button, 215);
+declare_member(ButtonConverter, int, button, 216);
+declare_member(ButtonConverter, int, button, 217);
+declare_member(ButtonConverter, int, button, 218);
+declare_member(ButtonConverter, int, button, 219);
+declare_member(ButtonConverter, int, button, 220);
+declare_member(ButtonConverter, int, button, 221);
+declare_member(ButtonConverter, int, button, 222);
+declare_member(ButtonConverter, int, button, 223);
+declare_member(ButtonConverter, int, button, 224);
+declare_member(ButtonConverter, int, button, 225);
+declare_member(ButtonConverter, int, button, 226);
+declare_member(ButtonConverter, int, button, 227);
+declare_member(ButtonConverter, int, button, 228);
+declare_member(ButtonConverter, int, button, 229);
+declare_member(ButtonConverter, int, button, 230);
+declare_member(ButtonConverter, int, button, 231);
+declare_member(ButtonConverter, int, button, 232);
+declare_member(ButtonConverter, int, button, 233);
+declare_member(ButtonConverter, int, button, 234);
+declare_member(ButtonConverter, int, button, 235);
+declare_member(ButtonConverter, int, button, 236);
+declare_member(ButtonConverter, int, button, 237);
+declare_member(ButtonConverter, int, button, 238);
+declare_member(ButtonConverter, int, button, 239);
+declare_member(ButtonConverter, int, button, 240);
+declare_member(ButtonConverter, int, button, 241);
+declare_member(ButtonConverter, int, button, 242);
+declare_member(ButtonConverter, int, button, 243);
+declare_member(ButtonConverter, int, button, 244);
+declare_member(ButtonConverter, int, button, 245);
+declare_member(ButtonConverter, int, button, 246);
+declare_member(ButtonConverter, int, button, 247);
+declare_member(ButtonConverter, int, button, 248);
+declare_member(ButtonConverter, int, button, 249);
+declare_member(ButtonConverter, int, button, 250);
+declare_member(ButtonConverter, int, button, 251);
+declare_member(ButtonConverter, int, button, 252);
+declare_member(ButtonConverter, int, button, 253);
+declare_member(ButtonConverter, int, button, 254);
+declare_member(ButtonConverter, int, button, 255);
+declare_member(ButtonConverter, int, button, 256);
+declare_member(ButtonConverter, int, button, 257);
+declare_member(ButtonConverter, int, button, 258);
+declare_member(ButtonConverter, int, button, 259);
+declare_member(ButtonConverter, int, button, 260);
+declare_member(ButtonConverter, int, button, 261);
+declare_member(ButtonConverter, int, button, 262);
+declare_member(ButtonConverter, int, button, 263);
+declare_member(ButtonConverter, int, button, 264);
+declare_member(ButtonConverter, int, button, 265);
+declare_member(ButtonConverter, int, button, 266);
+declare_member(ButtonConverter, int, button, 267);
+declare_member(ButtonConverter, int, button, 268);
+declare_member(ButtonConverter, int, button, 269);
+declare_member(ButtonConverter, int, button, 270);
+declare_member(ButtonConverter, int, button, 271);
+declare_member(ButtonConverter, int, button, 272);
+declare_member(ButtonConverter, int, button, 273);
+declare_member(ButtonConverter, int, button, 274);
+declare_member(ButtonConverter, int, button, 275);
+declare_member(ButtonConverter, int, button, 276);
+declare_member(ButtonConverter, int, button, 277);
+declare_member(ButtonConverter, int, button, 278);
+declare_member(ButtonConverter, int, button, 279);
+declare_member(ButtonConverter, int, button, 280);
+declare_member(ButtonConverter, int, button, 281);
+declare_member(ButtonConverter, int, button, 282);
+declare_member(ButtonConverter, int, button, 283);
+declare_member(ButtonConverter, int, button, 284);
+declare_member(ButtonConverter, int, button, 285);
+declare_member(ButtonConverter, int, button, 286);
+declare_member(ButtonConverter, int, button, 287);
+declare_member(ButtonConverter, int, button, 288);
+declare_member(ButtonConverter, int, button, 289);
+declare_member(ButtonConverter, int, button, 290);
+declare_member(ButtonConverter, int, button, 291);
+declare_member(ButtonConverter, int, button, 292);
+declare_member(ButtonConverter, int, button, 293);
+declare_member(ButtonConverter, int, button, 294);
+declare_member(ButtonConverter, int, button, 295);
+declare_member(ButtonConverter, int, button, 296);
+declare_member(ButtonConverter, int, button, 297);
+declare_member(ButtonConverter, int, button, 298);
+declare_member(ButtonConverter, int, button, 299);
+declare_member(ButtonConverter, int, button, 300);
+declare_member(ButtonConverter, int, button, 301);
+declare_member(ButtonConverter, int, button, 302);
+declare_member(ButtonConverter, int, button, 303);
+declare_member(ButtonConverter, int, button, 304);
+declare_member(ButtonConverter, int, button, 305);
+declare_member(ButtonConverter, int, button, 306);
+declare_member(ButtonConverter, int, button, 307);
+declare_member(ButtonConverter, int, button, 308);
+declare_member(ButtonConverter, int, button, 309);
+declare_member(ButtonConverter, int, button, 310);
+declare_member(ButtonConverter, int, button, 311);
+declare_member(ButtonConverter, int, button, 312);
+declare_member(ButtonConverter, int, button, 313);
+declare_member(ButtonConverter, int, button, 314);
+declare_member(ButtonConverter, int, button, 315);
+declare_member(ButtonConverter, int, button, 316);
+declare_member(ButtonConverter, int, button, 317);
+declare_member(ButtonConverter, int, button, 318);
+declare_member(ButtonConverter, int, button, 319);
 
-#pragma region define_has_member
-
-define_has_member(0);
-define_has_member(1);
-define_has_member(2);
-define_has_member(3);
-define_has_member(4);
-define_has_member(5);
-define_has_member(6);
-define_has_member(7);
-define_has_member(8);
-define_has_member(9);
-define_has_member(10);
-define_has_member(11);
-define_has_member(12);
-define_has_member(13);
-define_has_member(14);
-define_has_member(15);
-define_has_member(16);
-define_has_member(17);
-define_has_member(18);
-define_has_member(19);
-define_has_member(20);
-define_has_member(21);
-define_has_member(22);
-define_has_member(23);
-define_has_member(24);
-define_has_member(25);
-define_has_member(26);
-define_has_member(27);
-define_has_member(28);
-define_has_member(29);
-define_has_member(30);
-define_has_member(31);
-define_has_member(32);
-define_has_member(33);
-define_has_member(34);
-define_has_member(35);
-define_has_member(36);
-define_has_member(37);
-define_has_member(38);
-define_has_member(39);
-define_has_member(40);
-define_has_member(41);
-define_has_member(42);
-define_has_member(43);
-define_has_member(44);
-define_has_member(45);
-define_has_member(46);
-define_has_member(47);
-define_has_member(48);
-define_has_member(49);
-define_has_member(50);
-define_has_member(51);
-define_has_member(52);
-define_has_member(53);
-define_has_member(54);
-define_has_member(55);
-define_has_member(56);
-define_has_member(57);
-define_has_member(58);
-define_has_member(59);
-define_has_member(60);
-define_has_member(61);
-define_has_member(62);
-define_has_member(63);
-define_has_member(64);
-define_has_member(65);
-define_has_member(66);
-define_has_member(67);
-define_has_member(68);
-define_has_member(69);
-define_has_member(70);
-define_has_member(71);
-define_has_member(72);
-define_has_member(73);
-define_has_member(74);
-define_has_member(75);
-define_has_member(76);
-define_has_member(77);
-define_has_member(78);
-define_has_member(79);
-define_has_member(80);
-define_has_member(81);
-define_has_member(82);
-define_has_member(83);
-define_has_member(84);
-define_has_member(85);
-define_has_member(86);
-define_has_member(87);
-define_has_member(88);
-define_has_member(89);
-define_has_member(90);
-define_has_member(91);
-define_has_member(92);
-define_has_member(93);
-define_has_member(94);
-define_has_member(95);
-define_has_member(96);
-define_has_member(97);
-define_has_member(98);
-define_has_member(99);
-define_has_member(100);
-define_has_member(101);
-define_has_member(102);
-define_has_member(103);
-define_has_member(104);
-define_has_member(105);
-define_has_member(106);
-define_has_member(107);
-define_has_member(108);
-define_has_member(109);
-define_has_member(110);
-define_has_member(111);
-define_has_member(112);
-define_has_member(113);
-define_has_member(114);
-define_has_member(115);
-define_has_member(116);
-define_has_member(117);
-define_has_member(118);
-define_has_member(119);
-define_has_member(120);
-define_has_member(121);
-define_has_member(122);
-define_has_member(123);
-define_has_member(124);
-define_has_member(125);
-define_has_member(126);
-define_has_member(127);
-define_has_member(128);
-define_has_member(129);
-define_has_member(130);
-define_has_member(131);
-define_has_member(132);
-define_has_member(133);
-define_has_member(134);
-define_has_member(135);
-define_has_member(136);
-define_has_member(137);
-define_has_member(138);
-define_has_member(139);
-define_has_member(140);
-define_has_member(141);
-define_has_member(142);
-define_has_member(143);
-define_has_member(144);
-define_has_member(145);
-define_has_member(146);
-define_has_member(147);
-define_has_member(148);
-define_has_member(149);
-define_has_member(150);
-define_has_member(151);
-define_has_member(152);
-define_has_member(153);
-define_has_member(154);
-define_has_member(155);
-define_has_member(156);
-define_has_member(157);
-define_has_member(158);
-define_has_member(159);
-define_has_member(160);
-define_has_member(161);
-define_has_member(162);
-define_has_member(163);
-define_has_member(164);
-define_has_member(165);
-define_has_member(166);
-define_has_member(167);
-define_has_member(168);
-define_has_member(169);
-define_has_member(170);
-define_has_member(171);
-define_has_member(172);
-define_has_member(173);
-define_has_member(174);
-define_has_member(175);
-define_has_member(176);
-define_has_member(177);
-define_has_member(178);
-define_has_member(179);
-define_has_member(180);
-define_has_member(181);
-define_has_member(182);
-define_has_member(183);
-define_has_member(184);
-define_has_member(185);
-define_has_member(186);
-define_has_member(187);
-define_has_member(188);
-define_has_member(189);
-define_has_member(190);
-define_has_member(191);
-define_has_member(192);
-define_has_member(193);
-define_has_member(194);
-define_has_member(195);
-define_has_member(196);
-define_has_member(197);
-define_has_member(198);
-define_has_member(199);
-define_has_member(200);
-define_has_member(201);
-define_has_member(202);
-define_has_member(203);
-define_has_member(204);
-define_has_member(205);
-define_has_member(206);
-define_has_member(207);
-define_has_member(208);
-define_has_member(209);
-define_has_member(210);
-define_has_member(211);
-define_has_member(212);
-define_has_member(213);
-define_has_member(214);
-define_has_member(215);
-define_has_member(216);
-define_has_member(217);
-define_has_member(218);
-define_has_member(219);
-define_has_member(220);
-define_has_member(221);
-define_has_member(222);
-define_has_member(223);
-define_has_member(224);
-define_has_member(225);
-define_has_member(226);
-define_has_member(227);
-define_has_member(228);
-define_has_member(229);
-define_has_member(230);
-define_has_member(231);
-define_has_member(232);
-define_has_member(233);
-define_has_member(234);
-define_has_member(235);
-define_has_member(236);
-define_has_member(237);
-define_has_member(238);
-define_has_member(239);
-define_has_member(240);
-define_has_member(241);
-define_has_member(242);
-define_has_member(243);
-define_has_member(244);
-define_has_member(245);
-define_has_member(246);
-define_has_member(247);
-define_has_member(248);
-define_has_member(249);
-define_has_member(250);
-define_has_member(251);
-define_has_member(252);
-define_has_member(253);
-define_has_member(254);
-define_has_member(255);
-define_has_member(256);
-define_has_member(257);
-define_has_member(258);
-define_has_member(259);
-define_has_member(260);
-define_has_member(261);
-define_has_member(262);
-define_has_member(263);
-define_has_member(264);
-define_has_member(265);
-define_has_member(266);
-define_has_member(267);
-define_has_member(268);
-define_has_member(269);
-define_has_member(270);
-define_has_member(271);
-define_has_member(272);
-define_has_member(273);
-define_has_member(274);
-define_has_member(275);
-define_has_member(276);
-define_has_member(277);
-define_has_member(278);
-define_has_member(279);
-define_has_member(280);
-define_has_member(281);
-define_has_member(282);
-define_has_member(283);
-define_has_member(284);
-define_has_member(285);
-define_has_member(286);
-define_has_member(287);
-define_has_member(288);
-define_has_member(289);
-define_has_member(290);
-define_has_member(291);
-define_has_member(292);
-define_has_member(293);
-define_has_member(294);
-define_has_member(295);
-define_has_member(296);
-define_has_member(297);
-define_has_member(298);
-define_has_member(299);
-define_has_member(300);
-define_has_member(301);
-define_has_member(302);
-define_has_member(303);
-define_has_member(304);
-define_has_member(305);
-define_has_member(306);
-define_has_member(307);
-define_has_member(308);
-define_has_member(309);
-define_has_member(310);
-define_has_member(311);
-define_has_member(312);
-define_has_member(313);
-define_has_member(314);
-define_has_member(315);
-define_has_member(316);
-define_has_member(317);
-define_has_member(318);
-define_has_member(319);
+#define button(index) member(ButtonConverter, int, button, index)
 
 #pragma endregion
 

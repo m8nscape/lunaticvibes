@@ -181,7 +181,7 @@ public:
     virtual ~ReplayChart() = default;
 
 private:
-    friend class cereal::access;
+    friend class ::cereal::access;
 
     template<class Archive>
     void serialize(Archive& ar, const std::uint32_t version)
@@ -224,9 +224,6 @@ public:
     Path getReplayPath();
 };
 
-CEREAL_CLASS_VERSION(ReplayChart, 2);
-
-
 extern const std::map<Input::Pad, ReplayChart::Commands::Type> REPLAY_INPUT_DOWN_CMD_MAP;
 
 extern const std::map<Input::Pad, ReplayChart::Commands::Type> REPLAY_INPUT_UP_CMD_MAP;
@@ -244,3 +241,6 @@ extern const std::map<ReplayChart::Commands::Type, Input::Pad> REPLAY_CMD_INPUT_
 extern const std::map<ReplayChart::Commands::Type, Input::Pad> REPLAY_CMD_INPUT_UP_MAP_5K[4];
 
 }
+
+CEREAL_CLASS_VERSION(lunaticvibes::ReplayChart, 2);
+

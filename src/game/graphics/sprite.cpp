@@ -33,13 +33,14 @@ SpriteBase::SpriteBase(const SpriteBuilder& builder) :
     srcLine(builder.srcLine), 
     pTexture(builder.texture),
     _type(SpriteTypes::VIRTUAL), 
-    _current({0, MotionKeyFrameParams::CONSTANT, 0x00000000, BlendMode::NONE, false, 0}) {}
+    _current({0, MotionKeyFrameParams::CONSTANT, 0x00000000, BlendMode::NONE, false, 0}),
+    lr2SpriteData(builder.lr2SpriteData) {}
 
 bool SpriteBase::updateMotion(const Time& rawTime)
 {
     // Check if object is valid
 	// Note that nullptr texture shall pass
-    if (pTexture != nullptr && !pTexture->loaded)
+    if (pTexture != nullptr && !pTexture->isLoaded())
         return false;
 
     // Check if frames are valid
@@ -52,13 +53,13 @@ bool SpriteBase::updateMotion(const Time& rawTime)
 	// Check if timer is 140
     if (motionStartTimer == "play.beat")
     {
-        time = data::getTimerValue(motionStartTimer);
+        time = getTimerValue(motionStartTimer);
     }
     else 
     {
         // Check if timer is valid
-        long long t = data::getTimerValue(motionStartTimer);
-        if (t > 0 && t != data::TIMER_NEVER)
+        long long t = getTimerValue(motionStartTimer);
+        if (t > 0 && t != TIMER_NEVER)
         {
             return false;
         }
@@ -226,7 +227,7 @@ void SpriteStatic::draw() const
 {
     if (isHidden()) return;
 
-    if (_draw && pTexture->loaded)
+    if (_draw && pTexture->isLoaded())
         pTexture->draw(textureRect, _current.rect, _current.color, _current.blend, _current.filter, _current.angle, _current.center);
 }
 
@@ -287,7 +288,7 @@ void SpriteSelection::draw() const
 {
     if (isHidden()) return;
 
-    if (_draw && pTexture->loaded)
+    if (_draw && pTexture->isLoaded())
         pTexture->draw(textureRects[selectionIndex], _current.rect, _current.color, _current.blend, _current.filter, _current.angle, _current.center);
 }
 
@@ -324,14 +325,14 @@ bool SpriteAnimated::update(const Time& t)
         Time time;
         if (animationStartTimer == "play.beat")
         {
-            time = data::getTimerValue(animationStartTimer);
+            time = getTimerValue(animationStartTimer);
             updateAnimation(time);
         }
         else
         {
             // Check if timer is valid
-            long long t1 = data::getTimerValue(animationStartTimer);
-            if (t1 > 0 && t1 != data::TIMER_NEVER)
+            long long t1 = getTimerValue(animationStartTimer);
+            if (t1 > 0 && t1 != TIMER_NEVER)
             {
                 time = t - Time(t1, false);
                 updateAnimation(time);
@@ -359,7 +360,7 @@ void SpriteAnimated::draw() const
 {
     if (isHidden()) return;
 
-    if (_draw && animationFrameIndex < textureRects.size() && pTexture != nullptr && pTexture->loaded)
+    if (_draw && animationFrameIndex < textureRects.size() && pTexture != nullptr && pTexture->isLoaded())
     {
         pTexture->draw(textureRects[selectionIndex * animationFrames + animationFrameIndex], _current.rect, _current.color, _current.blend, _current.filter, _current.angle, _current.center);
     }
@@ -383,6 +384,7 @@ SpriteText::SpriteText(const SpriteTextBuilder& builder) : SpriteBase(builder)
 
 void SpriteText::updateText()
 {
+    assert(IsMainThread());
     if (!_draw) return;
 
     updateTextTexture(_current.color);
@@ -392,7 +394,7 @@ void SpriteText::updateText()
 
 void SpriteText::updateTextTexture(const Color& c)
 {
-    if (!pFont || !pFont->loaded)
+    if (!pFont || !pFont->isLoaded())
         return;
 
     if (pTexture != nullptr && textDisplaying == text && textColor == c)
@@ -487,7 +489,7 @@ void SpriteText::draw() const
 {
     if (isHidden()) return;
 
-    if (_draw && pTexture && pTexture->loaded)
+    if (_draw && pTexture && pTexture->isLoaded())
     {
         pTexture->draw(textureRect, _current.rect, _current.color, _current.blend, _current.filter, _current.angle, _current.center);
     }
@@ -675,7 +677,7 @@ void SpriteNumber::draw() const
 {
     if (isHidden()) return;
 
-    if (pTexture->loaded && _draw)
+    if (pTexture->isLoaded() && _draw)
     {
         //for (size_t i = 0; i < _outRectDigit.size(); ++i)
         //    pTexture->draw(_drawRectDigit[i], _outRectDigit[i], _current.angle);
@@ -903,7 +905,6 @@ SpriteOption::SpriteOption(const SpriteOptionBuilder& builder): SpriteAnimated(b
 {
     _type = SpriteTypes::OPTION;
 
-
     updateCallback = [=]() { updateVal(builder.optionCallback()); };
 }
 
@@ -941,15 +942,15 @@ bool SpriteButton::OnClick(int x, int y)
 
     switch (clickableOnPanel)
     {
-    case 1: if (!lv::data::SelectData.panel[0]) return false;
-    case 2: if (!lv::data::SelectData.panel[1]) return false;
-    case 3: if (!lv::data::SelectData.panel[2]) return false;
-    case 4: if (!lv::data::SelectData.panel[3]) return false;
-    case 5: if (!lv::data::SelectData.panel[4]) return false;
-    case 6: if (!lv::data::SelectData.panel[5]) return false;
-    case 7: if (!lv::data::SelectData.panel[6]) return false;
-    case 8: if (!lv::data::SelectData.panel[7]) return false;
-    case 9: if (!lv::data::SelectData.panel[8]) return false;
+    case 1: if (!SelectData.panel[0]) return false;
+    case 2: if (!SelectData.panel[1]) return false;
+    case 3: if (!SelectData.panel[2]) return false;
+    case 4: if (!SelectData.panel[3]) return false;
+    case 5: if (!SelectData.panel[4]) return false;
+    case 6: if (!SelectData.panel[5]) return false;
+    case 7: if (!SelectData.panel[6]) return false;
+    case 8: if (!SelectData.panel[7]) return false;
+    case 9: if (!SelectData.panel[8]) return false;
     }
 
     if (plusonlyDelta == 0)
@@ -1138,15 +1139,15 @@ bool SpriteOnMouse::update(const Time& t)
 {
     switch (visibleOnPanel)
     {
-    case 1: if (!lv::data::SelectData.panel[0]) return false;
-    case 2: if (!lv::data::SelectData.panel[1]) return false;
-    case 3: if (!lv::data::SelectData.panel[2]) return false;
-    case 4: if (!lv::data::SelectData.panel[3]) return false;
-    case 5: if (!lv::data::SelectData.panel[4]) return false;
-    case 6: if (!lv::data::SelectData.panel[5]) return false;
-    case 7: if (!lv::data::SelectData.panel[6]) return false;
-    case 8: if (!lv::data::SelectData.panel[7]) return false;
-    case 9: if (!lv::data::SelectData.panel[8]) return false;
+    case 1: if (!SelectData.panel[0]) return false;
+    case 2: if (!SelectData.panel[1]) return false;
+    case 3: if (!SelectData.panel[2]) return false;
+    case 4: if (!SelectData.panel[3]) return false;
+    case 5: if (!SelectData.panel[4]) return false;
+    case 6: if (!SelectData.panel[5]) return false;
+    case 7: if (!SelectData.panel[6]) return false;
+    case 8: if (!SelectData.panel[7]) return false;
+    case 9: if (!SelectData.panel[8]) return false;
     }
 
     if (SpriteSelection::update(t))

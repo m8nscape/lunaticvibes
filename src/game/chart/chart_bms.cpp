@@ -1,7 +1,7 @@
 #include "common/pch.h"
 #include "chart_bms.h"
-#include "game/scene/scene_context.h"
-#include "game/runtime/state.h"
+#include "game/data/data_types.h"
+#include "game/replay/replay_chart.h"
 
 namespace lunaticvibes
 {
@@ -61,7 +61,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     {
         _keys *= 2;
     }
-    else if (gChartContext.isDoubleBattle)
+    else if (PlayData.battleType == PlayModifierBattleType::DoubleBattle)
     {
         _noteCount_total *= 2;
         _noteCount_regular *= 2;
@@ -71,7 +71,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     Time basetime{ 0 };
     Metre basemetre{ 0, 1 };
 
-    BPM bpm = objBms.startBPM * gSelectContext.pitchSpeed;
+    BPM bpm = objBms.startBPM * SystemData.pitchSpeed;
     _currentBPM = bpm;
     _bpmNoteList.push_back({ 0, {0, 1}, 0, 0, 0, bpm });
     bool bpmfucked = false; // set to true when BPM is changed to zero or negative value
@@ -81,17 +81,18 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     for (size_t i = Sc1; i < NOTELANEINDEX_COUNT; ++i)
         gameLaneMap[i] = (NoteLaneIndex)i;
 
-    uint64_t seed = gPlayContext.randomSeed;
-    if (gPlayContext.isReplay && gPlayContext.replay)
-        seed = gPlayContext.replay->randomSeed;
-    else if (_playerSlot == PLAYER_SLOT_MYBEST && gPlayContext.replayMybest)
-        seed = gPlayContext.replayMybest->randomSeed;
+    uint64_t seed = PlayData.randomSeed;
+    if (PlayData.isReplay && PlayData.replay)
+        seed = PlayData.replay->randomSeed;
+    else if (_playerSlot == PLAYER_SLOT_MYBEST && PlayData.replayMybest)
+        seed = PlayData.replayMybest->randomSeed;
     std::mt19937_64 rng(seed);
 
-    if (gPlayContext.isBattle && _playerSlot == PLAYER_SLOT_TARGET)
+    if ((PlayData.battleType == PlayModifierBattleType::LocalBattle ||
+         PlayData.battleType == PlayModifierBattleType::GhostBattle) && _playerSlot == PLAYER_SLOT_TARGET)
     {
         // notes are loaded in 2P area, we should check randomRight instead of randomLeft
-        switch (gPlayContext.mods[_playerSlot].randomRight)
+        switch (PlayData.player[_playerSlot].mods.randomRight)
         {
         case PlayModifierRandomType::RANDOM:
             std::shuffle(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1, rng);
@@ -117,7 +118,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     }
     else
     {
-        switch (gPlayContext.mods[_playerSlot].randomLeft)
+        switch (PlayData.player[_playerSlot].mods.randomLeft)
         {
         case PlayModifierRandomType::RANDOM:
             std::shuffle(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd + 1, rng);
@@ -140,9 +141,9 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
             break;
         }
         }
-        if (isChartDP || gChartContext.isDoubleBattle)
+        if (isChartDP || PlayData.battleType == PlayModifierBattleType::DoubleBattle)
         {
-            switch (gPlayContext.mods[_playerSlot].randomRight)
+            switch (PlayData.player[_playerSlot].mods.randomRight)
             {
             case PlayModifierRandomType::RANDOM:
                 std::shuffle(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1, rng);
@@ -167,8 +168,6 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 
             case PlayModifierRandomType::DB_SYNCHRONIZE:
             {
-                assert(gChartContext.isDoubleBattle);
-
                 size_t count = (laneLeftEnd - laneLeftStart + 1);
                 std::vector<size_t> offsets(count);
                 for (size_t i = 0; i <= laneLeftEnd - laneLeftStart; ++i)
@@ -184,8 +183,6 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 
             case PlayModifierRandomType::DB_SYMMETRY:
             {
-                assert(gChartContext.isDoubleBattle);
-
                 size_t count = (laneLeftEnd - laneLeftStart + 1);
                 std::vector<size_t> offsets(count);
                 for (size_t i = 0; i <= laneLeftEnd - laneLeftStart; ++i)
@@ -293,7 +290,8 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
             // channel misorder (#xxx08, #xxx09) is already handled in chartformat object, do not convert here
             // 0 is Scratch, 1-9 are keys, matching by order
 
-            if (gPlayContext.isBattle && _playerSlot == PLAYER_SLOT_TARGET)
+            if ((PlayData.battleType == PlayModifierBattleType::LocalBattle ||
+                 PlayData.battleType == PlayModifierBattleType::GhostBattle) && _playerSlot == PLAYER_SLOT_TARGET)
             {
                 // load notes into 2P area
 
@@ -309,7 +307,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                 // mine, specify a damage by [01-ZZ] (decimalize/2) ZZ: instant gameover
                 push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE1, 1);
             }
-            else if (isChartDP && gPlayContext.mods[_playerSlot].DPFlip)
+            else if (isChartDP && PlayData.player[_playerSlot].mods.DPFlip)
             {
                 // Regular Notes
                 push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE2, 0);
@@ -347,7 +345,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                     push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV2, 1);
                     push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE2, 1);
                 }
-                else if (gChartContext.isDoubleBattle)
+                else if (PlayData.battleType == PlayModifierBattleType::DoubleBattle)
                 {
                     push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE1, 1);
                     push_notes_ln(notes, LaneCode::NOTELN1, 1);
@@ -366,7 +364,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
             }
 
             // BGA
-            if (State::get(IndexSwitch::_LOAD_BGA))
+            if ((PlayData.panelStyle & PANEL_STYLE_BGA_MASK) != PANEL_STYLE_BGA_OFF)
             {
                 {
                     auto ch = objBms.getLane(LaneCode::BGABASE, 0, m);
@@ -520,7 +518,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                         break;
                     }
 
-                    switch (laneArea == 0 ? gPlayContext.mods[_playerSlot].randomLeft : gPlayContext.mods[_playerSlot].randomRight)
+                    switch (laneArea == 0 ? PlayData.player[_playerSlot].mods.randomLeft : PlayData.player[_playerSlot].mods.randomRight)
                     {
                     case PlayModifierRandomType::SRAN:
                         if (gameLaneIdx != Sc1 && gameLaneIdx != Sc2)
@@ -771,7 +769,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                     lastBarIdx = m;
                     basetime = notetime;
                     lastBPMChangedSegment = noteSegment;
-                    bpm = static_cast<BPM>(val) * gSelectContext.pitchSpeed;
+                    bpm = static_cast<BPM>(val) * SystemData.pitchSpeed;
                     beatLength = Time::singleBeatLengthFromBPM(bpm);
                     _bpmNoteList.push_back({ m, notemetre, notetime, 0, 0, bpm });
                     if (bpm <= 0) bpmfucked = true;
@@ -782,7 +780,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                     lastBarIdx = m;
                     basetime = notetime;
                     lastBPMChangedSegment = noteSegment;
-                    bpm = objBms.exBPM[val] * gSelectContext.pitchSpeed;
+                    bpm = objBms.exBPM[val] * SystemData.pitchSpeed;
                     beatLength = Time::singleBeatLengthFromBPM(bpm);
                     _bpmNoteList.push_back({ m, notemetre, notetime, 0, 0, bpm });
                     if (bpm <= 0) bpmfucked = true;
@@ -820,7 +818,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     if (_totalLength.norm() > 0)
     {
         std::map<double, long long> bpmLength;
-        double bpm = objBms.startBPM * gSelectContext.pitchSpeed;
+        double bpm = objBms.startBPM * SystemData.pitchSpeed;
         double bpmSum = 0.;
         Time prevTime(0);
         long long bpmMainLength = 0;

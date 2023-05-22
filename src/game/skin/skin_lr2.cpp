@@ -2,20 +2,14 @@
 #include "skin_lr2.h"
 #include "skin_lr2_button_callbacks.h"
 #include "skin_lr2_slider_callbacks.h"  
-#include "game/runtime/state.h"
-#include "game/graphics/video.h"
-#include "game/scene/scene_context.h"
 #include "skin_lr2_converters.h"
 #include "config/config_mgr.h"
-#include "game/scene/scene_customize.h"
 #include "game/graphics/dxa.h"
 #include "game/graphics/video.h"
 #include "re2/re2.h"
 #include "game/runtime/i18n.h"
 #include "game/data/data_types.h"
 #include "skin_lr2_converters.h"
-
-#include <boost/algorithm/string.hpp>
 
 #ifdef _WIN32
 // For GetWindowsDirectory
@@ -99,408 +93,418 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
     return i;
 }
 
+SpriteText::TextAlignType convertTextAlignType(int type)
+{
+    switch (type)
+    {
+    case 0: return SpriteText::TextAlignType::Left;
+    case 1: return SpriteText::TextAlignType::Center;
+    case 2: return SpriteText::TextAlignType::Right;
+    }
+    return SpriteText::TextAlignType::Left;
+}
+
 static bool flipSideFlag = false;
 static bool flipResultFlag = false;      // Set in play skin
 static bool flipSide = false;
 
-    struct s_basic
+struct s_basic
+{
+    int _null = 0;
+    int gr = 0;
+    int x = 0;
+    int y = 0;
+    int w = 0;
+    int h = 0;
+    int div_x = 0;
+    int div_y = 0;
+    int cycle = 0;
+    int timer = 0;
+    s_basic(const Tokens& tokens, size_t csvLineNumber = 0)
     {
-        int _null = 0;
-        int gr = 0;
-        int x = 0;
-        int y = 0;
-        int w = 0;
-        int h = 0;
-        int div_x = 0;
-        int div_y = 0;
-        int cycle = 0;
-        int timer = 0;
-        s_basic(const Tokens& tokens, size_t csvLineNumber = 0)
+        int count = sizeof(s_basic) / sizeof(int);
+        convertLine(tokens, (int*)this, 0, count);
+
+        if (w == -1) w = RECT_FULL.w;
+        if (h == -1) h = RECT_FULL.h;
+
+        if (div_x == 0)
         {
-            int count = sizeof(s_basic) / sizeof(int);
-            convertLine(tokens, (int*)this, 0, count);
-
-            if (w == -1) w = RECT_FULL.w;
-            if (h == -1) h = RECT_FULL.h;
-
-            if (div_x == 0)
-            {
-                LOG_DEBUG << "[Skin] " << csvLineNumber << ": div_x is 0";
-                div_x = 1;
-            }
-            if (div_y == 0)
-            {
-                LOG_DEBUG << "[Skin] " << csvLineNumber << ": div_y is 0";
-                div_y = 1;
-            }
-
-            if (flipSide)
-            {
-                switch (timer)
-                {
-                case 42:    timer = 43; break;
-                case 43:    timer = 42; break;
-                case 44:    timer = 45; break;
-                case 45:    timer = 44; break;
-                case 46:    timer = 47; break;
-                case 47:    timer = 46; break;
-                case 48:    timer = 49; break;
-                case 49:    timer = 48; break;
-                case 143:   timer = 144; break;
-                case 144:   timer = 143; break;
-                default:
-                    if (50 <= timer && timer <= 59 ||
-                        70 <= timer && timer <= 79 ||
-                        100 <= timer && timer <= 109 ||
-                        120 <= timer && timer <= 129)
-                        timer += 10;
-                    else if (60 <= timer && timer <= 69 ||
-                        80 <= timer && timer <= 89 ||
-                        110 <= timer && timer <= 119 ||
-                        130 <= timer && timer <= 139)
-                        timer -= 10;
-                    break;
-                }
-            }
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": div_x is 0";
+            div_x = 1;
         }
-    };
-
-    struct s_image : s_basic
-    {
-        int op1 = 0;
-        int op2 = 0;
-        int op3 = 0;
-        s_image(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
+        if (div_y == 0)
         {
-            convertOpsToInt(tokens, (int*)this, &op1 - &_null, 3);
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": div_y is 0";
+            div_y = 1;
         }
-    };
 
-    struct s_number : s_basic
-    {
-        int num = 0;
-        int align = 0;
-        int keta = 0;
-        s_number(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
+        if (flipSide)
         {
-            convertLine(tokens, (int*)this, &num - &_null, 3);
-
-            if (flipSide)
+            switch (timer)
             {
-                if      (100 <= num && num <= 119) num += 20;
-                else if (302 <= num && num <= 306) num += 40;
-                else if (320 <= num && num <= 329) num += 10;
-                else if (360 <= num && num <= 369) num += 10;
-                else if (120 <= num && num <= 139) num -= 20;
-                else if (342 <= num && num <= 346) num -= 40;
-                else if (330 <= num && num <= 339) num -= 10;
-                else if (370 <= num && num <= 379) num -= 10;
-                else
-                {
-                    switch (num)
-                    {
-                    case 10:  num = 11; break;
-                    case 11:  num = 10; break;
-                    case 14:  num = 15; break;
-                    case 15:  num = 14; break;
-                    case 201: num = 213; break;
-                    case 210: num = 211; break;
-                    case 211: num = 210; break;
-                    case 212: num = 371; break;
-                    case 213: num = 213; break;
-                    case 214: num = 372; break;
-                    }
-                }
+            case 42:    timer = 43; break;
+            case 43:    timer = 42; break;
+            case 44:    timer = 45; break;
+            case 45:    timer = 44; break;
+            case 46:    timer = 47; break;
+            case 47:    timer = 46; break;
+            case 48:    timer = 49; break;
+            case 49:    timer = 48; break;
+            case 143:   timer = 144; break;
+            case 144:   timer = 143; break;
+            default:
+                if (50 <= timer && timer <= 59 ||
+                    70 <= timer && timer <= 79 ||
+                    100 <= timer && timer <= 109 ||
+                    120 <= timer && timer <= 129)
+                    timer += 10;
+                else if (60 <= timer && timer <= 69 ||
+                    80 <= timer && timer <= 89 ||
+                    110 <= timer && timer <= 119 ||
+                    130 <= timer && timer <= 139)
+                    timer -= 10;
+                break;
             }
         }
-    };
-
-    struct s_slider : s_basic
-    {
-        int muki = 0;
-        int range = 0;
-        int type = 0;
-        int disable = 0;
-        s_slider(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
-        {
-            convertLine(tokens, (int*)this, &muki - &_null, 4);
-
-            if (flipSide)
-            {
-                switch (type)
-                {
-                case 2: type = 3; break;
-                case 3: type = 2; break;
-                case 4: type = 5; break;
-                case 5: type = 4; break;
-                case 8: type = 9; break;
-                case 9: type = 8; break;
-                }
-            }
-        }
-    };
-
-    struct s_bargraph : s_basic
-    {
-        int type = 0;
-        int muki = 0;
-        s_bargraph(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
-        {
-            convertLine(tokens, (int*)this, &type - &_null, 2);
-            
-            if (flipSide)
-            {
-                if      (10 <= type && type <= 11) type += 4;
-                else if (20 <= type && type <= 29) type += 10;
-                else if (14 <= type && type <= 15) type -= 4;
-                else if (30 <= type && type <= 39) type -= 10;
-            }
-        }
-    };
-
-    struct s_button : s_basic
-    {
-        int type = 0;
-        int click = 0;
-        int panel = 0;
-        int plusonly = 0;
-        s_button(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
-        {
-            convertLine(tokens, (int*)this, &type - &_null, 4);
-        }
-    };
-
-    struct s_onmouse : s_basic
-    {
-        int panel = 0;
-        int x2 = 0;
-        int y2 = 0;
-        int w2 = 0;
-        int h2 = 0;
-        s_onmouse(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
-        {
-            convertLine(tokens, (int*)this, &panel - &_null, 5);
-        }
-    };
-
-    struct s_text
-    {
-        int _null = 0;
-        int font = 0;
-        int st = 0;
-        int align = 0;
-        int edit = 0;
-        int panel = 0;
-        s_text(const Tokens& tokens)
-        {
-            int count = sizeof(s_text) / sizeof(int);
-            convertLine(tokens, (int*)this, 0, count);
-
-            if (flipSide)
-            {
-                switch (st)
-                {
-                case 1:  st = 2; break;
-                case 2:  st = 1; break;
-                case 63: st = 64; break;
-                case 64: st = 63; break;
-                case 65: st = 66; break;
-                case 66: st = 65; break;
-                case 67: st = 68; break;
-                case 68: st = 67; break;
-                case 84: st = 85; break;
-                case 85: st = 84; break;
-                }
-            }
-        }
-    };
-
-    struct s_bga
-    {
-        int _null[10] = { 0 };
-        int nobase = 0;
-        int nolayer = 0;
-        int nopoor = 0;
-        s_bga(const Tokens& tokens)
-        {
-            int count = sizeof(s_bga) / sizeof(int);
-            convertLine(tokens, (int*)this, 0, count);
-        }
-    };
-
-    typedef s_basic s_judgeline;
-    typedef s_basic s_barline;
-    typedef s_basic s_note;
-
-    struct s_nowjudge : s_basic
-    {
-        int noshift = 0;
-        s_nowjudge(const Tokens& tokens, size_t csvLineNumber = 0): s_basic(tokens, csvLineNumber)
-        {
-            size_t offset = sizeof(s_basic) / sizeof(int);
-            size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
-            convertLine(tokens, (int*)this, offset, count);
-
-            // DO not flip index here; there are two separate definitions called SRC_NOWJUDGE_1P / SRC_NOWJUDGE_2P
-        }
-    };
-
-    struct s_nowcombo : s_basic
-    {
-        int _null2 = 0;
-        int align = 0;
-        int keta = 0;
-        s_nowcombo(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
-        {
-            size_t offset = sizeof(s_basic) / sizeof(int);
-            size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
-            convertLine(tokens, (int*)this, offset, count);
-
-            // DO not flip index here; there are two separate definitions called SRC_NOWCOMBO_1P / SRC_NOWCOMBO_2P
-        }
-    };
-
-    struct s_groovegauge : s_basic
-    {
-        int add_x = 0;
-        int add_y = 0;
-        s_groovegauge(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
-        {
-            size_t offset = sizeof(s_basic) / sizeof(int);
-            size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
-            convertLine(tokens, (int*)this, offset, count);
-
-            switch (_null)
-            {
-            case 0: _null = lr2skin::flipSide ? 1 : 0; break;
-            case 1: _null = lr2skin::flipSide ? 0 : 1; break;
-            }
-        }
-    };
-
-    typedef s_basic s_barbody;
-    typedef s_basic s_barflash;
-    typedef s_nowcombo s_barlevel;
-    typedef s_basic s_barlamp;
-    struct s_bartitle
-    {
-        int _null = 0;
-        int font = 0;
-        int st = 0;
-        int align = 0;
-        s_bartitle(const Tokens& tokens)
-        {
-            int count = sizeof(s_bartitle) / sizeof(int);
-            convertLine(tokens, (int*)this, 0, count);
-        }
-    };
-    typedef s_basic s_barrank;
-    typedef s_basic s_barrival;
-    struct s_readme
-    {
-        int _null = 0;
-        int font = 0;
-        int _null2[2] = { 0 };
-        int kankaku = 0;
-        s_readme(const Tokens& tokens)
-        {
-            int count = sizeof(s_readme) / sizeof(int);
-            convertLine(tokens, (int*)this, 0, count);
-        }
-    };
-    typedef s_basic s_mousecursor;
-
-    struct s_gaugechart : s_basic
-    {
-        int field_w = 0;
-        int field_h = 0;
-        int start = 0;
-        int end = 0;
-        s_gaugechart(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
-        {
-            size_t offset = sizeof(s_basic) / sizeof(int);
-            size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
-            convertLine(tokens, (int*)this, offset, count);
-        }
-    };
-    typedef s_gaugechart s_scorechart;
-
-    struct dst
-    {
-        int _null = 0;      //0
-        int time = 0;       //1
-        int x = 0;
-        int y = 0;
-        int w = 0;
-        int h = 0;
-        int acc = 0;        //6
-        int a = 0;
-        int r = 0;
-        int g = 0;
-        int b = 0;
-        int blend = 0;      //11
-        int filter = 0;     //12
-        int angle = 0;      //13
-        int center = 0;     //14
-        int loop = -1;       //15
-        int timer = -1;      //16    
-        int op[4]{DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE};
-        dst(const Tokens& tokens)
-        {
-            int count = sizeof(dst) / sizeof(int);
-            convertLine(tokens, (int*)this, 0, count);
-            convertOpsToInt(tokens, (int*)this, &op[0] - &_null, sizeof(op) / sizeof(op[0]));
-
-            if (flipSide)
-            {
-                switch (timer)
-                {
-                case 42:    timer = 43; break;
-                case 43:    timer = 42; break;
-                case 44:    timer = 45; break;
-                case 45:    timer = 44; break;
-                case 46:    timer = 47; break;
-                case 47:    timer = 46; break;
-                case 48:    timer = 49; break;
-                case 49:    timer = 48; break;
-                case 143:   timer = 144; break;
-                case 144:   timer = 143; break;
-                default:
-                    if (50 <= timer && timer <= 59 ||
-                        70 <= timer && timer <= 79 ||
-                        100 <= timer && timer <= 109 ||
-                        120 <= timer && timer <= 129)
-                        timer += 10;
-                    else if (60 <= timer && timer <= 69 ||
-                        80 <= timer && timer <= 89 ||
-                        110 <= timer && timer <= 119 ||
-                        130 <= timer && timer <= 139)
-                        timer -= 10;
-                    break;
-                }
-            }
-        }
-    };
-
-    BlendMode convertBlend(int blend)
-    {
-        static const std::map<int, BlendMode> blendMap =
-        {
-            {0, BlendMode::NONE},
-            {1, BlendMode::ALPHA},
-            {2, BlendMode::ADD},
-            {3, BlendMode::SUBTRACT},
-            {4, BlendMode::MOD},
-            {6, BlendMode::ADD},    // LR2: XOR but implemented as ADD
-            {9, BlendMode::MULTIPLY_INVERTED_BACKGROUND},
-            {10, BlendMode::INVERT},
-            {11, BlendMode::MULTIPLY_WITH_ALPHA},
-        };
-        return (blendMap.find(blend) != blendMap.end()) ? blendMap.at(blend) : BlendMode::ALPHA;
     }
+};
+
+struct s_image : s_basic
+{
+    int op1 = 0;
+    int op2 = 0;
+    int op3 = 0;
+    s_image(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
+    {
+        convertOpsToInt(tokens, (int*)this, &op1 - &_null, 3);
+    }
+};
+
+struct s_number : s_basic
+{
+    int num = 0;
+    int align = 0;
+    int keta = 0;
+    s_number(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
+    {
+        convertLine(tokens, (int*)this, &num - &_null, 3);
+
+        if (flipSide)
+        {
+            if      (100 <= num && num <= 119) num += 20;
+            else if (302 <= num && num <= 306) num += 40;
+            else if (320 <= num && num <= 329) num += 10;
+            else if (360 <= num && num <= 369) num += 10;
+            else if (120 <= num && num <= 139) num -= 20;
+            else if (342 <= num && num <= 346) num -= 40;
+            else if (330 <= num && num <= 339) num -= 10;
+            else if (370 <= num && num <= 379) num -= 10;
+            else
+            {
+                switch (num)
+                {
+                case 10:  num = 11; break;
+                case 11:  num = 10; break;
+                case 14:  num = 15; break;
+                case 15:  num = 14; break;
+                case 201: num = 213; break;
+                case 210: num = 211; break;
+                case 211: num = 210; break;
+                case 212: num = 371; break;
+                case 213: num = 213; break;
+                case 214: num = 372; break;
+                }
+            }
+        }
+    }
+};
+
+struct s_slider : s_basic
+{
+    int muki = 0;
+    int range = 0;
+    int type = 0;
+    int disable = 0;
+    s_slider(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
+    {
+        convertLine(tokens, (int*)this, &muki - &_null, 4);
+
+        if (flipSide)
+        {
+            switch (type)
+            {
+            case 2: type = 3; break;
+            case 3: type = 2; break;
+            case 4: type = 5; break;
+            case 5: type = 4; break;
+            case 8: type = 9; break;
+            case 9: type = 8; break;
+            }
+        }
+    }
+};
+
+struct s_bargraph : s_basic
+{
+    int type = 0;
+    int muki = 0;
+    s_bargraph(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
+    {
+        convertLine(tokens, (int*)this, &type - &_null, 2);
+            
+        if (flipSide)
+        {
+            if      (10 <= type && type <= 11) type += 4;
+            else if (20 <= type && type <= 29) type += 10;
+            else if (14 <= type && type <= 15) type -= 4;
+            else if (30 <= type && type <= 39) type -= 10;
+        }
+    }
+};
+
+struct s_button : s_basic
+{
+    int type = 0;
+    int click = 0;
+    int panel = 0;
+    int plusonly = 0;
+    s_button(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
+    {
+        convertLine(tokens, (int*)this, &type - &_null, 4);
+    }
+};
+
+struct s_onmouse : s_basic
+{
+    int panel = 0;
+    int x2 = 0;
+    int y2 = 0;
+    int w2 = 0;
+    int h2 = 0;
+    s_onmouse(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
+    {
+        convertLine(tokens, (int*)this, &panel - &_null, 5);
+    }
+};
+
+struct s_text
+{
+    int _null = 0;
+    int font = 0;
+    int st = 0;
+    int align = 0;
+    int edit = 0;
+    int panel = 0;
+    s_text(const Tokens& tokens)
+    {
+        int count = sizeof(s_text) / sizeof(int);
+        convertLine(tokens, (int*)this, 0, count);
+
+        if (flipSide)
+        {
+            switch (st)
+            {
+            case 1:  st = 2; break;
+            case 2:  st = 1; break;
+            case 63: st = 64; break;
+            case 64: st = 63; break;
+            case 65: st = 66; break;
+            case 66: st = 65; break;
+            case 67: st = 68; break;
+            case 68: st = 67; break;
+            case 84: st = 85; break;
+            case 85: st = 84; break;
+            }
+        }
+    }
+};
+
+struct s_bga
+{
+    int _null[10] = { 0 };
+    int nobase = 0;
+    int nolayer = 0;
+    int nopoor = 0;
+    s_bga(const Tokens& tokens)
+    {
+        int count = sizeof(s_bga) / sizeof(int);
+        convertLine(tokens, (int*)this, 0, count);
+    }
+};
+
+typedef s_basic s_judgeline;
+typedef s_basic s_barline;
+typedef s_basic s_note;
+
+struct s_nowjudge : s_basic
+{
+    int noshift = 0;
+    s_nowjudge(const Tokens& tokens, size_t csvLineNumber = 0): s_basic(tokens, csvLineNumber)
+    {
+        size_t offset = sizeof(s_basic) / sizeof(int);
+        size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
+        convertLine(tokens, (int*)this, offset, count);
+
+        // DO not flip index here; there are two separate definitions called SRC_NOWJUDGE_1P / SRC_NOWJUDGE_2P
+    }
+};
+
+struct s_nowcombo : s_basic
+{
+    int _null2 = 0;
+    int align = 0;
+    int keta = 0;
+    s_nowcombo(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
+    {
+        size_t offset = sizeof(s_basic) / sizeof(int);
+        size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
+        convertLine(tokens, (int*)this, offset, count);
+
+        // DO not flip index here; there are two separate definitions called SRC_NOWCOMBO_1P / SRC_NOWCOMBO_2P
+    }
+};
+
+struct s_groovegauge : s_basic
+{
+    int add_x = 0;
+    int add_y = 0;
+    s_groovegauge(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
+    {
+        size_t offset = sizeof(s_basic) / sizeof(int);
+        size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
+        convertLine(tokens, (int*)this, offset, count);
+
+        switch (_null)
+        {
+        case 0: _null = lr2skin::flipSide ? 1 : 0; break;
+        case 1: _null = lr2skin::flipSide ? 0 : 1; break;
+        }
+    }
+};
+
+typedef s_basic s_barbody;
+typedef s_basic s_barflash;
+typedef s_nowcombo s_barlevel;
+typedef s_basic s_barlamp;
+struct s_bartitle
+{
+    int _null = 0;
+    int font = 0;
+    int st = 0;
+    int align = 0;
+    s_bartitle(const Tokens& tokens)
+    {
+        int count = sizeof(s_bartitle) / sizeof(int);
+        convertLine(tokens, (int*)this, 0, count);
+    }
+};
+typedef s_basic s_barrank;
+typedef s_basic s_barrival;
+struct s_readme
+{
+    int _null = 0;
+    int font = 0;
+    int _null2[2] = { 0 };
+    int kankaku = 0;
+    s_readme(const Tokens& tokens)
+    {
+        int count = sizeof(s_readme) / sizeof(int);
+        convertLine(tokens, (int*)this, 0, count);
+    }
+};
+typedef s_basic s_mousecursor;
+
+struct s_gaugechart : s_basic
+{
+    int field_w = 0;
+    int field_h = 0;
+    int start = 0;
+    int end = 0;
+    s_gaugechart(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
+    {
+        size_t offset = sizeof(s_basic) / sizeof(int);
+        size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
+        convertLine(tokens, (int*)this, offset, count);
+    }
+};
+typedef s_gaugechart s_scorechart;
+
+struct dst
+{
+    int _null = 0;      //0
+    int time = 0;       //1
+    int x = 0;
+    int y = 0;
+    int w = 0;
+    int h = 0;
+    int acc = 0;        //6
+    int a = 0;
+    int r = 0;
+    int g = 0;
+    int b = 0;
+    int blend = 0;      //11
+    int filter = 0;     //12
+    int angle = 0;      //13
+    int center = 0;     //14
+    int loop = -1;       //15
+    int timer = -1;      //16    
+    int op[4]{DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE};
+    dst(const Tokens& tokens)
+    {
+        int count = sizeof(dst) / sizeof(int);
+        convertLine(tokens, (int*)this, 0, count);
+        convertOpsToInt(tokens, (int*)this, &op[0] - &_null, sizeof(op) / sizeof(op[0]));
+
+        if (flipSide)
+        {
+            switch (timer)
+            {
+            case 42:    timer = 43; break;
+            case 43:    timer = 42; break;
+            case 44:    timer = 45; break;
+            case 45:    timer = 44; break;
+            case 46:    timer = 47; break;
+            case 47:    timer = 46; break;
+            case 48:    timer = 49; break;
+            case 49:    timer = 48; break;
+            case 143:   timer = 144; break;
+            case 144:   timer = 143; break;
+            default:
+                if (50 <= timer && timer <= 59 ||
+                    70 <= timer && timer <= 79 ||
+                    100 <= timer && timer <= 109 ||
+                    120 <= timer && timer <= 129)
+                    timer += 10;
+                else if (60 <= timer && timer <= 69 ||
+                    80 <= timer && timer <= 89 ||
+                    110 <= timer && timer <= 119 ||
+                    130 <= timer && timer <= 139)
+                    timer -= 10;
+                break;
+            }
+        }
+    }
+};
+
+BlendMode convertBlend(int blend)
+{
+    static const std::map<int, BlendMode> blendMap =
+    {
+        {0, BlendMode::NONE},
+        {1, BlendMode::ALPHA},
+        {2, BlendMode::ADD},
+        {3, BlendMode::SUBTRACT},
+        {4, BlendMode::MOD},
+        {6, BlendMode::ADD},    // LR2: XOR but implemented as ADD
+        {9, BlendMode::MULTIPLY_INVERTED_BACKGROUND},
+        {10, BlendMode::INVERT},
+        {11, BlendMode::MULTIPLY_WITH_ALPHA},
+    };
+    return (blendMap.find(blend) != blendMap.end()) ? blendMap.at(blend) : BlendMode::ALPHA;
 }
 
-using namespace data;
+}
 
 std::map<std::string, Path> SkinLR2::LR2SkinFontPathCache;
 std::map<Path, std::shared_ptr<SkinLR2::LR2Font>> SkinLR2::LR2FontCache;
@@ -1369,9 +1373,10 @@ ParseRet SkinLR2::SRC_IMAGE()
         builder.textureRect = Rect(d.x, d.y, d.w, d.h);
         builder.animationFrameCount = d.div_y * d.div_x;
         builder.animationDurationPerLoop = d.cycle;
-        builder.animationTimer = ::lr2skin::timer(d.timer);
+        builder.animationTimer = lr2skin::timer(d.timer);
         builder.textureSheetRows = d.div_y;
         builder.textureSheetCols = d.div_x;
+        builder.lr2SpriteData.animTimer = d.timer;
         _sprites.push_back(builder.build());
     }
     
@@ -1399,13 +1404,14 @@ ParseRet SkinLR2::SRC_NUMBER()
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = f;
     builder.animationDurationPerLoop = d.cycle;
-    builder.animationTimer = ::lr2skin::timer(d.timer);
+    builder.animationTimer = lr2skin::timer(d.timer);
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
     builder.align = (NumberAlign)d.align;
     builder.maxDigits = d.keta;
-    builder.numberCallback = ::lr2skin::convertNumberIndex(d.num);
-
+    builder.numberCallback = lr2skin::convertNumberIndex(d.num);
+    builder.lr2SpriteData.animTimer = d.timer;
+    builder.lr2SpriteData.type = d.num;
     _sprites.emplace_back(builder.build());
 
     static const std::set<int> fastSlowTypes = {
@@ -1433,13 +1439,15 @@ ParseRet SkinLR2::SRC_SLIDER()
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
     builder.animationDurationPerLoop = d.cycle;
-    builder.animationTimer = ::lr2skin::timer(d.timer);
+    builder.animationTimer = lr2skin::timer(d.timer);
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
     builder.sliderDirection = (SliderDirection)d.muki;
     builder.sliderRange = d.range;
-    builder.sliderCallback = ::lr2skin::convertSliderIndex(d.type);
-    builder.dragCallback = ::lr2skin::slider::getSliderCallback(d.disable ? -1 : d.type);
+    builder.sliderCallback = lr2skin::convertSliderIndex(d.type);
+    builder.dragCallback = lr2skin::slider::getSliderCallback(d.disable ? -1 : d.type);
+    builder.lr2SpriteData.animTimer = d.timer;
+    builder.lr2SpriteData.type = d.type;
     _sprites.push_back(builder.build());
 
     switch (d.type)
@@ -1465,11 +1473,13 @@ ParseRet SkinLR2::SRC_BARGRAPH()
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
     builder.animationDurationPerLoop = d.cycle;
-    builder.animationTimer = ::lr2skin::timer(d.timer);
+    builder.animationTimer = lr2skin::timer(d.timer);
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
     builder.barDirection = (BargraphDirection)d.muki;
-    builder.bargraphCallback = ::lr2skin::convertBargraphIndex(d.type);
+    builder.bargraphCallback = lr2skin::convertBargraphIndex(d.type);
+    builder.lr2SpriteData.animTimer = d.timer;
+    builder.lr2SpriteData.type = d.type;
     _sprites.push_back(builder.build());
 
     return ParseRet::OK;
@@ -1487,10 +1497,12 @@ ParseRet SkinLR2::SRC_BUTTON()
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = 1;
     builder.animationDurationPerLoop = 0;
-    builder.animationTimer = ::lr2skin::timer(d.timer);
+    builder.animationTimer = lr2skin::timer(d.timer);
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
-    builder.optionCallback = ::lr2skin::convertButtonIndex(d.type);
+    builder.optionCallback = lr2skin::convertButtonIndex(d.type);
+    builder.lr2SpriteData.animTimer = d.timer;
+    builder.lr2SpriteData.type = d.type;
 
     if (info.mode == SkinType::KEY_CONFIG)
     {
@@ -1523,7 +1535,7 @@ ParseRet SkinLR2::SRC_BUTTON()
 
     if (d.click)
     {
-        builder.callOnClick = ::lr2skin::button::getButtonCallback(d.type);
+        builder.callOnClick = lr2skin::button::getButtonCallback(d.type);
         builder.clickableOnPanel = d.panel;
         builder.plusonlyDelta = d.plusonly;
         _sprites.push_back(builder.build());
@@ -1547,11 +1559,12 @@ ParseRet SkinLR2::SRC_ONMOUSE()
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
     builder.animationDurationPerLoop = d.cycle;
-    builder.animationTimer = ::lr2skin::timer(d.timer);
+    builder.animationTimer = lr2skin::timer(d.timer);
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
     builder.visibleOnPanel = d.panel;
     builder.mouseArea = Rect(d.x2, d.y2, d.w2, d.h2);
+    builder.lr2SpriteData.animTimer = d.timer;
     _sprites.push_back(builder.build());
 
     return ParseRet::OK;
@@ -1567,9 +1580,10 @@ ParseRet SkinLR2::SRC_MOUSECURSOR()
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
     builder.animationDurationPerLoop = d.cycle;
-    builder.animationTimer = ::lr2skin::timer(d.timer);
+    builder.animationTimer = lr2skin::timer(d.timer);
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
+    builder.lr2SpriteData.animTimer = d.timer;
     _sprites.push_back(builder.build());
 
     return ParseRet::OK;
@@ -1583,9 +1597,9 @@ ParseRet SkinLR2::SRC_TEXT()
 
     SpriteImageText::SpriteImageTextBuilder builder;
     builder.srcLine = csvLineNumber;
-    builder.align = (TextAlign)d.align;
+    builder.align = lr2skin::convertTextAlignType(d.align);
     builder.editable = d.edit;
-    builder.textCallback = ::lr2skin::convertTextIndex(d.st);
+    builder.textCallback = lr2skin::convertTextIndex(d.st);
 
     auto font = std::to_string(d.font);
     if (LR2FontNameMap.find(font) != LR2FontNameMap.end() && LR2FontNameMap[font] != nullptr)
@@ -1638,6 +1652,7 @@ ParseRet SkinLR2::SRC_GAUGECHART(int player)
     builder.start = d.start;
     builder.end = d.end;
     builder.lineWeight = 1;
+    builder.lr2SpriteData.animTimer = d.timer;
 
     switch (d._null)
     {
@@ -1663,6 +1678,7 @@ ParseRet SkinLR2::SRC_SCORECHART()
     builder.start = d.start;
     builder.end = d.end;
     builder.lineWeight = d.w;
+    builder.lr2SpriteData.animTimer = d.timer;
 
     switch (d._null)
     {
@@ -1707,9 +1723,10 @@ ParseRet SkinLR2::SRC_JUDGELINE()
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
     builder.animationDurationPerLoop = d.cycle;
-    builder.animationTimer = ::lr2skin::timer(d.timer);
+    builder.animationTimer = lr2skin::timer(d.timer);
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
+    builder.lr2SpriteData.animTimer = d.timer;
     gSprites[spriteIdx] = builder.build();
 
     _sprites.push_back(std::make_shared<SpriteGlobal>(spriteIdx, csvLineNumber));
@@ -1733,9 +1750,10 @@ ParseRet SkinLR2::SRC_NOWJUDGE(size_t idx)
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
     builder.animationDurationPerLoop = d.cycle;
-    builder.animationTimer = ::lr2skin::timer(d.timer);
+    builder.animationTimer = lr2skin::timer(d.timer);
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
+    builder.lr2SpriteData.animTimer = d.timer;
     gSprites[idx] = builder.build();
 
     return ParseRet::OK;
@@ -1764,13 +1782,15 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = f;
     builder.animationDurationPerLoop = d.cycle;
-    builder.animationTimer = ::lr2skin::timer(d.timer);
+    builder.animationTimer = lr2skin::timer(d.timer);
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
     builder.align = (NumberAlign)d.align;
     builder.maxDigits = d.keta;
-    builder.numberCallback = ::lr2skin::convertNumberIndex(d.num);
+    builder.numberCallback = lr2skin::convertNumberIndex(d.num);
     builder.hideLeadingZeros = true;
+    builder.lr2SpriteData.animTimer = d.timer;
+    builder.lr2SpriteData.type = d.num;
     gSprites[idx] = builder.build();
 
     return ParseRet::OK;
@@ -1797,7 +1817,7 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x / 4;
     builder.animationDurationPerLoop = d.cycle;
-    builder.animationTimer = ::lr2skin::timer(d.timer);
+    builder.animationTimer = lr2skin::timer(d.timer);
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
     builder.dx = d.add_x;
@@ -1805,7 +1825,8 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
     builder.gaugeMin = 0;
     builder.gaugeMax = 100;
     builder.gridCount = 50;
-    builder.numberCallback = ::lr2skin::convertNumberIndex(d._null == 0 ? 107 : 127);
+    builder.numberCallback = lr2skin::convertNumberIndex(d._null == 0 ? 107 : 127);
+    builder.lr2SpriteData.animTimer = d.timer;
     gSprites[idx] = builder.build();
 
     _sprites.push_back(std::make_shared<SpriteGlobal>(idx, csvLineNumber));
@@ -2113,9 +2134,10 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     noteBuilder.textureRect = Rect(d.x, d.y, d.w, d.h);
     noteBuilder.animationFrameCount = d.div_y * d.div_x;
     noteBuilder.animationDurationPerLoop = d.cycle;
-    noteBuilder.animationTimer = ::lr2skin::timer(d.timer);
+    noteBuilder.animationTimer = lr2skin::timer(d.timer);
     noteBuilder.textureSheetRows = d.div_y;
     noteBuilder.textureSheetCols = d.div_x;
+    noteBuilder.lr2SpriteData.animTimer = d.timer;
 
     std::shared_ptr<SpriteAnimated> pSpriteNote = nullptr;
     switch (type)
@@ -2124,7 +2146,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     {
         SpriteLaneVertical::SpriteLaneVerticalBuilder builder;
         builder.srcLine = csvLineNumber;
-        builder.player = d._null == 0 ? PLAYER_SLOT_PLAYER : PLAYER_SLOT_TARGET;
+        builder.slot = d._null == 0 ? PLAYER_SLOT_PLAYER : PLAYER_SLOT_TARGET;
         builder.laneCategory = cat;
         builder.laneIndex = idx;
 
@@ -2145,7 +2167,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     {
         SpriteLaneVertical::SpriteLaneVerticalBuilder builder;
         builder.srcLine = csvLineNumber;
-        builder.player = !!(d._null >= 10);
+        builder.slot = !!(d._null >= 10);
         builder.autoNotes = autoNotes;
         builder.laneCategory = cat;
         builder.laneIndex = idx;
@@ -2180,7 +2202,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
         {
             SpriteLaneVerticalLN::SpriteLaneVerticalLNBuilder builder;
             builder.srcLine = csvLineNumber;
-            builder.player = !!(d._null >= 10);
+            builder.slot = !!(d._null >= 10);
             builder.autoNotes = autoNotes;
             builder.laneCategory = cat;
             builder.laneIndex = idx;
@@ -2237,7 +2259,7 @@ ParseRet SkinLR2::SRC_BGA()
 
     SpriteStatic::SpriteStaticBuilder builder;
     builder.srcLine = csvLineNumber;
-    builder.texture = gPlayContext.bgaTexture;
+    builder.texture = PlayData.bgaTexture;
     _sprites.push_back(builder.build());
 
     return ParseRet::OK;
@@ -2276,9 +2298,11 @@ ParseRet SkinLR2::SRC_BAR_BODY()
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
     builder.animationDurationPerLoop = d.cycle;
-    builder.animationTimer = ::lr2skin::timer(d.timer);
+    builder.animationTimer = lr2skin::timer(d.timer);
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
+    builder.lr2SpriteData.animTimer = d.timer;
+    builder.lr2SpriteData.type = d._null;
 
     for (auto& bar : barSprites)
     {
@@ -2301,9 +2325,10 @@ ParseRet SkinLR2::SRC_BAR_FLASH()
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
     builder.animationDurationPerLoop = d.cycle;
-    builder.animationTimer = ::lr2skin::timer(d.timer);
+    builder.animationTimer = lr2skin::timer(d.timer);
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
+    builder.lr2SpriteData.animTimer = d.timer;
 
     for (auto& bar : barSprites)
     {
@@ -2332,11 +2357,12 @@ ParseRet SkinLR2::SRC_BAR_LEVEL()
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = f;
     builder.animationDurationPerLoop = d.cycle;
-    builder.animationTimer = ::lr2skin::timer(d.timer);
+    builder.animationTimer = lr2skin::timer(d.timer);
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
     builder.align = (NumberAlign)d.align;
     builder.maxDigits = d.keta;
+    builder.lr2SpriteData.animTimer = d.timer;
 
     for (auto& bar : barSprites)
     {
@@ -2358,9 +2384,10 @@ ParseRet SkinLR2::SRC_BAR_LAMP()
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
     builder.animationDurationPerLoop = d.cycle;
-    builder.animationTimer = ::lr2skin::timer(d.timer);
+    builder.animationTimer = lr2skin::timer(d.timer);
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
+    builder.lr2SpriteData.animTimer = d.timer;
 
     for (auto& bar : barSprites)
     {
@@ -2377,8 +2404,8 @@ ParseRet SkinLR2::SRC_BAR_TITLE()
 
     SpriteImageText::SpriteImageTextBuilder builder;
     builder.srcLine = csvLineNumber;
-    builder.textCallback = ::lr2skin::convertTextIndex(d.st);
-    builder.align = (TextAlign)d.align;
+    builder.textCallback = lr2skin::convertTextIndex(d.st);
+    builder.align = lr2skin::convertTextAlignType(d.align);
     builder.editable = d.edit;
 
     for (auto& bar : barSprites)
@@ -2417,9 +2444,10 @@ ParseRet SkinLR2::SRC_BAR_RANK()
         builder.textureRect = Rect(d.x, d.y, d.w, d.h);
         builder.animationFrameCount = d.div_y * d.div_x;
         builder.animationDurationPerLoop = d.cycle;
-        builder.animationTimer = ::lr2skin::timer(d.timer);
+        builder.animationTimer = lr2skin::timer(d.timer);
         builder.textureSheetRows = d.div_y;
         builder.textureSheetCols = d.div_x;
+        builder.lr2SpriteData.animTimer = d.timer;
 
         bar->setRank(type, builder);
     }
@@ -2441,9 +2469,10 @@ ParseRet SkinLR2::SRC_BAR_RIVAL()
         builder.textureRect = Rect(d.x, d.y, d.w, d.h);
         builder.animationFrameCount = d.div_y * d.div_x;
         builder.animationDurationPerLoop = d.cycle;
-        builder.animationTimer = ::lr2skin::timer(d.timer);
+        builder.animationTimer = lr2skin::timer(d.timer);
         builder.textureSheetRows = d.div_y;
         builder.textureSheetCols = d.div_x;
+        builder.lr2SpriteData.animTimer = d.timer;
 
         bar->setRivalWinLose(type, builder);
     }
@@ -2465,9 +2494,10 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_MYLAMP()
         builder.textureRect = Rect(d.x, d.y, d.w, d.h);
         builder.animationFrameCount = d.div_y * d.div_x;
         builder.animationDurationPerLoop = d.cycle;
-        builder.animationTimer = ::lr2skin::timer(d.timer);
+        builder.animationTimer = lr2skin::timer(d.timer);
         builder.textureSheetRows = d.div_y;
         builder.textureSheetCols = d.div_x;
+        builder.lr2SpriteData.animTimer = d.timer;
 
         bar->setRivalLampSelf(type, builder);
     }
@@ -2489,9 +2519,10 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_RIVALLAMP()
         builder.textureRect = Rect(d.x, d.y, d.w, d.h);
         builder.animationFrameCount = d.div_y * d.div_x;
         builder.animationDurationPerLoop = d.cycle;
-        builder.animationTimer = ::lr2skin::timer(d.timer);
+        builder.animationTimer = lr2skin::timer(d.timer);
         builder.textureSheetRows = d.div_y;
         builder.textureSheetCols = d.div_x;
+        builder.lr2SpriteData.animTimer = d.timer;
 
         bar->setRivalLampRival(type, builder);
     }
@@ -2687,26 +2718,22 @@ bool SkinLR2::DST()
                 }
             }
 
-            std::vector<dst_option> opEx;
-            // FIXME zeros may be displayed as difficulty on folders without codes below, which is not the case on LR2
-            /*
+            std::vector<int> opEx;
             if (type == DefType::NUMBER)
             {
-                auto p = std::reinterpret_pointer_cast<SpriteNumber>(e);
-                switch (p->numInd)
+                switch (e->lr2SpriteData.type)
                 {
-                case IndexNumber::MUSIC_BEGINNER_LEVEL:  opEx.push_back(dst_option::SELECT_HAVE_BEGINNER_IN_SAME_FOLDER); break;
-                case IndexNumber::MUSIC_NORMAL_LEVEL:    opEx.push_back(dst_option::SELECT_HAVE_NORMAL_IN_SAME_FOLDER);   break;
-                case IndexNumber::MUSIC_HYPER_LEVEL:     opEx.push_back(dst_option::SELECT_HAVE_HYPER_IN_SAME_FOLDER);    break;
-                case IndexNumber::MUSIC_ANOTHER_LEVEL:   opEx.push_back(dst_option::SELECT_HAVE_ANOTHER_IN_SAME_FOLDER);  break;
-                case IndexNumber::MUSIC_INSANE_LEVEL:    opEx.push_back(dst_option::SELECT_HAVE_INSANE_IN_SAME_FOLDER);   break;
+                case 45: opEx.push_back(505); break;
+                case 46: opEx.push_back(506); break;
+                case 47: opEx.push_back(507); break;
+                case 48: opEx.push_back(508); break;
+                case 49: opEx.push_back(509); break;
                 }
             }
-            */
-            drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), opEx });
+            drawQueue.push_back({ e, d.op[0], d.op[1], d.op[2], d.op[3], opEx });
 
             e->setMotionLoopTo(d.loop);
-            e->setMotionStartTimer(::lr2skin::timer(d.timer));
+            e->setMotionStartTimer(lr2skin::timer(d.timer));
         }
 
         e->appendMotionKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2746,9 +2773,9 @@ ParseRet SkinLR2::DST_NOTE()
     {
         if (e->isMotionKeyFramesEmpty())
         {
-            drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
+            drawQueue.push_back({ e, d.op[0], d.op[1], d.op[2], d.op[3], {} });
             e->setMotionLoopTo(d.loop);
-            e->setMotionStartTimer(::lr2skin::timer(d.timer));
+            e->setMotionStartTimer(lr2skin::timer(d.timer));
         }
         e->appendMotionKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
@@ -2821,7 +2848,7 @@ ParseRet SkinLR2::DST_LINE()
     p->pNote->appendMotionKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
         lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
 
-    drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
+    drawQueue.push_back({ e, d.op[0], d.op[1], d.op[2], d.op[3], {} });
     e->appendMotionKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
         lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     e->setMotionLoopTo(0);
@@ -2866,13 +2893,13 @@ ParseRet SkinLR2::DST_BAR_BODY()
         {
             e->setSrcLine(csvLineNumber);
             e->setMotionLoopTo(d.loop);
-            e->setMotionStartTimer(::lr2skin::timer(d.timer));
+            e->setMotionStartTimer(lr2skin::timer(d.timer));
 
             if (!barSpriteAvailable[idx])
             {
                 barSprites[idx]->setSrcLine(csvLineNumber);
                 barSpriteAvailable[idx] = true;
-                drawQueue.push_back({ barSprites[idx], dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
+                drawQueue.push_back({ barSprites[idx], d.op[0], d.op[1], d.op[2], d.op[3], {} });
             }
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
@@ -2906,7 +2933,7 @@ ParseRet SkinLR2::DST_BAR_FLASH()
         {
             e->setSrcLine(csvLineNumber);
             e->setMotionLoopTo(d.loop);
-            e->setMotionStartTimer(::lr2skin::timer(d.timer));
+            e->setMotionStartTimer(lr2skin::timer(d.timer));
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
@@ -2947,7 +2974,7 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
         {
             e->setSrcLine(csvLineNumber);
             e->setMotionLoopTo(d.loop);
-            e->setMotionStartTimer(::lr2skin::timer(d.timer));
+            e->setMotionStartTimer(lr2skin::timer(d.timer));
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
@@ -2989,7 +3016,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
         {
             e->setSrcLine(csvLineNumber);
             e->setMotionLoopTo(d.loop);
-            e->setMotionStartTimer(::lr2skin::timer(d.timer));
+            e->setMotionStartTimer(lr2skin::timer(d.timer));
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
@@ -3029,7 +3056,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
         {
             e->setSrcLine(csvLineNumber);
             e->setMotionLoopTo(d.loop);
-            e->setMotionStartTimer(::lr2skin::timer(d.timer));
+            e->setMotionStartTimer(lr2skin::timer(d.timer));
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
@@ -3070,7 +3097,7 @@ ParseRet SkinLR2::DST_BAR_LAMP()
         {
             e->setSrcLine(csvLineNumber);
             e->setMotionLoopTo(d.loop);
-            e->setMotionStartTimer(::lr2skin::timer(d.timer));
+            e->setMotionStartTimer(lr2skin::timer(d.timer));
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
@@ -3111,7 +3138,7 @@ ParseRet SkinLR2::DST_BAR_TITLE()
         {
             e->setSrcLine(csvLineNumber);
             e->setMotionLoopTo(d.loop);
-            e->setMotionStartTimer(::lr2skin::timer(d.timer));
+            e->setMotionStartTimer(lr2skin::timer(d.timer));
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
@@ -3152,7 +3179,7 @@ ParseRet SkinLR2::DST_BAR_RANK()
         {
             e->setSrcLine(csvLineNumber);
             e->setMotionLoopTo(d.loop);
-            e->setMotionStartTimer(::lr2skin::timer(d.timer));
+            e->setMotionStartTimer(lr2skin::timer(d.timer));
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
@@ -3196,7 +3223,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
         {
             e->setSrcLine(csvLineNumber);
             e->setMotionLoopTo(d.loop);
-            e->setMotionStartTimer(::lr2skin::timer(d.timer));
+            e->setMotionStartTimer(lr2skin::timer(d.timer));
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
@@ -3469,7 +3496,7 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
                 ifStmtTrue = false;
                 break;
             }
-            bool dst = getDstOpt((dst_option)idx);
+            bool dst = getDstOpt(idx);
             if (val) dst = !dst;
             ifStmtTrue = ifStmtTrue && dst;
         }
@@ -3565,6 +3592,14 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
     }
 }
 
+StringPath getCustomizeFileName(StringPathView skinPath)
+{
+    Path p(skinPath);
+    std::string md5 = HashMD5(p.u8string()).hexdigest();
+    md5 += ".yaml";
+    return Path(md5).native();
+}
+
 #pragma endregion
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3617,7 +3652,7 @@ SkinLR2::~SkinLR2()
     case SkinType::PLAY10:
     case SkinType::PLAY14:
     {
-        Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / SceneCustomize::getConfigFileName(getFilePath());
+        Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / getCustomizeFileName(getFilePath());
         try
         {
             auto yaml = YAML::LoadFile(pCustomize.u8string());
@@ -3739,7 +3774,7 @@ bool SkinLR2::loadCSV(Path p)
         // load skin customization from profile
         if (p == filePath)
         {
-            Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / SceneCustomize::getConfigFileName(getFilePath());
+            Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / getCustomizeFileName(getFilePath());
             try
             {
                 std::map<size_t, StringContent> opDstMap;
@@ -3868,8 +3903,8 @@ void SkinLR2::postLoad()
 
         if (loadMode == 0)
         {
-            gSelectContext.highlightBarIndex = barCenter;
-            gSelectContext.cursorClick = barCenter;
+            SelectData.highlightBarIndex = barCenter;
+            SelectData.cursorClick = barCenter;
         }
     }
 
@@ -4051,16 +4086,14 @@ void SkinLR2::postLoad()
         {
             const Rect& rcFirst = s->motionKeyFrames.front().param.rect;
             const Rect& rcLast = s->motionKeyFrames.back().param.rect;
-            int timer = (int)s->motionStartTimer;
-            if (timer >= 100 && timer <= 109 || timer >= 120 && timer <= 129 ||
-                timer == (int)IndexTimer::S1L_DOWN || timer == (int)IndexTimer::S1L_UP || timer == (int)IndexTimer::S1R_DOWN || timer == (int)IndexTimer::S1R_UP)
+            int timer = (int)s->lr2SpriteData.motionTimer;
+            if (timer >= 100 && timer <= 109 || timer >= 120 && timer <= 129 || timer >= 200 && timer <= 203)
             {
                 // 1P laser
                 if (rcFirst.h <= -100 || rcFirst.h >= 100 || rcLast.h <= -100 || rcLast.h >= 100)
                     spritesMoveWithLift1P.push_back(s);
             }
-            else if (timer >= 110 && timer <= 119 || timer >= 130 && timer <= 139 ||
-                timer == (int)IndexTimer::S2L_DOWN || timer == (int)IndexTimer::S2L_UP || timer == (int)IndexTimer::S2R_DOWN || timer == (int)IndexTimer::S2R_UP)
+            else if (timer >= 110 && timer <= 119 || timer >= 130 && timer <= 139 || timer >= 220 && timer <= 223)
             {
                 // 2P laser
                 if (rcFirst.h <= -100 || rcFirst.h >= 100 || rcLast.h <= -100 || rcLast.h >= 100)
@@ -4100,8 +4133,8 @@ void SkinLR2::postLoad()
         {
             const Rect& rcFirst = s->motionKeyFrames.front().param.rect;
             const Rect& rcLast = s->motionKeyFrames.back().param.rect;
-            int num = (int)std::dynamic_pointer_cast<SpriteNumber>(s)->numInd;
-            int timer = (int)s->motionStartTimer;
+            int num = s->lr2SpriteData.type;
+            int timer = s->lr2SpriteData.motionTimer;
             if (timer == 40 || timer == 46 || timer == 47)
             {
                 if ((rcFirst.y <= judgeLineRect1P.y + judgeLineRect1P.h || rcLast.y <= judgeLineRect1P.y + judgeLineRect1P.h) && (num == 108 || num == 210))
@@ -4128,18 +4161,18 @@ void SkinLR2::postLoad()
     {
         for (auto& s : _sprites)
         {
-            if (s->motionStartTimer == IndexTimer::SCENE_START)
-                s->motionStartTimer = IndexTimer::_SCENE_CUSTOMIZE_START;
-            if (s->motionStartTimer == IndexTimer::FADEOUT_BEGIN)
-                s->motionStartTimer = IndexTimer::_SCENE_CUSTOMIZE_FADEOUT;
+            if (s->lr2SpriteData.motionTimer == 0)
+                s->motionStartTimer = "lr2customize.scene_start";
+            if (s->lr2SpriteData.motionTimer == 2)
+                s->motionStartTimer = "lr2customize.fadeout";
 
             auto p = std::dynamic_pointer_cast<SpriteAnimated>(s);
             if (p)
             {
-                if (p->animationStartTimer == IndexTimer::SCENE_START)
-                    p->animationStartTimer = IndexTimer::_SCENE_CUSTOMIZE_START;
-                if (p->motionStartTimer == IndexTimer::FADEOUT_BEGIN)
-                    p->motionStartTimer = IndexTimer::_SCENE_CUSTOMIZE_FADEOUT;
+                if (p->lr2SpriteData.animTimer == 0)
+                    p->animationStartTimer = "lr2customize.scene_start";
+                if (p->lr2SpriteData.animTimer == 2)
+                    p->animationStartTimer = "lr2customize.fadeout";
             }
         }
     }
@@ -4375,16 +4408,17 @@ void SkinLR2::update()
     // 26: GLOBAL_SPRITE_IDX_1PJUDGELINE
     // 27: GLOBAL_SPRITE_IDX_2PJUDGELINE
     int lift1P = 0, lift2P = 0;
-    if (gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect == PlayModifierLaneEffectType::LIFT ||
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect == PlayModifierLaneEffectType::LIFTSUD)
+    if (PlayData.player[PLAYER_SLOT_PLAYER].mods.laneEffect == PlayModifierLaneEffectType::LIFT ||
+        PlayData.player[PLAYER_SLOT_PLAYER].mods.laneEffect == PlayModifierLaneEffectType::LIFTSUD)
     {
         lift1P = (PlayData.player[PLAYER_SLOT_PLAYER].lanecoverBottom / 1000.0) * info.noteLaneHeight1P;
-        if (gPlayContext.mode == SkinType::PLAY10 || gPlayContext.mode == SkinType::PLAY14)
+        if (PlayData.mode == SkinType::PLAY10 || PlayData.mode == SkinType::PLAY14)
             lift2P = (PlayData.player[PLAYER_SLOT_PLAYER].lanecoverBottom / 1000.0) * info.noteLaneHeight2P;
     }
-    if (gPlayContext.isBattle && 
-        (gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect == PlayModifierLaneEffectType::LIFT ||
-         gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect == PlayModifierLaneEffectType::LIFTSUD))
+    if (PlayData.battleType != PlayModifierBattleType::Off &&
+        PlayData.battleType != PlayModifierBattleType::DoubleBattle &&
+        (PlayData.player[PLAYER_SLOT_TARGET].mods.laneEffect == PlayModifierLaneEffectType::LIFT ||
+         PlayData.player[PLAYER_SLOT_TARGET].mods.laneEffect == PlayModifierLaneEffectType::LIFTSUD))
     {
         lift2P = (PlayData.player[PLAYER_SLOT_TARGET].lanecoverBottom / 1000.0) * info.noteLaneHeight2P;
     }
@@ -4490,11 +4524,11 @@ void SkinLR2::update()
                 }
                 else
                 {
-                    if (pS->playerSlot == PLAYER_SLOT_PLAYER)
+                    if (pS->slot == PLAYER_SLOT_PLAYER)
                     {
                         pS->adjustAfterUpdate(move1PX, move1PY, adjustPlayNote1PW, -adjustPlayNote1PH);
                     }
-                    else if (pS->playerSlot == PLAYER_SLOT_TARGET)
+                    else if (pS->slot == PLAYER_SLOT_TARGET)
                     {
                         pS->adjustAfterUpdate(move2PX, move2PY, adjustPlayNote2PW, -adjustPlayNote2PH);
                     }
@@ -4503,19 +4537,19 @@ void SkinLR2::update()
         });
 
     // update songlist bar
-    std::shared_lock<std::shared_mutex> u(gSelectContext._mutex, std::try_to_lock); // read lock
+    std::shared_lock<std::shared_mutex> u(SelectData._mutex, std::try_to_lock); // read lock
     if (u.owns_lock())
     {
         for (auto& s : barSprites) s->update(t);
 
         // update songlist position
-        if (hasBarMotionInterpOrigin && gSelectContext.scrollDirection != 0 && !gSelectContext.entries.empty())
+        if (hasBarMotionInterpOrigin && SelectData.scrollDirection != 0 && !SelectData.entries.empty())
         {
             for (size_t i = 1; i + 1 < barSprites.size(); ++i)
             {
                 if (!barSpriteAvailable[i]) continue;
 
-                double posNow = SelectData.selectedEntryIndexRolling * gSelectContext.entries.size();
+                double posNow = SelectData.selectedEntryIndexRolling * SelectData.entries.size();
 
                 double decimal = posNow - (int)posNow;
                 if (decimal <= 0.5 && barSprites[i - 1]->isDraw())

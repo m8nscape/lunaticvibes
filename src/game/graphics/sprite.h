@@ -1,7 +1,6 @@
 #pragma once
 #include "common/beat.h"
 #include "graphics.h"
-#include "game/runtime/state.h"
 
 namespace lunaticvibes
 {
@@ -102,11 +101,20 @@ protected:
     int motionLoopTo = -1;
     std::string motionStartTimer = "system.scene_start";
     std::function<void()> updateCallback = [] {};
+protected:
+    // metadata only. Use motionStartTimer and updateCallback to update status.
+    struct LR2SpriteData_Struct
+    {
+        int animTimer = 0;
+        int motionTimer = 0;
+        int type = 0;
+    } lr2SpriteData;
 
 public:
     struct SpriteBuilder
     {
         int srcLine = -1;
+        LR2SpriteData_Struct lr2SpriteData;
 
         std::shared_ptr<Texture> texture = nullptr;
     };
@@ -313,7 +321,6 @@ private:
 
 protected:
     TextAlignType align;
-    bool editable = false;
 
 protected:
     std::string text;
@@ -322,10 +329,11 @@ private:
     Rect textureRect;
 
 protected:
+    bool editable = false;
     bool editing = false;
     std::string textBeforeEdit;
     std::string textAfterEdit;
-    std::function<void(const std::string& text)> afterEditCallback = [] {};
+    std::function<void(const std::string& text)> afterEditCallback = [](const std::string&) {};
 
 public:
     struct SpriteTextBuilder : SpriteBuilder
@@ -360,6 +368,7 @@ public:
     virtual bool OnClick(int x, int y);
     virtual bool OnDrag(int x, int y) { return false; }
 
+    bool isEditable() const { return editable; }
     bool isEditing() const { return editing; }
     void startEditing(bool clear);
     void stopEditing(bool modify);
@@ -532,9 +541,6 @@ protected:
 public:
     struct SpriteOptionBuilder : SpriteAnimatedBuilder
     {
-        opType optionType;
-        unsigned optionInd;
-
         std::function<unsigned()> optionCallback = [] { return 0u; };
 
         std::shared_ptr<SpriteOption> build() const { return std::make_shared<SpriteOption>(*this); }

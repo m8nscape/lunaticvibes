@@ -46,7 +46,7 @@ public:
     virtual void draw() const;
 
 private:
-    void updateTextTexture(std::string&& text);
+    void updateTextTexture();
 };
 
 }

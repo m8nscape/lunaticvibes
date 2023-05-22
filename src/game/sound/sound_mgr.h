@@ -1,6 +1,7 @@
 #pragma once
 #include "sound_driver.h"
 #include "sound_sample.h"
+#include "game/data/data_system.h"
 
 namespace lunaticvibes
 {
@@ -39,6 +40,7 @@ public:
     static void setNoteVolume(float v, int gradientTime = 0);
     static void setVolume(SampleChannel ch, float v);
 
+    static void setDSP(FXType type, int index, SampleChannel ch, float p1, float p2);
     static void setDSP(DSPType type, int index, SampleChannel ch, float p1, float p2);
     static void updateDSP();
 

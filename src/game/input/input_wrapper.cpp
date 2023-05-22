@@ -1,6 +1,5 @@
 #include "common/pch.h"
 #include "input_wrapper.h"
-#include "game/runtime/state.h"
 #include "game/runtime/generic_info.h"
 
 namespace lunaticvibes
@@ -250,7 +249,7 @@ void InputWrapper::_loop()
 
 double InputWrapper::getJoystickAxis(size_t device, Input::Joystick::Type type, size_t index)
 {
-    return ::getJoystickAxis(device, type, index);
+    return lunaticvibes::getJoystickAxis(device, type, index);
 }
 
 double InputWrapper::getScratchAxis(int player)

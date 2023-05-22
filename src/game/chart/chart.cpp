@@ -3,8 +3,7 @@
 #include "chart_types.h"
 #include "common/chartformat/chartformat.h"
 #include "common/chartformat/chartformat_types.h"
-#include "game/runtime/state.h"
-#include "game/scene/scene_context.h"
+#include "game/data/data_play.h"
 
 namespace lunaticvibes
 {
@@ -119,13 +118,13 @@ chart::NoteLaneIndex chart::KeyToLane(int keys, Input::Pad pad)
                 Sc2, Sc2, _, _, N21, N22, N23, N24, N25, _, _, _, _, _, _,
             },
         };
-        if (gPlayContext.shift1PNotes5KFor7KSkin)
+        if (PlayData.shift1PNotes5KFor7KSkin)
         {
-            return gPlayContext.shift2PNotes5KFor7KSkin ? lane[3][pad] : lane[2][pad];
+            return PlayData.shift2PNotes5KFor7KSkin ? lane[3][pad] : lane[2][pad];
         }
         else
         {
-            return gPlayContext.shift2PNotes5KFor7KSkin ? lane[1][pad] : lane[0][pad];
+            return PlayData.shift2PNotes5KFor7KSkin ? lane[1][pad] : lane[0][pad];
         }
     }
     case 7:
@@ -335,7 +334,7 @@ Metre ChartObjectBase::getBarMetrePosition(size_t bar)
 
 void ChartObjectBase::update(const Time& rt)
 {
-    Time vt = rt + Time(State::get(IndexNumber::TIMING_ADJUST_VISUAL), false);
+    Time vt = rt + visualOffsetMs;
     Time at = rt;
 
     noteExpired.clear();
@@ -420,13 +419,9 @@ void ChartObjectBase::update(const Time& rt)
     // update beat
     Time currentMeasureTimePassed = vt - _barTimestamp[_currentBarTemp];
     Time timeFromBPMChange = currentMeasureTimePassed - _lastChangedBPMTime;
-    State::set(IndexNumber::_TEST4, (int)currentMeasureTimePassed.norm());
     _currentMetreTemp = _lastChangedBPMMetre + (double)timeFromBPMChange.hres() / _currentBeatLength.hres() / 4;
 
     postUpdate(vt);
-
-    State::set(IndexNumber::_TEST1, _currentBarTemp);
-    State::set(IndexNumber::_TEST2, (int)std::floor(_currentMetreTemp * 1000));
 
     _currentBar = _currentBarTemp;
     _currentMetre = _currentMetreTemp;

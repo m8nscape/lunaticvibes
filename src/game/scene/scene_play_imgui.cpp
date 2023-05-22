@@ -1,6 +1,7 @@
 #include "common/pch.h"
 #include "scene_play.h"
 #include "game/runtime/i18n.h"
+#include "game/data/data_system.h"
 #include "imgui.h"
 #include "game/skin/skin_lr2.h"
 

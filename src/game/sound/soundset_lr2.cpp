@@ -1,8 +1,8 @@
 #include "common/pch.h"
 #include "soundset_lr2.h"
+#include "game/skin/skin_lr2.h"
 #include "common/encoding.h"
 #include "config/config_mgr.h"
-#include "game/scene/scene_customize.h"
 
 #include <boost/tokenizer.hpp>
 
@@ -68,7 +68,7 @@ void SoundSetLR2::loadCSV(Path p)
     }
 
     // load skin customization from profile
-    Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / SceneCustomize::getConfigFileName(getFilePath());
+    Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / getCustomizeFileName(getFilePath());
     try
     {
         std::map<StringContent, StringContent> opFileMap;

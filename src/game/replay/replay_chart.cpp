@@ -12,7 +12,7 @@ bool ReplayChart::loadFile(const Path& path)
     {
         try
         {
-            cereal::PortableBinaryInputArchive ia(ifs);
+            ::cereal::PortableBinaryInputArchive ia(ifs);
             ia(*this);
         }
         catch (...)
@@ -33,7 +33,7 @@ bool ReplayChart::saveFile(const Path& path)
         generateChecksum();
         try
         {
-            cereal::PortableBinaryOutputArchive oa(ofs);
+            ::cereal::PortableBinaryOutputArchive oa(ofs);
             oa(*this);
         }
         catch (...)
@@ -62,7 +62,7 @@ void ReplayChart::generateChecksum()
     std::stringstream ss;
     try
     {
-        cereal::PortableBinaryOutputArchive oa(ss);
+        ::cereal::PortableBinaryOutputArchive oa(ss);
         oa(*this);
     }
     catch (...)

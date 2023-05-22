@@ -21,7 +21,7 @@ std::shared_ptr<std::vector<unsigned char>> ArenaMessage::pack()
 	{
 		//LOG_DEBUG << "[Arena] Pack message type: " << (int)type;
 
-		cereal::PortableBinaryOutputArchive ar(ss);
+		::cereal::PortableBinaryOutputArchive ar(ss);
 		switch (type)
 		{
 		case RESPONSE:                ar(*static_cast<ArenaMessageResponse*>(this)); break;
@@ -88,30 +88,30 @@ std::shared_ptr<ArenaMessage> ArenaMessage::unpack(const unsigned char* data, si
 
 		switch (data[0])
 		{
-		case RESPONSE: { auto m = std::make_shared<ArenaMessageResponse>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case HEARTBEAT: { auto m = std::make_shared<ArenaMessageHeartbeat>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case NOTICE: { auto m = std::make_shared<ArenaMessageNotice>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case SEEK_LOBBY: { auto m = std::make_shared<ArenaMessageSeekLobby>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case DISBAND_LOBBY: { auto m = std::make_shared<ArenaMessageDisbandLobby>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case JOIN_LOBBY: { auto m = std::make_shared<ArenaMessageJoinLobby>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case LEAVE_LOBBY: { auto m = std::make_shared<ArenaMessageLeaveLobby>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case PLAYER_JOINED_LOBBY: { auto m = std::make_shared<ArenaMessagePlayerJoinedLobby>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case PLAYER_LEFT_LOBBY: { auto m = std::make_shared<ArenaMessagePlayerLeftLobby>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case REQUEST_CHART: { auto m = std::make_shared<ArenaMessageRequestChart>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case CHECK_CHART_EXIST: { auto m = std::make_shared<ArenaMessageCheckChartExist>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case HOST_REQUEST_CHART: { auto m = std::make_shared<ArenaMessageHostRequestChart>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case HOST_READY_STAT: { auto m = std::make_shared<ArenaMessageHostReadyStat>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case HOST_START_PLAYING: { auto m = std::make_shared<ArenaMessageHostStartPlaying>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case CLIENT_PLAY_INIT: { auto m = std::make_shared<ArenaMessageClientPlayInit>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case HOST_PLAY_INIT: { auto m = std::make_shared<ArenaMessageHostPlayInit>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case CLIENT_FINISHED_LOADING: { auto m = std::make_shared<ArenaMessageClientFinishedLoading>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case HOST_FINISHED_LOADING: { auto m = std::make_shared<ArenaMessageHostFinishedLoading>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case CLIENT_PLAYDATA: { auto m = std::make_shared<ArenaMessageClientPlayData>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case HOST_PLAYDATA: { auto m = std::make_shared<ArenaMessageHostPlayData>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case CLIENT_FINISHED_PLAYING: { auto m = std::make_shared<ArenaMessageClientFinishedPlaying>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case HOST_FINISHED_PLAYING: { auto m = std::make_shared<ArenaMessageHostFinishedPlaying>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case CLIENT_FINISHED_RESULT: { auto m = std::make_shared<ArenaMessageClientFinishedResult>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case HOST_FINISHED_RESULT: { auto m = std::make_shared<ArenaMessageHostFinishedResult>(); { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case RESPONSE: { auto m = std::make_shared<ArenaMessageResponse>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case HEARTBEAT: { auto m = std::make_shared<ArenaMessageHeartbeat>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case NOTICE: { auto m = std::make_shared<ArenaMessageNotice>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case SEEK_LOBBY: { auto m = std::make_shared<ArenaMessageSeekLobby>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case DISBAND_LOBBY: { auto m = std::make_shared<ArenaMessageDisbandLobby>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case JOIN_LOBBY: { auto m = std::make_shared<ArenaMessageJoinLobby>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case LEAVE_LOBBY: { auto m = std::make_shared<ArenaMessageLeaveLobby>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case PLAYER_JOINED_LOBBY: { auto m = std::make_shared<ArenaMessagePlayerJoinedLobby>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case PLAYER_LEFT_LOBBY: { auto m = std::make_shared<ArenaMessagePlayerLeftLobby>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case REQUEST_CHART: { auto m = std::make_shared<ArenaMessageRequestChart>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case CHECK_CHART_EXIST: { auto m = std::make_shared<ArenaMessageCheckChartExist>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case HOST_REQUEST_CHART: { auto m = std::make_shared<ArenaMessageHostRequestChart>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case HOST_READY_STAT: { auto m = std::make_shared<ArenaMessageHostReadyStat>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case HOST_START_PLAYING: { auto m = std::make_shared<ArenaMessageHostStartPlaying>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case CLIENT_PLAY_INIT: { auto m = std::make_shared<ArenaMessageClientPlayInit>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case HOST_PLAY_INIT: { auto m = std::make_shared<ArenaMessageHostPlayInit>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case CLIENT_FINISHED_LOADING: { auto m = std::make_shared<ArenaMessageClientFinishedLoading>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case HOST_FINISHED_LOADING: { auto m = std::make_shared<ArenaMessageHostFinishedLoading>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case CLIENT_PLAYDATA: { auto m = std::make_shared<ArenaMessageClientPlayData>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case HOST_PLAYDATA: { auto m = std::make_shared<ArenaMessageHostPlayData>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case CLIENT_FINISHED_PLAYING: { auto m = std::make_shared<ArenaMessageClientFinishedPlaying>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case HOST_FINISHED_PLAYING: { auto m = std::make_shared<ArenaMessageHostFinishedPlaying>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case CLIENT_FINISHED_RESULT: { auto m = std::make_shared<ArenaMessageClientFinishedResult>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case HOST_FINISHED_RESULT: { auto m = std::make_shared<ArenaMessageHostFinishedResult>(); { ::cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
 		}
 	}
 	catch (...)

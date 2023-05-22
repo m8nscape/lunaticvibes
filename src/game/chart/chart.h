@@ -1,6 +1,5 @@
 #pragma once
 #include "common/beat.h"
-#include "game/runtime/state.h"
 #include "game/input/input_mgr.h"
 
 namespace lunaticvibes
@@ -120,6 +119,8 @@ protected:
     int _keys = 7;
     HashMD5 _fileHash;
 
+    int visualOffsetMs = 0;
+
 protected:
     unsigned _noteCount_total;
     unsigned _noteCount_regular;
@@ -161,6 +162,8 @@ public:
     static std::shared_ptr<ChartObjectBase> createFromChartFormat(int slot, std::shared_ptr<ChartFormatBase> p);
 
     const HashMD5 getFileHash() const { return _fileHash; }
+
+    void setVisualOffset(int ms) { visualOffsetMs = ms; }
 
 public:
     using NoteIterator = decltype(_noteLists)::value_type::iterator;

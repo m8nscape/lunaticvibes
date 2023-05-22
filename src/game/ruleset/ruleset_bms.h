@@ -1,5 +1,6 @@
 #pragma once
 #include "ruleset.h"
+#include "game/data/data_shared.h"
 
 namespace lunaticvibes
 {
@@ -53,15 +54,6 @@ public:
         KPOOR,
         MISS,
     };
-    inline static const std::map<JudgeType, Option::e_judge_type> JudgeTypeOptMap =
-    {
-        { JudgeType::PERFECT, Option::JUDGE_0 },
-        { JudgeType::GREAT, Option::JUDGE_1 },
-        { JudgeType::GOOD, Option::JUDGE_2 },
-        { JudgeType::BAD, Option::JUDGE_3 },
-        { JudgeType::KPOOR, Option::JUDGE_4 },
-        { JudgeType::MISS, Option::JUDGE_5 },
-    };
 
     enum class GaugeType {
         GROOVE,
@@ -74,11 +66,9 @@ public:
         P_ATK,
         G_ATK,
 
-        GRADE,
+        CLASS,
         EXGRADE,
     };
-
-    using LampType = ScoreBMS::Lamp;
 
     // Judge Time definitions.
     // Values are one-way judge times in ms, representing
@@ -154,7 +144,7 @@ public:
 
     /// /////////////////////////////////////////////////////////////////////
 
-    typedef std::map<chart::NoteLaneIndex, IndexTimer> NoteLaneTimerMap;
+    typedef std::map<chart::NoteLaneIndex, std::string> NoteLaneTimerMap;
 
     enum class PlaySide {
         SINGLE,
@@ -191,7 +181,7 @@ protected:
     unsigned noteCount = 0;
 
     std::string modifierText, modifierTextShort;
-    Option::e_lamp_type saveLampMax;
+    LampType saveLampMax;
 
 protected:
     // members change in game
@@ -275,8 +265,6 @@ public:
     virtual unsigned getMaxCombo() const;
 
     virtual void fail();
-
-    virtual void updateGlobals();
 };
 
 }

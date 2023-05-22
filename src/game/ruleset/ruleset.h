@@ -25,7 +25,7 @@ public:
 
         unsigned combo;
         unsigned maxCombo;
-        unsigned comboDisplay;  // for course
+        unsigned comboEx;  // for course
         unsigned maxComboDisplay;
 
         unsigned judge[32]; // judge count. reserved for implementation
@@ -81,9 +81,7 @@ public:
 
     virtual void fail() { _isFailed = true; }
 
-    virtual void updateGlobals() = 0;
-
-    void setComboDisplay(unsigned combo) { _basic.comboDisplay = combo; _basic.maxComboDisplay = std::max(_basic.maxComboDisplay, _basic.combo + combo); }
+    void setComboDisplay(unsigned combo) { _basic.comboEx = combo; _basic.maxComboDisplay = std::max(_basic.maxComboDisplay, _basic.combo + combo); }
     void setMaxComboDisplay(unsigned combo) { _basic.maxComboDisplay = combo; }
     void setStartTime(const Time& t) { _hasStartTime = true; _startTime = t; }
 

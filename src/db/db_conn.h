@@ -1,8 +1,5 @@
 #pragma once
 
-namespace lunaticvibes
-{
-
 struct sqlite3;
 
 #if defined(_MSC_VER)
@@ -14,6 +11,9 @@ typedef unsigned long long int sqlite_uint64;
 #endif
 typedef sqlite_int64 sqlite3_int64;
 typedef sqlite_uint64 sqlite3_uint64;
+
+namespace lunaticvibes
+{
 
 inline long long    ANY_INT(const std::any& a) { return std::any_cast<sqlite3_int64>(a); }
 inline double       ANY_REAL(const std::any& a) { return std::any_cast<double>(a); }

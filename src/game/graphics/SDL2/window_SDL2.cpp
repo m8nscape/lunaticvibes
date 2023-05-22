@@ -14,6 +14,7 @@
 #include "backends/imgui_impl_sdlrenderer.h"
 #include <game/graphics/SDL2/input.h>
 #include <game/graphics/graphics.h>
+#include "game/data/data_system.h"
 
 namespace lunaticvibes
 {
@@ -400,7 +401,6 @@ void graphics_set_maxfps(int fps)
 
 extern bool gEventQuit;
 
-static bool isEditing = false;
 static std::string textBuf, textBufSuffix;
 void funEditing(const SDL_TextEditingEvent& e);
 void funInput(const SDL_TextInputEvent& e);
@@ -459,17 +459,17 @@ void event_handle()
             break;
 
         case SDL_TEXTINPUT:
-            if (isEditing) funInput(e.text);
+            if (SystemData.isEditingText) funInput(e.text);
             break;
 
         case SDL_TEXTEDITING:
-            if (isEditing) funEditing(e.edit);
+            if (SystemData.isEditingText) funEditing(e.edit);
             break;
 
         case SDL_KEYDOWN:
             sdl::state::g_keyboard_scancodes[e.key.keysym.scancode] = true;
 
-            if (isEditing) funKeyDown(e.key);
+            if (SystemData.isEditingText) funKeyDown(e.key);
             break;
 
         case SDL_KEYUP:
@@ -510,14 +510,14 @@ void ImGuiNewFrame()
 }
 
 static std::function<void(const std::string&)> funUpdateText;
-void startTextInput(const RectF& textBox, const std::string& oldText, std::function<void(const std::string&)> funUpdateText)
+void startTextInput(const RectF& textBox, const std::string& oldText, std::function<void(const std::string&)> fnUpdateText)
 {
     LOG_DEBUG << "Start Text Input";
 
     textBuf = oldText;
     textBuf.reserve(32);
 
-    ::funUpdateText = funUpdateText;
+    funUpdateText = fnUpdateText;
 
     SDL_Rect r;
     r.x = (int)std::floor(textBox.x);
@@ -526,7 +526,7 @@ void startTextInput(const RectF& textBox, const std::string& oldText, std::funct
     r.h = (int)std::ceil(textBox.h);
     SDL_SetTextInputRect(&r);
     SDL_StartTextInput();
-    isEditing = true;
+    SystemData.isEditingText = true;
 
     funUpdateText(textBuf);
 }
@@ -535,7 +535,7 @@ void stopTextInput()
 {
     LOG_DEBUG << "Stop Text Input";
 
-    isEditing = false;
+    SystemData.isEditingText = false;
     funUpdateText = [](const std::string&) {};
     SDL_StopTextInput();
 }

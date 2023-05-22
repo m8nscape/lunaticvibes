@@ -116,7 +116,6 @@ constexpr char P_DIFFICULTY_FILTER_ANOTHER[] = "Another";
 constexpr char P_DIFFICULTY_FILTER_INSANE[] = "Insane";
 
 constexpr char P_FLIP[] = "Flip";
-constexpr char P_SCORE_GRAPH[] = "ScoreGraph";
 constexpr char P_LANECOVER_TOP[] = "LanecoverTop";
 constexpr char P_LANECOVER_BOTTOM[] = "LanecoverBottom";
 constexpr char P_LANECOVER_TOP_2P[] = "LanecoverTop2P";
@@ -138,7 +137,6 @@ constexpr char P_EQ4[] = "EQ 2.5k";
 constexpr char P_EQ5[] = "EQ 6.3k";
 constexpr char P_EQ6[] = "EQ 16k";
 
-constexpr char P_FREQ[] = "Freq";
 constexpr char P_FREQ_TYPE[] = "FreqType";
 constexpr char P_FREQ_TYPE_FREQ[] = "Frequency";
 constexpr char P_FREQ_TYPE_PITCH[] = "Pitch";
@@ -146,23 +144,8 @@ constexpr char P_FREQ_TYPE_SPEED[] = "Speed";
 constexpr char P_FREQ_VAL[] = "FreqVal";
 
 constexpr char P_FX0[] = "FX0";
-constexpr char P_FX1[] = "FX1";
-constexpr char P_FX2[] = "FX2";
-constexpr char P_FX0_TARGET[] = "FX0Target";
-constexpr char P_FX1_TARGET[] = "FX1Target";
-constexpr char P_FX2_TARGET[] = "FX2Target";
 constexpr char P_FX0_TYPE[] = "FX0Type";
-constexpr char P_FX1_TYPE[] = "FX1Type";
-constexpr char P_FX2_TYPE[] = "FX2Type";
 constexpr char P_FX0_P1[] = "FX0P1";
-constexpr char P_FX1_P1[] = "FX1P1";
-constexpr char P_FX2_P1[] = "FX2P1";
-constexpr char P_FX0_P2[] = "FX0P2";
-constexpr char P_FX1_P2[] = "FX1P2";
-constexpr char P_FX2_P2[] = "FX2P2";
-constexpr char P_FX_TARGET_MASTER[] = "MASTER";
-constexpr char P_FX_TARGET_KEY[] = "KEY";
-constexpr char P_FX_TARGET_BGM[] = "BGM";
 constexpr char P_FX_TYPE_REVERB[] = "Reverb";
 constexpr char P_FX_TYPE_DELAY[] = "Delay";
 constexpr char P_FX_TYPE_LOWPASS[] = "Low Pass";
@@ -170,7 +153,7 @@ constexpr char P_FX_TYPE_HIGHPASS[] = "High Pass";
 constexpr char P_FX_TYPE_FLANGER[] = "Flanger";
 constexpr char P_FX_TYPE_CHORUS[] = "Chorus";
 constexpr char P_FX_TYPE_DIST[] = "Distortion";
-constexpr char P_FX_TYPE_COMPRESSOR[] = "Distortion";
+constexpr char P_FX_TYPE_COMPRESSOR[] = "Compressor";
 
 constexpr char P_LANGUAGE[] = "Language";
 

@@ -19,7 +19,7 @@ add_custom_command(
 
 add_library(gamelib
     ${CMAKE_BINARY_DIR}/git_version.cpp
-    runtime/state.cpp
+    
     chart/chart.cpp
     chart/chart_bms.cpp
     ${GRAPHICS_BACKEND_SRC}
@@ -43,7 +43,6 @@ add_library(gamelib
     ruleset/ruleset_network.cpp
     ruleset/ruleset_bms_network.cpp
     scene/scene.cpp
-    scene/scene_context.cpp
     scene/scene_decide.cpp
     scene/scene_mgr.cpp
     scene/scene_play.cpp
@@ -53,7 +52,7 @@ add_library(gamelib
     scene/scene_select.cpp
     scene/scene_keyconfig.cpp
     scene/scene_play_course_trans.cpp
-    scene/scene_customize.cpp
+    
     scene/scene_select_imgui.cpp
     scene/scene_play_retry_trans.cpp
     scene/scene_exit_trans.cpp
@@ -75,11 +74,11 @@ add_library(gamelib
     sound/soundset_lr2.cpp
     replay/replay_chart.cpp
     runtime/i18n.cpp 
-    arena/arena_data.cpp
+    
     arena/arena_internal.cpp
     arena/arena_host.cpp
     arena/arena_client.cpp
- "skin/skin_lr2_converters_num.cpp" "skin/skin_lr2_converters_slider.cpp" "skin/skin_lr2_converters_button.cpp" "skin/skin_lr2_converters_bargraph.cpp" "skin/skin_lr2_converters_text.cpp"   "data/data_shared.cpp")
+ "skin/skin_lr2_converters_num.cpp" "skin/skin_lr2_converters_slider.cpp" "skin/skin_lr2_converters_button.cpp" "skin/skin_lr2_converters_bargraph.cpp" "skin/skin_lr2_converters_text.cpp"   "data/data_shared.cpp" "data/data_select.cpp" "data/data_arena.cpp" "data/data_play.cpp" "data/data_system.cpp")
 
 if (UNIX OR MINGW)
     target_link_libraries(gamelib PRIVATE -lpthread)

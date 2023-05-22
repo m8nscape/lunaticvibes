@@ -1,7 +1,6 @@
 #include "common/pch.h"
 #include "sprite_lane.h"
-#include "game/runtime/state.h"
-#include "game/scene/scene_context.h"
+#include "game/data/data_play.h"
 
 namespace lunaticvibes
 {
@@ -11,7 +10,7 @@ using namespace chart;
 SpriteLaneVertical::SpriteLaneVertical(const SpriteLaneVerticalBuilder& builder) : SpriteStatic(builder)
 {
 	_type = SpriteTypes::NOTE_VERT;
-	playerSlot = builder.player;
+	slot = builder.slot;
 	_autoNotes = builder.autoNotes;
 	_basespd = builder.baseSpeed * builder.laneSpeed;
 	_hispeed = 1.0;
@@ -21,11 +20,11 @@ SpriteLaneVertical::SpriteLaneVertical(const SpriteLaneVerticalBuilder& builder)
 
 	if (_category != chart::NoteLaneCategory::EXTRA)
 	{
-		switch (playerSlot)
+		switch (slot)
 		{
 		case PLAYER_SLOT_PLAYER:
-			if ((_index == chart::NoteLaneIndex::Sc1 && (gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR)) ||
-				(_index == chart::NoteLaneIndex::Sc2 && !gPlayContext.isBattle))
+			if ((_index == chart::NoteLaneIndex::Sc1 && (PlayData.player[PLAYER_SLOT_PLAYER].mods.assist_mask & PLAY_MOD_ASSIST_AUTOSCR)) ||
+				(_index == chart::NoteLaneIndex::Sc2 && PlayData.battleType == PlayModifierBattleType::Off))
 			{
 				if (!_autoNotes) hideInternal = true;
 			}
@@ -36,7 +35,7 @@ SpriteLaneVertical::SpriteLaneVertical(const SpriteLaneVerticalBuilder& builder)
 			break;
 		case PLAYER_SLOT_TARGET:
 			if (_index == chart::NoteLaneIndex::Sc2 &&
-				(gPlayContext.mods[gPlayContext.isBattle ? PLAYER_SLOT_TARGET : PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR))
+				(PlayData.player[PlayData.battleType != PlayModifierBattleType::Off ? PLAYER_SLOT_TARGET : PLAYER_SLOT_PLAYER].mods.assist_mask & PLAY_MOD_ASSIST_AUTOSCR) != 0)
 			{
 				if (!_autoNotes) hideInternal = true;
 			}
@@ -63,7 +62,7 @@ void SpriteLaneVertical::setMotionLoopTo(int t)
 	if (pNote) pNote->setMotionLoopTo(t);
 }
 
-void SpriteLaneVertical::setMotionStartTimer(IndexTimer t)
+void SpriteLaneVertical::setMotionStartTimer(const std::string& t)
 {
 	SpriteStatic::setMotionStartTimer(t);
 	if (pNote) pNote->setMotionStartTimer(t);
@@ -99,7 +98,7 @@ bool SpriteLaneVertical::update(const Time& t)
 
 	if (updateMotion(t))
 	{
-		_hispeed = gPlayContext.playerState[gPlayContext.isBattle ? playerSlot : PLAYER_SLOT_PLAYER].hispeedGradientNow;
+		_hispeed = PlayData.player[slot].hispeedGradientNow;
 		updateNoteRect(t);
 		updateHIDDENCompatible();
 		return true;
@@ -110,19 +109,19 @@ bool SpriteLaneVertical::update(const Time& t)
 void SpriteLaneVertical::updateNoteRect(const Time& t)
 {
 	_outRect.clear();
-	auto pChart = gPlayContext.chartObj[gPlayContext.isBattle ? playerSlot : 0];
-	if (pChart == nullptr || !gChartContext.started)
+	auto pChart = PlayData.player[slot].chartObj;
+	if (pChart == nullptr || !PlayData.playStarted)
 	{
 		return;
 	}
-	auto metre = gUpdateContext.metre;
-	auto bar = gUpdateContext.bar;
+	auto bar = PlayData.chartCurrentBar;
+	auto metre = PlayData.chartCurrentMetre;
 
 	// refresh note sprites
 	if (!pNote) return;
 	pNote->update(t);
 
-	if (gPlayContext.mods[playerSlot].hispeedFix != PlayModifierHispeedFixType::CONSTANT)
+	if (PlayData.player[slot].mods.hispeedFix != PlayModifierHispeedFixType::CONSTANT)
 	{
 		// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
 		auto c = _current.rect;
@@ -148,7 +147,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 	{
 		// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
 		auto c = _current.rect;
-		long long currTimestamp = gChartContext.started ? (t - State::get(IndexTimer::PLAY_START)).norm() : 0;
+		long long currTimestamp = PlayData.playStarted ? (t.norm() - PlayData.timers["play_start"]) : 0;
 
 		// generate note rects and store to buffer
 		// CONSTANT: generate note rects with timestamp (BPM=150)
@@ -212,46 +211,15 @@ void SpriteLaneVertical::updateHIDDENCompatible()
 	if (_hiddenCompatible)
 	{
 		_hiddenCompatibleDraw = false;
-		if (playerSlot == PLAYER_SLOT_PLAYER)
+		auto lcType = PlayData.player[slot].mods.laneEffect;
+		if (lcType == PlayModifierLaneEffectType::HIDDEN || lcType == PlayModifierLaneEffectType::SUDHID)
 		{
-			auto lcType = Option::e_lane_effect_type(State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P));
-			if ((lcType == Option::LANE_HIDDEN || lcType == Option::LANE_SUDHID) &&
-				State::get(IndexSwitch::P1_LANECOVER_ENABLED))
-			{
-				_hiddenCompatibleDraw = true;
-				_hiddenCompatibleArea = _current.rect;
-				double p = State::get(IndexNumber::LANECOVER_BOTTOM_1P) / 1000.0;
-				int h = _noteAreaHeight;
-				_hiddenCompatibleArea.y = h;
-				_hiddenCompatibleArea.h = -h * p;
-			}
-		}
-		else
-		{
-			Option::e_lane_effect_type lcType;
-			bool sw;
-			int lc;
-			if (gPlayContext.isBattle)
-			{
-				lcType = Option::e_lane_effect_type(State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P));
-				sw = State::get(IndexSwitch::P2_LANECOVER_ENABLED);
-				lc = State::get(IndexNumber::LANECOVER_BOTTOM_2P);
-			}
-			else
-			{
-				lcType = Option::e_lane_effect_type(State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P));
-				sw = State::get(IndexSwitch::P1_LANECOVER_ENABLED);
-				lc = State::get(IndexNumber::LANECOVER_BOTTOM_1P);
-			}
-			if ((lcType == Option::LANE_HIDDEN || lcType == Option::LANE_SUDHID) && sw)
-			{
-				_hiddenCompatibleDraw = true;
-				_hiddenCompatibleArea = _current.rect;
-				double p = lc / 1000.0;
-				int h = _noteAreaHeight;
-				_hiddenCompatibleArea.y = h;
-				_hiddenCompatibleArea.h = -h * p;
-			}
+			_hiddenCompatibleDraw = true;
+			_hiddenCompatibleArea = _current.rect;
+			double p = PlayData.player[slot].lanecoverBottom / 1000.0;
+			int h = _noteAreaHeight;
+			_hiddenCompatibleArea.y = h;
+			_hiddenCompatibleArea.h = -h * p;
 		}
 	}
 }
@@ -277,39 +245,14 @@ void SpriteLaneVerticalLN::buildNoteTail(const SpriteAnimated::SpriteAnimatedBui
 }
 
 
-void SpriteLaneVerticalLN::setMotionStartTimer(IndexTimer t)
+void SpriteLaneVerticalLN::setMotionStartTimer(const std::string& t)
 {
 	SpriteLaneVertical::setMotionStartTimer(t);
 
-	switch (t)
-	{
-	case IndexTimer::S1_LN_BOMB:
-	case IndexTimer::K11_LN_BOMB:
-	case IndexTimer::K12_LN_BOMB:
-	case IndexTimer::K13_LN_BOMB:
-	case IndexTimer::K14_LN_BOMB:
-	case IndexTimer::K15_LN_BOMB:
-	case IndexTimer::K16_LN_BOMB:
-	case IndexTimer::K17_LN_BOMB:
-	case IndexTimer::K18_LN_BOMB:
-	case IndexTimer::K19_LN_BOMB:
-	case IndexTimer::S2_LN_BOMB:
-	case IndexTimer::K21_LN_BOMB:
-	case IndexTimer::K22_LN_BOMB:
-	case IndexTimer::K23_LN_BOMB:
-	case IndexTimer::K24_LN_BOMB:
-	case IndexTimer::K25_LN_BOMB:
-	case IndexTimer::K26_LN_BOMB:
-	case IndexTimer::K27_LN_BOMB:
-	case IndexTimer::K28_LN_BOMB:
-	case IndexTimer::K29_LN_BOMB:
+	if (t.substr(0, 9) == "play.bomb")
 		animLimited = true;
-		break;
-
-	default:
+	else
 		animLimited = false;
-		break;
-	}
 }
 
 
@@ -319,13 +262,13 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 	_outRectBody.clear();
 	_outRectTail.clear();
 
-	auto pChart = gPlayContext.chartObj[gPlayContext.isBattle ? playerSlot : 0];
-	if (pChart == nullptr || !gChartContext.started)
+	auto pChart = PlayData.player[slot].chartObj;
+	if (pChart == nullptr || !PlayData.playStarted)
 	{
 		return;
 	}
-	auto metre = gUpdateContext.metre;
-	auto bar = gUpdateContext.bar;
+	auto bar = PlayData.chartCurrentBar;
+	auto metre = PlayData.chartCurrentMetre;
 
 	// refresh note sprites
 	if (!pNote) return;
@@ -334,7 +277,7 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 	if (pNoteTail) pNoteTail->update(t);
 
 
-	if (gPlayContext.mods[playerSlot].hispeedFix != PlayModifierHispeedFixType::CONSTANT)
+	if (PlayData.player[slot].mods.hispeedFix != PlayModifierHispeedFixType::CONSTANT)
 	{
 		// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
 		auto c = _current.rect;
@@ -423,7 +366,7 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 	{
 		// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
 		auto c = _current.rect;
-		long long currTimestamp = gChartContext.started ? (t - State::get(IndexTimer::PLAY_START)).norm() : 0;
+		long long currTimestamp = PlayData.playStarted ? (t.norm() - PlayData.timers["play_start"]) : 0;
 
 		// generate note rects and store to buffer
 		// CONSTANT: generate note rects with timestamp (BPM=150)

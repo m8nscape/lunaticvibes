@@ -1,9 +1,6 @@
 #pragma once
-#include "state.h"
 #include "common/asynclooper.h"
-
-namespace lunaticvibes
-{
+#include "game/data/data_system.h"
 
 #ifdef _MSC_VER
 inline tm gLocaltimeResult;
@@ -14,6 +11,9 @@ inline const char* ctime_(const std::time_t* t) { errno_t err = ctime_s(gCtimeRe
 inline tm* localtime_(const std::time_t* t) { return localtime(t); };
 inline const char* ctime_(const std::time_t* t) { return ctime(t); };
 #endif
+
+namespace lunaticvibes
+{
 
 inline unsigned gFrameCount[10]{ 0 };
 constexpr size_t FRAMECOUNT_IDX_FPS = 0;
@@ -28,29 +28,23 @@ public:
 private:
 	void _loop()
 	{
-		State::set(IndexNumber::FPS, gFrameCount[0] / _rate);
+		SystemData.currentRenderFPS = gFrameCount[0] / _rate;
+		SystemData.currentUpdateFPS = gFrameCount[1] / _rate;
+		SystemData.currentInputFPS = gFrameCount[2] / _rate;
 		gFrameCount[0] = 0;
-
-		for (unsigned i = 1; i < 10; ++i)
-		{
-			State::set((IndexNumber)((int)IndexNumber::_PPS1 + i - 1), gFrameCount[i] / _rate);
-			gFrameCount[i] = 0;
-		}
-		State::set(IndexNumber::SCENE_UPDATE_FPS, State::get(IndexNumber::_PPS1));
-		State::set(IndexNumber::INPUT_DETECT_FPS, State::get(IndexNumber::_PPS2));
+		gFrameCount[1] = 0;
+		gFrameCount[2] = 0;
 
 		std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 		auto d = localtime_(&t);
 		if (d)
 		{
-			State::set(IndexNumber::DATE_YEAR, d->tm_year + 1900);
-			State::set(IndexNumber::DATE_MON, d->tm_mon + 1);
-			State::set(IndexNumber::DATE_DAY, d->tm_mday);
-			State::set(IndexNumber::DATE_HOUR, d->tm_hour);
-			State::set(IndexNumber::DATE_MIN, d->tm_min);
-			State::set(IndexNumber::DATE_SEC, d->tm_sec);
-
-			State::set(IndexText::_TEST1, ctime_(&t));
+			SystemData.dateYear = d->tm_year + 1900;
+			SystemData.dateMonthOfYear = d->tm_mon + 1;
+			SystemData.dateDayOfMonth = d->tm_mday;
+			SystemData.timeHour, d->tm_hour;
+			SystemData.timeMin, d->tm_min;
+			SystemData.timeSec, d->tm_sec;
 		}
 
 		//createNotification(std::to_string(t));
@@ -58,9 +52,9 @@ private:
 };
 //InputWrapper::InputWrapper(unsigned rate) : AsyncLooper(std::bind(&InputWrapper::_loop, this), rate)
 
+}
+
 #ifdef _MSC_VER
 #undef localtime
 #undef ctime
 #endif
-
-}

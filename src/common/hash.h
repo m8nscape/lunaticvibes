@@ -54,10 +54,19 @@ public:
     friend struct std::hash<Hash<_Len>>;
 };
 
+typedef Hash<16> HashMD5;
+typedef Hash<32> HashSHA1;
+
+HashMD5 md5(const std::string& str);
+HashMD5 md5(const char* str, size_t len);
+HashMD5 md5file(const Path& filePath);
+
+}
+
 template<size_t _Len>
-struct std::hash<Hash<_Len>>
+struct std::hash<lunaticvibes::Hash<_Len>>
 {
-    size_t operator()(const Hash<_Len>& obj) const
+    size_t operator()(const lunaticvibes::Hash<_Len>& obj) const
     {
         size_t h = 0;
         int i = 0;
@@ -76,12 +85,3 @@ struct std::hash<Hash<_Len>>
         return h;
     }
 };
-
-typedef Hash<16> HashMD5;
-typedef Hash<32> HashSHA1;
-
-HashMD5 md5(const std::string& str);
-HashMD5 md5(const char* str, size_t len);
-HashMD5 md5file(const Path& filePath);
-
-}

@@ -1,10 +1,13 @@
 #pragma once
+#include "common/keymap.h"
+#include "game/graphics/texture_extra.h"
+
+namespace lunaticvibes
+{
 
 class ChartObjectBase;
 class RulesetBase;
 class ReplayChart;
-namespace lunaticvibes::data
-{
 
 constexpr unsigned MAX_PLAYERS = 3;
 constexpr unsigned PLAYER_SLOT_PLAYER = 0;
@@ -34,20 +37,19 @@ enum class RankType
     F,
     _
 };
-
-enum class LampType
+inline RankType getRankType(double rate)
 {
-    NOPLAY,
-    FAILED,
-    ASSIST,
-    EASY,
-    NORMAL,
-    HARD,
-    EXHARD,
-    FULLCOMBO,
-    PERFECT,
-    MAX,
-};
+    if (rate >= 100.0)              return RankType::MAX;
+    else if (rate >= 100.0 * 8 / 9) return RankType::AAA;
+    else if (rate >= 100.0 * 7 / 9) return RankType::AA;
+    else if (rate >= 100.0 * 6 / 9) return RankType::A;
+    else if (rate >= 100.0 * 5 / 9) return RankType::B;
+    else if (rate >= 100.0 * 4 / 9) return RankType::C;
+    else if (rate >= 100.0 * 3 / 9) return RankType::D;
+    else if (rate >= 100.0 * 2 / 9) return RankType::E;
+    else if (rate > 0.0)            return RankType::F;
+    else                            return RankType::_;
+}
 
 constexpr int32_t PANEL_STYLE_POS_MASK = 3 << 0;
 constexpr int32_t PANEL_STYLE_POS_LEFT = 0 << 0;
@@ -87,6 +89,7 @@ struct PlayerPlayData
     double hispeedGradientFrom = 2.0;
     double hispeedGradientNow = 2.0;
 
+    bool lockSpeed = false;
     double greenNumber = 300.0;
     double greenNumberMinBPM = 300.0;
     double greenNumberMaxBPM = 300.0;
@@ -116,10 +119,10 @@ inline struct Struct_PlayData
 
     bool isAuto = false;
     bool isReplay = false;
-    bool haveReplay = false;
 
-    bool isBattle = false;  // Note: DB is NOT Battle
     PlayModifierBattleType battleType = PlayModifierBattleType::Off;
+
+    std::shared_ptr<TextureBmsBga> bgaTexture = std::make_shared<TextureBmsBga>();
 
     std::array<PlayerPlayData, MAX_PLAYERS> player;
 
@@ -129,8 +132,7 @@ inline struct Struct_PlayData
     std::shared_ptr<ReplayChart> replayMybest;
     std::shared_ptr<ReplayChart> replayNew;
 
-    bool isCourse = false;
-    int courseStage = 0;    // 0~8 (0: stage1, etc)
+    int courseStage = -1;    // -1 not course / 0~8 (0: stage1, etc)
     HashMD5 courseHash;
     struct CourseStageData
     {
@@ -145,6 +147,8 @@ inline struct Struct_PlayData
         Path replayPathNew;
     };
     std::vector<CourseStageData> courseStageData;
+
+    bool canRetry = false;
 
     bool shift1PNotes5KFor7KSkin = false;
     bool shift2PNotes5KFor7KSkin = false;
@@ -162,10 +166,15 @@ inline struct Struct_PlayData
     int targetRate = 50;
     TargetType targetType = TargetType::UseTargetRate;
 
-    bool canSaveScore = false;
-    LampType saveLampType = LampType::NOPLAY;
-
     bool loadHasFinished = false;
+
+    // Skin update and Chart update are called in different threads. Add these vars to prevent data race
+    unsigned chartCurrentBar = 0;
+    double chartCurrentMetre = 0.0;
+
+    void clearContextPlayForRetry();
+    void clearContextPlay();
+    void pushGraphPoints();
 
 } PlayData;
 
