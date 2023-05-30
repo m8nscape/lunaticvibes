@@ -398,7 +398,7 @@ void SceneSelect::_updateAsync()
     {
         SelectData.optionChangePending = false;
 
-        SystemData.timers["list_move"] = t.norm();
+        SelectData.timers["list_entry_change"] = t.norm();
         navigateTimestamp = t;
         postStopPreview();
     }
@@ -419,7 +419,7 @@ void SceneSelect::_updateAsync()
         SelectData.setEntryInfo();
         SelectData.setDynamicTextures();
 
-        SystemData.timers["list_move"] = t.norm();
+        SelectData.timers["list_entry_change"] = t.norm();
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
     }
 
@@ -473,6 +473,7 @@ void SceneSelect::_updateAsync()
                 scrollButtonTimestamp = t;
                 scrollAccumulatorAddUnit = scrollAccumulator / SelectData.scrollTimeLength * (1000.0 / getRate());
             }
+            SelectData.timers["list_move"] = TIMER_NEVER;
         }
         SelectData.cursorClickScroll = 0;
     }
@@ -497,6 +498,7 @@ void SceneSelect::_updateAsync()
             SelectData.setEntryInfo();
             SelectData.setDynamicTextures();
 
+            SelectData.timers["list_entry_change"] = t.norm();
             SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
         }
     }
@@ -551,7 +553,8 @@ void SceneSelect::_updateAsync()
         scrollAccumulator = 0.;
         scrollAccumulatorAddUnit = 0.;
 
-        SystemData.timers["list_move"] = t.norm();
+        SelectData.timers["list_move"] = TIMER_NEVER;
+        SelectData.timers["list_entry_change"] = t.norm();
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
 
         ArenaData.remoteRequestedChart.reset();
@@ -635,6 +638,7 @@ void SceneSelect::_updateAsync()
             {
                 std::unique_lock<std::shared_mutex> u(SelectData._mutex);
                 pSkin->start_bar_animation();
+                SelectData.timers["list_move"] = t.norm();
             }
 
             double posOld = SelectData.selectedEntryIndexRolling;
@@ -684,7 +688,7 @@ void SceneSelect::updatePrepare()
         _input.register_a("SCENE_AXIS", std::bind(&SceneSelect::inputGameAxisSelect, this, _1, _2, _3));
         _input.loopStart();
 
-        SystemData.timers["list_move"] = t.norm();
+        SelectData.timers["list_entry_change"] = t.norm();
 
         // restore panel stat
         for (int i = 0; i < 9; ++i)
@@ -880,7 +884,7 @@ void SceneSelect::updateSelect()
     if (SelectData.isGoingToKeyConfig || SelectData.isGoingToSkinSelect || SelectData.isGoingToReboot)
     {
         SoundMgr::setSysVolume(0.0, 500);
-        SystemData.timers["fadeout"] = t.norm();
+        SystemData.timers["fadeout_start"] = t.norm();
         state = eSelectState::FADEOUT;
         _updateCallback = std::bind(&SceneSelect::updateFadeout, this);
     }
@@ -943,7 +947,7 @@ void SceneSelect::updateFadeout()
 {
     Time t;
     Time rt = t - SystemData.timers["scene_start"];
-    Time ft = t - SystemData.timers["fadeout"];
+    Time ft = t - SystemData.timers["fadeout_start"];
 
     if (ft >= pSkin->info.timeOutro)
     {
@@ -1310,7 +1314,7 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 resetJukeboxText();
             }
 
-            SelectData.timers["list_move"] = t.norm();
+            SelectData.timers["list_entry_change"] = t.norm();
             SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_F_OPEN);
         }
 
@@ -2009,7 +2013,7 @@ void SceneSelect::navigateUpBy1(const Time& t)
         SelectData.setEntryInfo();
         SelectData.setDynamicTextures();
 
-        SelectData.timers["list_move"] = t.norm();
+        SelectData.timers["list_entry_change"] = t.norm();
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
     }
 }
@@ -2030,7 +2034,7 @@ void SceneSelect::navigateDownBy1(const Time& t)
         SelectData.setEntryInfo();
         SelectData.setDynamicTextures();
 
-        SelectData.timers["list_move"] = t.norm();
+        SelectData.timers["list_entry_change"] = t.norm();
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
     }
 }
@@ -2131,7 +2135,8 @@ void SceneSelect::navigateEnter(const Time& t)
         scrollAccumulator = 0.;
         scrollAccumulatorAddUnit = 0.;
 
-        SelectData.timers["list_move"] = t.norm();
+        SelectData.timers["list_move"] = TIMER_NEVER;
+        SelectData.timers["list_entry_change"] = t.norm();
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
     }
 }

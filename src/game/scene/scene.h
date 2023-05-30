@@ -88,7 +88,7 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline const std::unordered_map<Input::Pad, std::string> InputGamePressMap =
+inline const std::unordered_map<Input::Pad, const char*> InputGamePressMap =
 {
     { Input::Pad::S1L, "key_on_sl_1p" },
     { Input::Pad::S1R, "key_on_sr_1p" },
@@ -122,7 +122,7 @@ inline const std::unordered_map<Input::Pad, std::string> InputGamePressMap =
     { Input::Pad::K2SPDDN, "key_on_spddn_2p" },
 };
 
-inline const std::unordered_map<Input::Pad, std::string> InputGameReleaseMap =
+inline const std::unordered_map<Input::Pad, const char*> InputGameReleaseMap =
 {
     { Input::Pad::S1L, "key_off_sl_1p" },
     { Input::Pad::S1R, "key_off_sr_1p" },

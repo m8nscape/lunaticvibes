@@ -1,6 +1,6 @@
 #include "gmock/gmock.h"
 #include "game/graphics/sprite.h"
-using namespace lv;
+using namespace lunaticvibes;
 
 class mock_Image : public Image
 {

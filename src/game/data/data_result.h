@@ -1,12 +1,12 @@
 #pragma once
-
+#include "data_internal.h"
 
 namespace lunaticvibes
 {
 
 inline struct Struct_ResultData
 {
-    std::unordered_map<std::string, long long> timers;
+    TimerStorage timers;
 
     bool cleared = false;
     bool flipResult = false;

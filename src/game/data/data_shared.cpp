@@ -308,6 +308,8 @@ void loadConfigs()
     }
 }
 
+static std::unordered_map<const char*, size_t> cache;
+
 long long getTimerValue(std::string_view key)
 {
     if (key.find('.') == key.npos)
@@ -318,9 +320,9 @@ long long getTimerValue(std::string_view key)
         return TIMER_NEVER;
 
     std::string_view category(key.data(), sep);
-    std::string type(key.data() + sep + 1);
+    std::string_view type(key.data() + sep + 1);
 
-    int val = 0;
+    long long val = 0;
     if (category == "system")
     {
         val = SystemData.timers[type];

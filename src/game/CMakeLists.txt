@@ -32,6 +32,13 @@ add_library(gamelib
     graphics/texture_extra.cpp
     graphics/video.cpp
     graphics/dxa.cpp
+ 
+    data/data_internal.cpp
+    data/data_shared.cpp
+    data/data_select.cpp
+    data/data_arena.cpp
+    data/data_play.cpp
+    data/data_system.cpp
     input/input_mgr.cpp
     input/input_mgr_sdl.cpp
     input/input_dinput8.cpp
@@ -62,6 +69,11 @@ add_library(gamelib
     skin/skin_lr2_button_callbacks.cpp
     skin/skin_lr2_slider_callbacks.cpp
     skin/skin_lr2_converters.cpp
+    skin/skin_lr2_converters_num.cpp
+    skin/skin_lr2_converters_slider.cpp
+    skin/skin_lr2_converters_button.cpp
+    skin/skin_lr2_converters_bargraph.cpp
+    skin/skin_lr2_converters_text.cpp
     skin/skin_lr2_dst.cpp
     skin/skin_lr2_debug.cpp
     skin/skin_lv.cpp
@@ -78,7 +90,7 @@ add_library(gamelib
     arena/arena_internal.cpp
     arena/arena_host.cpp
     arena/arena_client.cpp
- "skin/skin_lr2_converters_num.cpp" "skin/skin_lr2_converters_slider.cpp" "skin/skin_lr2_converters_button.cpp" "skin/skin_lr2_converters_bargraph.cpp" "skin/skin_lr2_converters_text.cpp"   "data/data_shared.cpp" "data/data_select.cpp" "data/data_arena.cpp" "data/data_play.cpp" "data/data_system.cpp")
+)
 
 if (UNIX OR MINGW)
     target_link_libraries(gamelib PRIVATE -lpthread)

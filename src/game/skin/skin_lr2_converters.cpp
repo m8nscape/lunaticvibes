@@ -17,9 +17,9 @@ const char* timer(int n)
 {
     static const std::map<int, const char*> timers =
     {
-        { 0, "system.scene" }, // メインタイマー
-        { 1, "system.start_input" }, // 入力開始タイマー
-        { 2, "system.fadeout" }, // フェードアウトタイマー
+        { 0, "system.scene_start" }, // メインタイマー
+        { 1, "system.input_start" }, // 入力開始タイマー
+        { 2, "system.fadeout_start" }, // フェードアウトタイマー
         { 3, "play.fail" }, // 閉店タイマー
         { 4, "select.input_end" }, // 文字入力終了タイマー
         { 10, "select.list_move" }, // 曲リスト移動タイマー

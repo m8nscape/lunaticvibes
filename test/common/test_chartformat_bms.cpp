@@ -2,7 +2,7 @@
 #include "common/chartformat/chartformat_bms.h"
 #include "../../src/common/utils.h"
 #include <fstream>
-using namespace lv;
+using namespace lunaticvibes;
 
 bool ExpectNotePosition(const ChartFormatBMS& bms, LaneCode area, int ch, int bar, int res, const std::vector<int>& segments)
 {

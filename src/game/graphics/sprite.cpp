@@ -59,11 +59,11 @@ bool SpriteBase::updateMotion(const Time& rawTime)
     {
         // Check if timer is valid
         long long t = getTimerValue(motionStartTimer);
-        if (t > 0 && t != TIMER_NEVER)
-        {
+        if (t == TIMER_NEVER)
             return false;
-        }
         time = rawTime - Time(t, false);
+        if (time < 0)
+            return false;
     }
 
     // Check if the sprite is not visible yet
@@ -1139,15 +1139,15 @@ bool SpriteOnMouse::update(const Time& t)
 {
     switch (visibleOnPanel)
     {
-    case 1: if (!SelectData.panel[0]) return false;
-    case 2: if (!SelectData.panel[1]) return false;
-    case 3: if (!SelectData.panel[2]) return false;
-    case 4: if (!SelectData.panel[3]) return false;
-    case 5: if (!SelectData.panel[4]) return false;
-    case 6: if (!SelectData.panel[5]) return false;
-    case 7: if (!SelectData.panel[6]) return false;
-    case 8: if (!SelectData.panel[7]) return false;
-    case 9: if (!SelectData.panel[8]) return false;
+    case 1: if (!SelectData.panel[0]) { return false; } break;
+    case 2: if (!SelectData.panel[1]) { return false; } break;
+    case 3: if (!SelectData.panel[2]) { return false; } break;
+    case 4: if (!SelectData.panel[3]) { return false; } break;
+    case 5: if (!SelectData.panel[4]) { return false; } break;
+    case 6: if (!SelectData.panel[5]) { return false; } break;
+    case 7: if (!SelectData.panel[6]) { return false; } break;
+    case 8: if (!SelectData.panel[7]) { return false; } break;
+    case 9: if (!SelectData.panel[8]) { return false; } break;
     }
 
     if (SpriteSelection::update(t))

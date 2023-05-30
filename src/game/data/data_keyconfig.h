@@ -1,4 +1,5 @@
 #pragma once
+#include "data_internal.h"
 #include "common/keymap.h"
 
 namespace lunaticvibes
@@ -6,7 +7,7 @@ namespace lunaticvibes
 
 inline struct Struct_KeyConfigData
 {
-    std::unordered_map<std::string, long long> timers;
+    TimerStorage timers;
 
     GameModeKeys currentMode;
     bool modeChanged = false;

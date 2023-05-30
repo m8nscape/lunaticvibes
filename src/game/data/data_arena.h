@@ -1,4 +1,5 @@
 #pragma once
+#include "data_internal.h"
 #include "game/ruleset/ruleset.h"
 
 namespace lunaticvibes
@@ -28,7 +29,7 @@ public:
 	friend class ArenaClient;
 
 public:
-    std::unordered_map<std::string, long long> timers;
+	TimerStorage timers;
 
     HashMD5 remoteRequestedChart;       // only valid when remote is requesting a new chart; reset after list change
     std::string remoteRequestedPlayer;  // only valid when remote is requesting a new chart; reset after list change

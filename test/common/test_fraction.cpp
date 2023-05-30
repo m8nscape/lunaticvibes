@@ -1,6 +1,6 @@
 #include "gmock/gmock.h"
 #include "common/fraction.h"
-using namespace lv;
+using namespace lunaticvibes;
 
 TEST(Fraction, trim)
 {

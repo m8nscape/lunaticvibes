@@ -4164,7 +4164,7 @@ void SkinLR2::postLoad()
             if (s->lr2SpriteData.motionTimer == 0)
                 s->motionStartTimer = "lr2customize.scene_start";
             if (s->lr2SpriteData.motionTimer == 2)
-                s->motionStartTimer = "lr2customize.fadeout";
+                s->motionStartTimer = "lr2customize.fadeout_start";
 
             auto p = std::dynamic_pointer_cast<SpriteAnimated>(s);
             if (p)
@@ -4172,7 +4172,7 @@ void SkinLR2::postLoad()
                 if (p->lr2SpriteData.animTimer == 0)
                     p->animationStartTimer = "lr2customize.scene_start";
                 if (p->lr2SpriteData.animTimer == 2)
-                    p->animationStartTimer = "lr2customize.fadeout";
+                    p->animationStartTimer = "lr2customize.fadeout_start";
             }
         }
     }

@@ -1,4 +1,5 @@
 #pragma once
+#include "data_internal.h"
 #include "common/types.h"
 
 namespace lunaticvibes
@@ -6,7 +7,6 @@ namespace lunaticvibes
 
 constexpr const long long TIMER_NEVER = LLONG_MIN;
 void resetTimers();
-
 
 void loadConfigs();
 

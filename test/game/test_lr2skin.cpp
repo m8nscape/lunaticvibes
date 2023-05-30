@@ -1,6 +1,6 @@
 #include "gmock/gmock.h"
 #include "game/skin/skin_lr2.h"
-using namespace lv;
+using namespace lunaticvibes;
 
 class mock_SkinLR2 : public SkinLR2
 {

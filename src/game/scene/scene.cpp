@@ -32,7 +32,7 @@ SceneBase::SceneBase(SkinType skinType, unsigned rate, bool backgroundInput) :
 
     // Disable skin caching for now. dst options are changing all the time
     SkinMgr::unload(skinType);
-    SkinMgr::load(skinType, skinType != SkinType::THEME_SELECT);
+    SkinMgr::load(skinType, false);
     pSkin = SkinMgr::get(skinType);
 
     int notificationPosY = 480;
@@ -103,6 +103,9 @@ SceneBase::SceneBase(SkinType skinType, unsigned rate, bool backgroundInput) :
         !(SystemData.gNextScene == SceneType::SELECT && skinType == SkinType::THEME_SELECT))
     {
         resetTimers();
+        Time t;
+        SystemData.timers["scene_start"] = t.norm();
+        SystemData.timers["input_start"] = t.norm() + getSkinInfo().timeIntro;
 
         for (int i = 0; i < 4; i++)
             SystemData.overlayTopLeftText[i] = "";
@@ -154,14 +157,11 @@ void SceneBase::update()
     }
 
     // ImGui
-    if (_type == SceneType::CUSTOMIZE)
-    {
-        ImGuiNewFrame();
+    ImGuiNewFrame();
 
-        updateImgui();
+    updateImgui();
 
-        ImGui::Render();
-    }
+    ImGui::Render();
 }
 
 void SceneBase::MouseClick(InputMask& m, const Time& t)
@@ -344,7 +344,6 @@ void SceneBase::updateImgui()
 void SceneBase::DebugToggle(InputMask& p, const Time& t)
 {
 #ifdef _DEBUG
-    if (!(_type == SceneType::CUSTOMIZE)) return;
 
     if (p[Input::F1])
     {

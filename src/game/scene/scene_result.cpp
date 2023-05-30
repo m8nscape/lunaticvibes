@@ -172,7 +172,7 @@ void SceneResult::updateFadeout()
 {
     auto t = Time();
     auto rt = t - SystemData.timers["scene_start"];
-    auto ft = t - SystemData.timers["fadeout"];
+    auto ft = t - SystemData.timers["fadeout_start"];
 
     if (ft >= pSkin->info.timeOutro)
     {
@@ -406,7 +406,7 @@ void SceneResult::updateWaitArena()
     Time t;
     if (!ArenaData.isOnline() || !ArenaData.isArenaReady)
     {
-        SystemData.timers["fadeout"] = t.norm();
+        SystemData.timers["fadeout_start"] = t.norm();
         state = eResultState::FADEOUT;
         SoundMgr::setSysVolume(0.0, 2000);
         SoundMgr::setNoteVolume(0.0, 2000);
@@ -454,7 +454,7 @@ void SceneResult::inputGamePress(InputMask& m, const Time& t)
             }
             else
             {
-                SystemData.timers["fadeout"] = t.norm();
+                SystemData.timers["fadeout_start"] = t.norm();
                 state = eResultState::FADEOUT;
                 SoundMgr::setSysVolume(0.0, 2000);
                 SoundMgr::setNoteVolume(0.0, 2000);
@@ -478,7 +478,7 @@ void SceneResult::inputGamePress(InputMask& m, const Time& t)
                 }
                 else
                 {
-                    SystemData.timers["fadeout"] = t.norm();
+                    SystemData.timers["fadeout_start"] = t.norm();
                     state = eResultState::FADEOUT;
                     SoundMgr::setSysVolume(0.0, 2000);
                     SoundMgr::setNoteVolume(0.0, 2000);

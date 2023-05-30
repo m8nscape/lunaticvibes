@@ -1,4 +1,5 @@
 #pragma once
+#include "data_internal.h"
 
 namespace lunaticvibes
 {
@@ -42,7 +43,7 @@ enum class FreqModifierType
 
 inline struct Struct_SystemData
 {
-    std::unordered_map<std::string_view, long long> timers;
+    TimerStorage timers;
 
     bool isAppExiting = false;
     bool quitOnFinish = false;
@@ -98,30 +99,33 @@ inline struct Struct_SystemData
         static constexpr const int EXPIRE_TIME_SEC = 10;
     private:
         std::shared_mutex mutex;
-        std::deque<std::pair<Time, StringContent>> notifications;
+        std::pair<Time, StringContent> notifications[MAX_NOTIFICATIONS];
+        size_t currentIndex = 0;
 
     public:
         void newNotification(const StringContent& s)
         {
             std::unique_lock l(mutex);
-            if (notifications.size() > MAX_NOTIFICATIONS)
-                notifications.pop_front();
-            notifications.push_back({ Time(), s});
+            notifications[++currentIndex % MAX_NOTIFICATIONS] = {Time(), s};
         }
         void clearExpiredNotification()
         {
             std::unique_lock l(mutex);
             Time t;
 
-            while (!notifications.empty() && (t - notifications.begin()->first).norm() > EXPIRE_TIME_SEC * 1000)
+            for (auto& [time, s] : notifications)
             {
-                notifications.pop_front();
+                if ((t - time).norm() > EXPIRE_TIME_SEC)
+                {
+                    s.clear();
+                    t = Time();
+                }
             }
         }
         StringContent getNotification(size_t index)
         {
             std::shared_lock l(mutex);
-            return index < notifications.size() ? notifications[index].second : "";
+            return notifications[index % MAX_NOTIFICATIONS].second;
         }
         std::shared_lock<std::shared_mutex> acquire()
         {

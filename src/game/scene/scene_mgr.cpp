@@ -21,8 +21,8 @@ SceneMgr SceneMgr::_inst;
 
 pScene SceneMgr::get(SceneType e)
 {
-    SystemData.timers["scene"] = TIMER_NEVER;
-    SystemData.timers["start_input"] = TIMER_NEVER;
+    SystemData.timers["scene_start"] = TIMER_NEVER;
+    SystemData.timers["input_start"] = TIMER_NEVER;
     PlayData.timers["load_start"] = TIMER_NEVER;
     PlayData.timers["ready"] = TIMER_NEVER;
     PlayData.timers["play_start"] = TIMER_NEVER;
@@ -112,10 +112,6 @@ pScene SceneMgr::get(SceneType e)
     default:
         return nullptr;
     }
-
-    Time t;
-    SystemData.timers["scene"] = t.norm();
-    SystemData.timers["start_input"] = t.norm() + (ps ? ps->getSkinInfo().timeIntro : 0);
 
     return ps;
 }

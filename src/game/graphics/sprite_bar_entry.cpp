@@ -49,7 +49,7 @@ int SpriteBarEntry::setLevel(BarLevelType type, const SpriteNumber::SpriteNumber
         << " (Line " << srcLine << ")";
 
     SpriteNumber::SpriteNumberBuilder tmpBuilder = builder;
-    tmpBuilder.numberCallback = std::bind([](int index) { return SelectData.barLevel[index]; }, index);
+    tmpBuilder.numberCallback = std::bind([](size_t index) { return SelectData.barLevel[index]; }, index);
     sLevel[static_cast<size_t>(type)] = tmpBuilder.build();
     return 0;
 }
@@ -70,7 +70,7 @@ int SpriteBarEntry::setLamp(BarLampType type, const SpriteAnimated::SpriteAnimat
 int SpriteBarEntry::setTitle(BarTitleType type, const SpriteText::SpriteTextBuilder& builder)
 {
     SpriteText::SpriteTextBuilder tmpBuilder = builder;
-    tmpBuilder.textCallback = std::bind([](int index) { return SelectData.barTitle[index]; }, index);
+    tmpBuilder.textCallback = std::bind([](size_t index) { return std::string_view(SelectData.barTitle[index]); }, index);
     sTitle[static_cast<size_t>(type)] = tmpBuilder.build();
     return 0;
 }
@@ -78,7 +78,7 @@ int SpriteBarEntry::setTitle(BarTitleType type, const SpriteText::SpriteTextBuil
 int SpriteBarEntry::setTitle(BarTitleType type, const SpriteImageText::SpriteImageTextBuilder& builder)
 {
     SpriteImageText::SpriteImageTextBuilder tmpBuilder = builder;
-    tmpBuilder.textCallback = std::bind([](int index) { return SelectData.barTitle[index]; }, index);
+    tmpBuilder.textCallback = std::bind([](size_t index) { return std::string_view(SelectData.barTitle[index]); }, index);
     sTitle[static_cast<size_t>(type)] = tmpBuilder.build();
     return 0;
 }

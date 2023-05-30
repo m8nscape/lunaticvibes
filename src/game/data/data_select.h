@@ -1,4 +1,5 @@
 #pragma once
+#include "data_internal.h"
 #include "common/types.h"
 #include "common/entry/entry.h"
 #include "common/entry/entry_types.h"
@@ -94,7 +95,7 @@ enum class FilterKeysType
 
 inline struct Struct_SelectData
 {
-    std::unordered_map<std::string, long long> timers;
+    TimerStorage timers;
 
     std::shared_mutex _mutex;
     std::list<SongListProperties> backtrace;

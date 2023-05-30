@@ -229,6 +229,7 @@ void updateDstOpt()
 	// 3 選択中バーがコース
 	// 4 選択中バーが新規コース作成
 	// 5 選択中バーがプレイ可能(曲、コース等ならtrue
+	if (currentEntry)
 	{
 		switch (currentEntry->type())
 		{
@@ -1015,7 +1016,7 @@ void updateDstOpt()
 	// 291 ノンストップ
 	// 292 エキスパート
 	// 293 段位認定
-	if (currentEntry->type() == eEntryType::COURSE)
+	if (currentEntry && currentEntry->type() == eEntryType::COURSE)
 	{
 		set(290);
 		auto c = std::dynamic_pointer_cast<EntryCourse>(currentEntry);

@@ -66,7 +66,7 @@ void SceneDecide::updateSkip()
 {
     auto t = Time();
     auto rt = t - SystemData.timers["scene_start"];
-    auto ft = t - SystemData.timers["fadeout"];
+    auto ft = t - SystemData.timers["fadeout_start"];
 
     if (ft.norm() >= pSkin->info.timeOutro)
     {
@@ -78,7 +78,7 @@ void SceneDecide::updateCancel()
 {
     auto t = Time();
     auto rt = t - SystemData.timers["scene_start"];
-    auto ft = t - SystemData.timers["fadeout"];
+    auto ft = t - SystemData.timers["fadeout_start"];
 
     if (ft.norm() >= pSkin->info.timeOutro)
     {
@@ -103,7 +103,7 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
         switch (state)
         {
         case eDecideState::START:
-            SystemData.timers["fadeout"] = t.norm();
+            SystemData.timers["fadeout_start"] = t.norm();
             _updateCallback = std::bind(&SceneDecide::updateSkip, this);
             state = eDecideState::SKIP;
             LOG_DEBUG << "[Decide] State changed to SKIP";
@@ -121,7 +121,7 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
             switch (state)
             {
             case eDecideState::START:
-                SystemData.timers["fadeout"] = t.norm();
+                SystemData.timers["fadeout_start"] = t.norm();
                 SoundMgr::stopSysSamples();
                 _updateCallback = std::bind(&SceneDecide::updateCancel, this);
                 state = eDecideState::CANCEL;
@@ -150,7 +150,7 @@ void SceneDecide::inputGameHold(InputMask& m, Time t)
             switch (state)
             {
             case eDecideState::START:
-                SystemData.timers["fadeout"] = t.norm();
+                SystemData.timers["fadeout_start"] = t.norm();
                 SoundMgr::stopSysSamples();
                 _updateCallback = std::bind(&SceneDecide::updateCancel, this);
                 state = eDecideState::CANCEL;

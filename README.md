@@ -1,4 +1,4 @@
-# Lunatic Vibes
+﻿# Lunatic Vibes
 
 Lunatic Vibes is a rhythm game that plays community-made charts in BMS format.
 
@@ -6,6 +6,21 @@ The project is basically a rewritten version of the Lunatic Rave 2 (beta3 100201
 
 The project is still in development stage. Please do not expect a bug-free experience. Feel free to open issues.
 
+## ⚠️ About the dev branch
+
+- New skin format
+
+    I'm planning to implement a Lua-based skin format (not compatible with other players, sorry).
+
+- Regarding global datas
+
+    The codebase was built upon enumerated global struct data system, which is tightly bound with LR2 data indices, leading to following issues:
+    - Low human-readability
+    - Difficult for expansions
+    - Need to maintain multiple data sources
+    - etc.
+
+    Currently working on it. Expect huge source modifications and bugs.
 
 ## Features
 
@@ -20,6 +35,8 @@ For LR2 feature compatibility list, check out [the wiki](https://github.com/yaas
 
 
 ## Requirements
+  * **Do NOT use this application to load unauthorized copyrighted contents (e.g. charts, skins).**
+  * **Do NOT use this application to load unauthorized copyrighted contents (e.g. charts, skins).**
   * **Do NOT use this application to load unauthorized copyrighted contents (e.g. charts, skins).**
   * Supported OS: Windows 7+
 

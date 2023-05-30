@@ -12,14 +12,49 @@
 namespace lunaticvibes
 {
 
+/*
+* This class returns std::string_view. The program will be very upset if the string is released externally.
+* Use with care. 
+*/
 class TextConverter
 {
 private:
+    // Keep generated strings alive
+    class AssignableStringBuffer
+    {
+    private:
+        std::mutex m;
+        std::string data;
+        char dataFallback[4096] = { 0 };
+        size_t dataFallbackLength = 0;
+    public:
+        AssignableStringBuffer& operator=(const std::string& s) { return operator=(std::string_view(s)); }
+        AssignableStringBuffer& operator=(std::string_view s)
+        {
+            std::unique_lock l(m);
+            data = s;
+            dataFallbackLength = std::max(4095ull, s.length());
+            strncpy(dataFallback, s.data(), dataFallbackLength);
+            return *this;
+        }
+        operator std::string_view()
+        {
+            std::unique_lock l(m, std::defer_lock);
+            if (l.try_lock())
+            {
+                return std::string_view(data);
+            }
+            else
+            {
+                return std::string_view(dataFallback, dataFallbackLength);
+            }
+        }
+    };
+    inline static std::unordered_map<int, AssignableStringBuffer> buffer;
+
     static std::shared_ptr<EntryBase> getCurrentSelectedEntry()
     {
         if (SelectData.entries.empty())
-            return nullptr;
-        if (SelectData.entries[SelectData.selectedEntryIndex].first->type() != eEntryType::CHART)
             return nullptr;
         return SelectData.entries[SelectData.selectedEntryIndex].first;
     }
@@ -119,19 +154,15 @@ private:
     static std::string_view getCourseStageTitle(int i)
     {
         if (i < 0 || PlayData.courseStageData.size() <= i) return "";
-        return PlayData.courseStageData[i].title;
+        buffer[-10 - i] = PlayData.courseStageData[i].title;
+        return std::string_view(buffer[-10 - i]);
     }
     static std::string_view getCourseStageSubTitle(int i)
     {
         if (i < 0 || PlayData.courseStageData.size() <= i) return "";
-        return PlayData.courseStageData[i].subTitle;
+        buffer[-20 - i] = PlayData.courseStageData[i].subTitle;
+        return std::string_view(buffer[-20 - i]);
     }
-
-private:
-
-    inline static std::string targetName;
-    inline static std::string fullTitle;
-    inline static std::string levelEstimated;
 
 public:
     static std::string_view text_0() { return ""; }
@@ -150,6 +181,7 @@ public:
             case TargetType::RankAAA: return "RANK AAA";
             case TargetType::RankAA: return "RANK AA";
             case TargetType::RankA: return "RANK A";
+            case TargetType::MyBest: return "MYBEST";
             case TargetType::UseTargetRate:
             {
                 switch (PlayData.targetRate)
@@ -163,36 +195,38 @@ public:
                 case 88:  return "RANK AAA";
                 case 100: return "DJ AUTO";
                 }
-                targetName = "RATE "s + std::to_string(PlayData.targetRate) + "%";
-                return targetName;
+                buffer[1] = "RATE "s + std::to_string(PlayData.targetRate) + "%";
+                return std::string_view(buffer[1]);
             }
             }
         }
         return "";
     }
-    static std::string_view text_2() { return SystemData.playerName; };
+    static std::string_view text_2() { return std::string_view(SystemData.playerName); };
 
-    std::string_view text_10()
+    static std::string_view text_10()
     {
         auto p = getCurrentSelectedEntry();
         if (p)
         {
             auto chart = getCurrentSelectedChart();
-            return std::string_view(chart ? chart->title : p->_name);
+            buffer[10] = chart ? chart->title : p->_name;
+            return std::string_view(buffer[10]);
         }
         return "";
     }
-    std::string_view text_11()
+    static std::string_view text_11()
     {
         auto p = getCurrentSelectedEntry();
         if (p)
         {
             auto chart = getCurrentSelectedChart();
-            return std::string_view(chart ? chart->title2 : p->_name2);
+            buffer[11] = chart ? chart->title2 : p->_name2;
+            return std::string_view(buffer[11]);
         }
         return "";
     }
-    std::string_view text_12()
+    static std::string_view text_12()
     {
         auto p = getCurrentSelectedEntry();
         if (p)
@@ -200,60 +234,64 @@ public:
             auto chart = getCurrentSelectedChart();
             auto title = chart ? chart->title : p->_name;
             auto title2 = chart ? chart->title : p->_name;
-            fullTitle = title + (!title.empty() ? " " : "") + title2;
-            return fullTitle;
+            buffer[12] = title + (!title.empty() ? " " : "") + title2;
+            return std::string_view(buffer[12]);
         }
         return "";
     }
-    std::string_view text_13()
+    static std::string_view text_13()
     {
         auto p = getCurrentSelectedEntry();
         if (p)
         {
             auto chart = getCurrentSelectedChart();
-            return chart ? chart->genre : "";
+            buffer[13] = chart ? chart->genre : "";
+            return std::string_view(buffer[13]);
         }
         return "";
     }
-    std::string_view text_14()
+   static std::string_view text_14()
     {
         auto p = getCurrentSelectedEntry();
         if (p)
         {
             auto chart = getCurrentSelectedChart();
-            return chart ? chart->artist : "";
+            buffer[14] = chart ? chart->artist : "";
+            return std::string_view(buffer[14]);
         }
         return "";
     }
-    std::string_view text_15()
+    static std::string_view text_15()
     {
         auto p = getCurrentSelectedEntry();
         if (p)
         {
             auto chart = getCurrentSelectedChart();
-            return chart ? chart->artist2 : "";
+            buffer[15] = chart ? chart->artist2 : "";
+            return std::string_view(buffer[15]);
         }
         return "";
     }
     // 16 TAG
-    std::string_view text_17()
+    static std::string_view text_17()
     {
         auto p = getCurrentSelectedEntry();
         if (p)
         {
             auto chart = getCurrentSelectedChart();
-            levelEstimated = std::to_string(chart ? (int)chart->levelEstimated : 0);
-            return levelEstimated;
+            buffer[16] = std::to_string(chart ? (int)chart->levelEstimated : 0);
+            return std::string_view(buffer[17]);
         }
         return "";
     }
-    std::string_view text_18()
+    static std::string_view text_18()
     {
         auto p = getCurrentSelectedEntry();
         if (p)
         {
             auto chart = getCurrentSelectedChart();
-            return chart ? chart->version : "";
+            buffer[18] = chart ? chart->version : "";
+            return std::string_view(buffer[18]);
         }
         return "";
     }
@@ -272,9 +310,9 @@ public:
     EDIT_JUKEBOX_NAME,
     */
 
-    static std::string_view text_30() { return SelectData.jukeboxName; }
+    static std::string_view text_30() { return std::string_view(SelectData.jukeboxName); }
 
-    static std::string_view text_40() { return KeyConfigData.bindName[KeyConfigData.selecting.first]; };
+    static std::string_view text_40() { return std::string_view(KeyConfigData.bindName[KeyConfigData.selecting.first]); };
     static std::string_view text_41() { return "-"; };
     static std::string_view text_42() { return "-"; };
     static std::string_view text_43() { return "-"; };
@@ -549,32 +587,32 @@ public:
     static std::string_view text_169() { return getCourseStageSubTitle(9); }
 
     static std::string_view text_260() { return ArenaData.isOnline() ? "ARENA LOBBY" : ""; };
-    static std::string_view text_261() { return ArenaData.getPlayerName(0); };
-    static std::string_view text_262() { return ArenaData.getPlayerName(1); };
-    static std::string_view text_263() { return ArenaData.getPlayerName(2); };
-    static std::string_view text_264() { return ArenaData.getPlayerName(3); };
-    static std::string_view text_265() { return ArenaData.getPlayerName(4); };
-    static std::string_view text_266() { return ArenaData.getPlayerName(5); };
-    static std::string_view text_267() { return ArenaData.getPlayerName(6); };
-    static std::string_view text_268() { return ArenaData.getPlayerName(7); };
-    static std::string_view text_270() { auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset); return r ? r->getModifierText() : ""; };
-    static std::string_view text_271() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(0)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_272() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(1)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_273() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(2)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_274() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(3)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_275() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(4)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_276() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(5)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_277() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(6)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_278() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(7)); return r ? r->getModifierText() : ""; };
-    static std::string_view text_280() { auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_281() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(0)); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_282() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(1)); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_283() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(2)); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_284() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(3)); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_285() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(4)); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_286() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(5)); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_287() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(6)); return r ? r->getModifierTextShort() : ""; };
-    static std::string_view text_288() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(7)); return r ? r->getModifierTextShort() : ""; };
+    static std::string_view text_261() { buffer[261] = ArenaData.getPlayerName(0); return std::string_view(buffer[261]); };
+    static std::string_view text_262() { buffer[262] = ArenaData.getPlayerName(1); return std::string_view(buffer[262]); };
+    static std::string_view text_263() { buffer[263] = ArenaData.getPlayerName(2); return std::string_view(buffer[263]); };
+    static std::string_view text_264() { buffer[264] = ArenaData.getPlayerName(3); return std::string_view(buffer[264]); };
+    static std::string_view text_265() { buffer[265] = ArenaData.getPlayerName(4); return std::string_view(buffer[265]); };
+    static std::string_view text_266() { buffer[266] = ArenaData.getPlayerName(5); return std::string_view(buffer[266]); };
+    static std::string_view text_267() { buffer[267] = ArenaData.getPlayerName(6); return std::string_view(buffer[267]); };
+    static std::string_view text_268() { buffer[268] = ArenaData.getPlayerName(7); return std::string_view(buffer[268]); };
+    static std::string_view text_270() { auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset); buffer[270] = (r ? r->getModifierText() : ""); return buffer[270]; };
+    static std::string_view text_271() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(0)); buffer[271] = (r ? r->getModifierText() : ""); return buffer[271]; };
+    static std::string_view text_272() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(1)); buffer[272] = (r ? r->getModifierText() : ""); return buffer[272]; };
+    static std::string_view text_273() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(2)); buffer[273] = (r ? r->getModifierText() : ""); return buffer[273]; };
+    static std::string_view text_274() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(3)); buffer[274] = (r ? r->getModifierText() : ""); return buffer[274]; };
+    static std::string_view text_275() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(4)); buffer[275] = (r ? r->getModifierText() : ""); return buffer[275]; };
+    static std::string_view text_276() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(5)); buffer[276] = (r ? r->getModifierText() : ""); return buffer[276]; };
+    static std::string_view text_277() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(6)); buffer[277] = (r ? r->getModifierText() : ""); return buffer[277]; };
+    static std::string_view text_278() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(7)); buffer[278] = (r ? r->getModifierText() : ""); return buffer[278]; };
+    static std::string_view text_280() { auto r = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset); buffer[280] = (r ? r->getModifierTextShort() : ""); return buffer[280]; };
+    static std::string_view text_281() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(0)); buffer[281] = (r ? r->getModifierTextShort() : ""); return buffer[281]; };
+    static std::string_view text_282() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(1)); buffer[282] = (r ? r->getModifierTextShort() : ""); return buffer[282]; };
+    static std::string_view text_283() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(2)); buffer[283] = (r ? r->getModifierTextShort() : ""); return buffer[283]; };
+    static std::string_view text_284() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(3)); buffer[284] = (r ? r->getModifierTextShort() : ""); return buffer[284]; };
+    static std::string_view text_285() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(4)); buffer[285] = (r ? r->getModifierTextShort() : ""); return buffer[285]; };
+    static std::string_view text_286() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(5)); buffer[286] = (r ? r->getModifierTextShort() : ""); return buffer[286]; };
+    static std::string_view text_287() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(6)); buffer[287] = (r ? r->getModifierTextShort() : ""); return buffer[287]; };
+    static std::string_view text_288() { auto r = std::dynamic_pointer_cast<RulesetBMSNetwork>(ArenaData.getPlayerRuleset(7)); buffer[288] = (r ? r->getModifierTextShort() : ""); return buffer[288]; };
     static std::string_view text_300() { return i18n::c(i18nText::KEYCONFIG_HINT_KEY); };
     static std::string_view text_301() { return i18n::c(i18nText::KEYCONFIG_HINT_BIND); };
     static std::string_view text_302() { return i18n::c(i18nText::KEYCONFIG_HINT_DEADZONE); };
@@ -617,7 +655,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K11];
+            return std::string_view(KeyConfigData.bindName[k::K11]);
         }
         return "";
     }
@@ -626,7 +664,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K12];
+            return std::string_view(KeyConfigData.bindName[k::K12]);
         }
         return "";
     }
@@ -635,7 +673,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K13];
+            return std::string_view(KeyConfigData.bindName[k::K13]);
         }
         return "";
     }
@@ -644,7 +682,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K14];
+            return std::string_view(KeyConfigData.bindName[k::K14]);
         }
         return "";
     }
@@ -653,7 +691,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K15];
+            return std::string_view(KeyConfigData.bindName[k::K15]);
         }
         return "";
     }
@@ -662,7 +700,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K16];
+            return std::string_view(KeyConfigData.bindName[k::K16]);
         }
         return "";
     }
@@ -671,7 +709,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K17];
+            return std::string_view(KeyConfigData.bindName[k::K17]);
         }
         return "";
     }
@@ -680,7 +718,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K18];
+            return std::string_view(KeyConfigData.bindName[k::K18]);
         }
         return "";
     }
@@ -689,7 +727,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K19];
+            return std::string_view(KeyConfigData.bindName[k::K19]);
         }
         return "";
     }
@@ -698,7 +736,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K1START];
+            return std::string_view(KeyConfigData.bindName[k::K1START]);
         }
         return "";
     }
@@ -707,7 +745,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K1SELECT];
+            return std::string_view(KeyConfigData.bindName[k::K1SELECT]);
         }
         return "";
     }
@@ -716,7 +754,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::S1L];
+            return std::string_view(KeyConfigData.bindName[k::S1L]);
         }
         return "";
     }
@@ -725,7 +763,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::S1R];
+            return std::string_view(KeyConfigData.bindName[k::S1R]);
         }
         return "";
     }
@@ -734,7 +772,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.scratchAxisValueText[0];
+            return std::string_view(KeyConfigData.scratchAxisValueText[0]);
         }
         return "";
     }
@@ -743,7 +781,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K21];
+            return std::string_view(KeyConfigData.bindName[k::K21]);
         }
         return "";
     }
@@ -752,7 +790,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K22];
+            return std::string_view(KeyConfigData.bindName[k::K22]);
         }
         return "";
     }
@@ -761,7 +799,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K23];
+            return std::string_view(KeyConfigData.bindName[k::K23]);
         }
         return "";
     }
@@ -770,7 +808,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K24];
+            return std::string_view(KeyConfigData.bindName[k::K24]);
         }
         return "";
     }
@@ -779,7 +817,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K25];
+            return std::string_view(KeyConfigData.bindName[k::K25]);
         }
         return "";
     }
@@ -788,7 +826,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K26];
+            return std::string_view(KeyConfigData.bindName[k::K26]);
         }
         return "";
     }
@@ -797,7 +835,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K27];
+            return std::string_view(KeyConfigData.bindName[k::K27]);
         }
         return "";
     }
@@ -806,7 +844,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K28];
+            return std::string_view(KeyConfigData.bindName[k::K28]);
         }
         return "";
     }
@@ -815,7 +853,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K29];
+            return std::string_view(KeyConfigData.bindName[k::K29]);
         }
         return "";
     }
@@ -824,7 +862,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K2START];
+            return std::string_view(KeyConfigData.bindName[k::K2START]);
         }
         return "";
     }
@@ -833,7 +871,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::K2SELECT];
+            return std::string_view(KeyConfigData.bindName[k::K2SELECT]);
         }
         return "";
     }
@@ -842,7 +880,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::S2L];
+            return std::string_view(KeyConfigData.bindName[k::S2L]);
         }
         return "";
     }
@@ -851,7 +889,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.bindName[k::S2R];
+            return std::string_view(KeyConfigData.bindName[k::S2R]);
         }
         return "";
     }
@@ -860,7 +898,7 @@ public:
         if (SystemData.gNextScene == SceneType::KEYCONFIG)
         {
             using k = Input::Pad;
-            return KeyConfigData.scratchAxisValueText[1];
+            return std::string_view(KeyConfigData.scratchAxisValueText[1]);
         }
         return "";
     }

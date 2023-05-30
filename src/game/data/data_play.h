@@ -1,4 +1,5 @@
 #pragma once
+#include "data_internal.h"
 #include "common/keymap.h"
 #include "game/graphics/texture_extra.h"
 
@@ -110,7 +111,7 @@ struct PlayerPlayData
 
 inline struct Struct_PlayData
 {
-    std::unordered_map<std::string, long long> timers;
+    TimerStorage timers;
 
     SkinType mode = SkinType::PLAY7;
     int32_t panelStyle = 0;

@@ -108,7 +108,7 @@ void SceneKeyConfig::updateMain()
     Time t;
     if (exiting)
     {
-        SystemData.timers["fadeout"] = t.norm();
+        SystemData.timers["fadeout_start"] = t.norm();
         _updateCallback = std::bind(&SceneKeyConfig::updateFadeout, this);
         using namespace std::placeholders;
         _input.unregister_p("SCENE_PRESS");
@@ -123,7 +123,7 @@ void SceneKeyConfig::updateMain()
 void SceneKeyConfig::updateFadeout()
 {
     Time t;
-    Time rt = t - SystemData.timers["fadeout"];
+    Time rt = t - SystemData.timers["fadeout_start"];
 
     if (rt.norm() > pSkin->info.timeOutro)
     {

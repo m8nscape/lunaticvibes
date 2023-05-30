@@ -81,23 +81,18 @@ void SkinBase::update_mouse(int x, int y)
         y = -99999999;  // LUL
     }
 
-    auto clickSpriteLambda = [x, y](const std::shared_ptr<SpriteBase>& s)
-    {
-        if (s->isDraw() && !s->isHidden())
+    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), 
+        [x, y](const std::shared_ptr<SpriteBase>& s)
         {
-            auto pS = std::dynamic_pointer_cast<iSpriteMouse>(s);
-            if (pS != nullptr)
+            if (s->isDraw() && !s->isHidden())
             {
-                pS->OnMouseMove(x, y);
+                auto pS = std::dynamic_pointer_cast<iSpriteMouse>(s);
+                if (pS != nullptr)
+                {
+                    pS->OnMouseMove(x, y);
+                }
             }
-        }
-    };
-
-#ifdef _DEBUG
-    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), clickSpriteLambda);
-#else
-    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), clickSpriteLambda);
-#endif
+        });
 }
 
 void SkinBase::update_mouse_click(int x, int y)
@@ -124,6 +119,8 @@ void SkinBase::update_mouse_click(int x, int y)
     //    }
     //}
 #endif
+    // FIXME in LR2 it's possible to click multiple objects at once (remove !invoked check).
+    // See: RED-BELT key config test button
     for (auto it = _sprites.rbegin(); it != _sprites.rend() && !invoked; ++it)
     {
         if ((*it)->isDraw() && !(*it)->isHidden())

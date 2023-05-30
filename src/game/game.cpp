@@ -337,7 +337,19 @@ void lunaticvibes::mainLoop()
         }
 
         // Scene change
-        // 
+        if (SystemData.gNextScene != currentScene)
+        {
+            if (scene)
+            {
+                scene->inputLoopEnd();
+                scene->loopEnd();
+            }
+            currentScene = SystemData.gNextScene;
+            scene = SceneMgr::get(currentScene);
+            scene->loopStart();
+            scene->inputLoopStart();
+        }
+        
         // draw
         {
             graphics_clear();

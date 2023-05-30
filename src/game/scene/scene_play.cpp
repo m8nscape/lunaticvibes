@@ -1954,7 +1954,7 @@ void ScenePlay::updatePlaying()
         }
         else
         {
-            SystemData.timers["fadeout"] = t.norm();
+            SystemData.timers["fadeout_start"] = t.norm();
             state = ePlayState::FADEOUT;
             LOG_DEBUG << "[Play] State changed to FADEOUT";
         }
@@ -1965,7 +1965,7 @@ void ScenePlay::updateFadeout()
 {
     auto t = Time();
     auto rt = t - PlayData.timers["play_start"];
-    auto ft = t - SystemData.timers["fadeout"];
+    auto ft = t - SystemData.timers["fadeout_start"];
 
     if (PlayData.player[PLAYER_SLOT_PLAYER].chartObj != nullptr)
     {
@@ -2226,7 +2226,7 @@ void ScenePlay::updateFailed()
     //failed play finished, move to next scene. No fadeout
     if (ft.norm() >= pSkin->info.timeFailed)
     {
-        SystemData.timers["fadeout"] = t.norm();
+        SystemData.timers["fadeout_start"] = t.norm();
         state = ePlayState::FADEOUT;
         LOG_DEBUG << "[Play] State changed to FADEOUT";
     }
@@ -2253,7 +2253,7 @@ void ScenePlay::updateWaitArena()
 
     if (!ArenaData.isOnline() || ArenaData.isPlayingFinished())
     {
-        SystemData.timers["fadeout"] = t.norm();
+        SystemData.timers["fadeout_start"] = t.norm();
         state = ePlayState::FADEOUT;
     }
 }
@@ -2498,7 +2498,7 @@ void ScenePlay::requestExit()
     else
     { 
         SoundMgr::setNoteVolume(0.0, 1000);
-        SystemData.timers["fadeout"] = t.norm();
+        SystemData.timers["fadeout_start"] = t.norm();
         state = ePlayState::FADEOUT;
         LOG_DEBUG << "[Play] State changed to FADEOUT";
     }

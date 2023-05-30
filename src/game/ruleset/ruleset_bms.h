@@ -144,7 +144,7 @@ public:
 
     /// /////////////////////////////////////////////////////////////////////
 
-    typedef std::map<chart::NoteLaneIndex, std::string> NoteLaneTimerMap;
+    typedef std::map<chart::NoteLaneIndex, const char*> NoteLaneTimerMap;
 
     enum class PlaySide {
         SINGLE,

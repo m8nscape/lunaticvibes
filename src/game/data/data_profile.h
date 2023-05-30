@@ -1,4 +1,5 @@
 #pragma once
+#include "data_internal.h"
 
 namespace lunaticvibes
 {
