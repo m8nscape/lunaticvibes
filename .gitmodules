@@ -15,7 +15,7 @@
 	url = https://github.com/bshoshany/thread-pool
 [submodule "ext/FFmpeg"]
 	path = ext/FFmpeg
-	url = https://github.com/yaasdf/FFmpeg
+	url = https://github.com/m8nscape/FFmpeg
 	branch = lib
 [submodule "ext/re2"]
 	path = ext/re2
