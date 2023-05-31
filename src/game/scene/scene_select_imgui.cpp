@@ -300,7 +300,7 @@ void SceneSelect::imguiSettings()
                     int old_imgui_add_profile_popup_error = imgui_add_profile_popup_error;
                     bool ok = false;
 
-                    ImGui::Text(i18n::c(NEW_PROFILE_NAME));
+                    ImGui::TextUnformatted(i18n::c(NEW_PROFILE_NAME));
                     ImGui::SameLine();
                     ok |= ImGui::InputText("##newprofilename", imgui_add_profile_buf, sizeof(imgui_add_profile_buf), ImGuiInputTextFlags_EnterReturnsTrue);
                     ImGui::SameLine();
@@ -358,7 +358,7 @@ void SceneSelect::imguiSettings()
                         if (errorMessage.empty())
                             errorMessage = (boost::format(i18n::c(NEW_PROFILE_DUPLICATE)) % imgui_add_profile_buf).str();
                     }
-                    ImGui::TextColored({ 1.f, 0.2f, 0.2f, 1.f }, errorMessage.c_str());
+                    ImGui::TextColored({ 1.f, 0.2f, 0.2f, 1.f }, "%s", errorMessage.c_str());
 
                     ImGui::EndPopup();
                 }
@@ -549,7 +549,7 @@ void SceneSelect::imguiPageOptionsGeneral()
 
     if (ImGui::BeginChild("##pagesub11"))
     {
-        ImGui::Text(i18n::c(PROFILE));
+        ImGui::TextUnformatted(i18n::c(PROFILE));
         ImGui::SameLine(infoRowWidth);
         ImGui::Combo("##profile", &imgui_profile_index, imgui_profiles_display.data(), (int)imgui_profiles_display.size());
 
@@ -563,7 +563,7 @@ void SceneSelect::imguiPageOptionsGeneral()
 
         /////////////////////////////////////////////////////////////////////////////////////////
 
-        ImGui::Text(i18n::c(PLAYER_NAME));
+        ImGui::TextUnformatted(i18n::c(PLAYER_NAME));
         ImGui::SameLine(infoRowWidth);
         bool modifiedPlayName = false;
         modifiedPlayName |= ImGui::InputText("##playername", imgui_player_name_buf, sizeof(imgui_player_name_buf), ImGuiInputTextFlags_EnterReturnsTrue);
@@ -574,13 +574,13 @@ void SceneSelect::imguiPageOptionsGeneral()
             imguiApplyPlayerName();
         }
 
-        ImGui::Text(i18n::c(LANGUAGE));
+        ImGui::TextUnformatted(i18n::c(LANGUAGE));
         ImGui::SameLine(infoRowWidth);
         ImGui::Combo("##language", &imgui_language_index, imgui_languages_display.data(), (int)imgui_languages_display.size());
 
         /////////////////////////////////////////////////////////////////////////////////////////
 
-        ImGui::Text(i18n::c(LOG_LEVEL));
+        ImGui::TextUnformatted(i18n::c(LOG_LEVEL));
         ImGui::SameLine(infoRowWidth);
         static const char* imgui_log_level_display[] =
         {
@@ -605,14 +605,14 @@ void SceneSelect::imguiPageOptionsJukebox()
 
     if (ImGui::BeginChild("##pagesub12"))
     {
-        ImGui::Text(i18n::c(JUKEBOX_REFRESH_HINT));
+        ImGui::TextUnformatted(i18n::c(JUKEBOX_REFRESH_HINT));
 
         ImGui::Spacing();
         ImGui::Separator();
 
         /////////////////////////////////////////////////////////////////////////////////////////
 
-        ImGui::Text(i18n::c(JUKEBOX_FOLDER));
+        ImGui::TextUnformatted(i18n::c(JUKEBOX_FOLDER));
         {
             bool enterPath = ImGui::InputTextWithHint("##folderpath", i18n::c(JUKEBOX_FOLDER_PATH_HINT), imgui_folder_path_buf, sizeof(imgui_folder_path_buf), ImGuiInputTextFlags_EnterReturnsTrue);
             if (enterPath || (ImGui::SameLine(), ImGui::Button(" + ##folder")))
@@ -644,7 +644,7 @@ void SceneSelect::imguiPageOptionsJukebox()
 
         /////////////////////////////////////////////////////////////////////////////////////////
 
-        ImGui::Text(i18n::c(JUKEBOX_TABLES));
+        ImGui::TextUnformatted(i18n::c(JUKEBOX_TABLES));
         {
             bool enterUrl = ImGui::InputTextWithHint("##tableurl", i18n::c(JUKEBOX_TABLE_URL_HINT), imgui_table_url_buf, sizeof(imgui_table_url_buf), ImGuiInputTextFlags_EnterReturnsTrue);
             if (enterUrl || (ImGui::SameLine(), ImGui::Button(" + ##table")))
@@ -670,11 +670,11 @@ void SceneSelect::imguiPageOptionsVideo()
 
     if (ImGui::BeginChild("##pagesub13"))
     {
-        ImGui::Text(i18n::c(VIDEO_RESOLUTION));
+        ImGui::TextUnformatted(i18n::c(VIDEO_RESOLUTION));
         ImGui::SameLine(infoRowWidth);
         ImGui::Combo("##resolution", &imgui_video_display_resolution_index, imgui_video_display_resolution_display.data(), (int)imgui_video_display_resolution_display.size());
 
-        ImGui::Text(i18n::c(VIDEO_SS_LEVEL));
+        ImGui::TextUnformatted(i18n::c(VIDEO_SS_LEVEL));
         ImGui::SameLine(infoRowWidth);
         static const char* imgui_video_ss_display[] =
         {
@@ -690,7 +690,7 @@ void SceneSelect::imguiPageOptionsVideo()
         ImGui::SameLine();
         HelpMarker(i18n::c(VIDEO_SS_LEVEL_HINT));
 
-        ImGui::Text(i18n::c(VIDEO_SCREEN_MODE));
+        ImGui::TextUnformatted(i18n::c(VIDEO_SCREEN_MODE));
         ImGui::SameLine(infoRowWidth);
         const char* imgui_video_mode_display[] =
         {
@@ -703,7 +703,7 @@ void SceneSelect::imguiPageOptionsVideo()
             imguiRefreshVideoDisplayResolutionList();
         }
 
-        ImGui::Text(i18n::c(VIDEO_VSYNC));
+        ImGui::TextUnformatted(i18n::c(VIDEO_VSYNC));
         ImGui::SameLine(infoRowWidth);
         const char* imgui_vsync_mode_display[] =
         {
@@ -716,7 +716,7 @@ void SceneSelect::imguiPageOptionsVideo()
         };
         ImGui::Combo("##vsync", &imgui_video_vsync_index, imgui_vsync_mode_display, sizeof(imgui_vsync_mode_display) / sizeof(char*));
 
-        ImGui::Text(i18n::c(VIDEO_MAXFPS));
+        ImGui::TextUnformatted(i18n::c(VIDEO_MAXFPS));
         ImGui::SameLine(infoRowWidth);
         ImGui::InputInt("##maxfps", &imgui_video_maxFPS, 0);
 
@@ -744,7 +744,7 @@ void SceneSelect::imguiPageOptionsAudio()
 
     if (ImGui::BeginChild("##pagesub14"))
     {
-        ImGui::Text(i18n::c(AUDIO_DEVICE));
+        ImGui::TextUnformatted(i18n::c(AUDIO_DEVICE));
         ImGui::SameLine(infoRowWidth);
         ImGui::Combo("##audiodevice", &imgui_audio_device_index, imgui_audio_devices_display.data(), (int)imgui_audio_devices_display.size());
 
@@ -755,11 +755,11 @@ void SceneSelect::imguiPageOptionsAudio()
 
         ImGui::Spacing();
 
-        ImGui::Text(i18n::c(AUDIO_BUFFER_COUNT));
+        ImGui::TextUnformatted(i18n::c(AUDIO_BUFFER_COUNT));
         ImGui::SameLine(infoRowWidth);
         ImGui::InputInt("##bufcount", &imgui_audio_bufferCount, 0);
 
-        ImGui::Text(i18n::c(AUDIO_BUFFER_LENGTH));
+        ImGui::TextUnformatted(i18n::c(AUDIO_BUFFER_LENGTH));
         ImGui::SameLine(infoRowWidth);
         ImGui::InputInt("##bufsize", &imgui_audio_bufferSize, 0);
 
@@ -778,18 +778,18 @@ void SceneSelect::imguiPageOptionsPlay()
 
     if (ImGui::BeginChild("##pagesub15"))
     {
-        ImGui::Text(i18n::c(MISS_BGA_TIME));
+        ImGui::TextUnformatted(i18n::c(MISS_BGA_TIME));
         ImGui::SameLine(infoRowWidth);
         ImGui::InputInt("##misstime", &imgui_adv_missBGATime, 0);
 
-        ImGui::Text(i18n::c(MIN_INPUT_INTERVAL));
+        ImGui::TextUnformatted(i18n::c(MIN_INPUT_INTERVAL));
         ImGui::SameLine(infoRowWidth);
         ImGui::InputInt("##mininputinterval", &imgui_adv_minInputInterval, 1, 10);
         ImGui::SameLine();
         HelpMarker(i18n::c(MIN_INPUT_INTERVAL_HINT));
         //ImGui::Checkbox("Accept mouse movements as Analog input", &imgui_adv_mouseAnalog);
 
-        ImGui::Text(i18n::c(INPUT_POLLING_RATE));
+        ImGui::TextUnformatted(i18n::c(INPUT_POLLING_RATE));
         ImGui::SameLine(infoRowWidth);
         static const char* imgui_play_inputPollingRate_display[] =
         {
@@ -820,7 +820,7 @@ void SceneSelect::imguiPageOptionsPlay()
         HelpMarker(i18n::c(INPUT_POLLING_RATE_WARNING_WINDOWS));
 #endif
 
-        ImGui::Text(i18n::c(DEFAULT_TARGET));
+        ImGui::TextUnformatted(i18n::c(DEFAULT_TARGET));
         ImGui::SameLine(infoRowWidth);
         imgui_play_defaultTarget = PlayData.targetRate;
         if (ImGui::SliderInt("##defaulttarget", &imgui_play_defaultTarget, 0, 100, "%d %%", ImGuiSliderFlags_None))
@@ -828,7 +828,7 @@ void SceneSelect::imguiPageOptionsPlay()
             PlayData.targetRate = std::clamp(imgui_play_defaultTarget, 0, 100);
         }
 
-        ImGui::Text(i18n::c(JUDGE_TIMING));
+        ImGui::TextUnformatted(i18n::c(JUDGE_TIMING));
         ImGui::SameLine(infoRowWidth);
         imgui_play_judgeTiming = PlayData.player[PLAYER_SLOT_PLAYER].offsetVisual;
         if (ImGui::SliderInt("##judgetiming", &imgui_play_judgeTiming, -99, 99, "%d ms", ImGuiSliderFlags_None))
@@ -857,7 +857,7 @@ void SceneSelect::imguiPageOptionsPlay()
         }
 
         ImGui::BeginDisabled(imgui_play_lockGreenNumber);
-        ImGui::Text(i18n::c(HISPEED));
+        ImGui::TextUnformatted(i18n::c(HISPEED));
         ImGui::SameLine(infoRowWidth);
         imgui_play_hispeed = PlayData.player[PLAYER_SLOT_PLAYER].hispeed;
         if (ImGui::SliderFloat("##hispeed", &imgui_play_hispeed, 0.01f, 10.0f, "%.02f", ImGuiSliderFlags_None))
@@ -868,7 +868,7 @@ void SceneSelect::imguiPageOptionsPlay()
         ImGui::EndDisabled();
 
         ImGui::BeginDisabled(!imgui_play_lockGreenNumber);
-        ImGui::Text(i18n::c(GREENNUMBER));
+        ImGui::TextUnformatted(i18n::c(GREENNUMBER));
         ImGui::SameLine(infoRowWidth);
         imgui_play_greenNumber = PlayData.player[PLAYER_SLOT_PLAYER].greenNumber;
         if (ImGui::SliderInt("##greennumber", &imgui_play_greenNumber, 1, 1200, "%d", ImGuiSliderFlags_None))
@@ -919,19 +919,19 @@ void SceneSelect::imguiPageOptionsSelect()
 
     if (ImGui::BeginChild("##pagesub16"))
     {
-        ImGui::Text(i18n::c(SCROLL_SPEED));
+        ImGui::TextUnformatted(i18n::c(SCROLL_SPEED));
         ImGui::SameLine(infoRowWidth);
         ImGui::InputInt2("##adv1", imgui_adv_scrollSpeed);
         ImGui::SameLine();
         HelpMarker(i18n::c(SCROLL_SPEED_HINT));
 
-        ImGui::Text(i18n::c(NEW_SONG_DURATION));
+        ImGui::TextUnformatted(i18n::c(NEW_SONG_DURATION));
         ImGui::SameLine(infoRowWidth);
         ImGui::InputInt("##adv2", &imgui_adv_newSongDuration, 1, 10);
         ImGui::SameLine();
         HelpMarker(i18n::c(NEW_SONG_DURATION_HINT));
 
-        ImGui::Text(i18n::c(SELECT_KEYBINDINGS));
+        ImGui::TextUnformatted(i18n::c(SELECT_KEYBINDINGS));
         ImGui::SameLine(infoRowWidth);
         static const char* imgui_adv_select_keybindings_display[] =
         {
@@ -1665,7 +1665,7 @@ bool SceneSelect::imguiArenaJoinLobbyPrompt()
             ImGui::SetNextWindowSize(ImVec2(480.f, 180.f), ImGuiCond_Always);
             if (ImGui::BeginPopupModal("JOIN LOBBY", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
             {
-                ImGui::Text("IP Address");
+                ImGui::TextUnformatted("IP Address");
                 ImGui::SameLine();
                 if (ImGui::IsWindowAppearing())
                     ImGui::SetKeyboardFocusHere();

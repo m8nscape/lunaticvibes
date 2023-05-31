@@ -448,8 +448,8 @@ void ScenePreSelect::updateImgui()
     ImGui::SetNextWindowSize(ImVec2(ConfigMgr::get('V', cfg::V_DISPLAY_RES_X, CANVAS_WIDTH), ConfigMgr::get('V', cfg::V_DISPLAY_RES_Y, CANVAS_HEIGHT)), ImGuiCond_Always);
     if (ImGui::Begin("LoadSong", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoCollapse))
     {
-        ImGui::Text(textHint.c_str());
-        ImGui::Text(textHint2.c_str());
+        ImGui::TextUnformatted(textHint.c_str());
+        ImGui::TextUnformatted(textHint2.c_str());
 
         ImGui::End();
     }
