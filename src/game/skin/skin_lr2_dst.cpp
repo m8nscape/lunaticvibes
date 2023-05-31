@@ -764,14 +764,14 @@ void updateDstOpt()
 		switch (getRankType(ruleset))
 		{
 		case RankType::MAX:
-		case RankType::AAA: set(220); break;
-		case RankType::AA: set(221); break;
-		case RankType::A: set(222); break;
-		case RankType::B: set(223); break;
-		case RankType::C: set(224); break;
-		case RankType::D: set(225); break;
-		case RankType::E: set(226); break;
-		case RankType::F: set(227); break;
+		case RankType::AAA: set(220); [[ fallthrough ]];
+		case RankType::AA: set(221); [[ fallthrough ]];
+		case RankType::A: set(222); [[ fallthrough ]];
+		case RankType::B: set(223); [[ fallthrough ]];
+		case RankType::C: set(224); [[ fallthrough ]];
+		case RankType::D: set(225); [[ fallthrough ]];
+		case RankType::E: set(226); [[ fallthrough ]];
+		case RankType::F: set(227); [[ fallthrough ]];
 		case RankType::_: set(228); break;
 		}
 
