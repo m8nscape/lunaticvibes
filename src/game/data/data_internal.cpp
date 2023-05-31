@@ -29,17 +29,22 @@ TimerStorage::ValueT& TimerStorage::operator[](std::string_view s)
         size_t key = std::hash<std::string_view>{}(s);
         std::unique_lock l(sm);
         keysMap[(uintptr_t)s.data()] = key;
-        timers[key];
     }
     return operator[](keysMap[(uintptr_t)s.data()]);
 }
 TimerStorage::ValueT& TimerStorage::operator[](TimerStorage::KeyT key)
 {
+    if (timers.find(key) == timers.end())
+    {
+        std::unique_lock l(sm);
+        timers[key] = TIMER_NEVER;
+    }
     return timers[key];
 }
 
 void TimerStorage::clear()
 {
+    std::unique_lock l(sm);
     timers.clear();
 }
 

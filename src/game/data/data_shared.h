@@ -5,7 +5,7 @@
 namespace lunaticvibes
 {
 
-constexpr const long long TIMER_NEVER = LLONG_MIN;
+constexpr const long long TIMER_NEVER = TimerStorage::TIMER_NEVER;
 void resetTimers();
 
 void loadConfigs();

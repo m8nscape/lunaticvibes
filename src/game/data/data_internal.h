@@ -9,6 +9,7 @@ class TimerStorage
 public:
     using KeyT = size_t;
     using ValueT = long long;
+    constexpr static long long TIMER_NEVER = LLONG_MIN;
 private:
     std::shared_mutex sm;
     std::unordered_map<KeyT, ValueT> timers;
