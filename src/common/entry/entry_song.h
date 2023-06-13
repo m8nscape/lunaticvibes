@@ -46,7 +46,7 @@ public:
 protected:
     std::map<int, std::map<unsigned, std::vector<std::shared_ptr<ChartFormatBase>>>> chartMap;
 public:
-    const std::vector<std::shared_ptr<ChartFormatBase>>& getDifficultyList(int gamemode, unsigned difficulty) const;
+    const std::vector<std::shared_ptr<ChartFormatBase>>& getVersionList(int gamemode, unsigned difficulty) const;
 };
 
 // entry for each charts of song, e.g. jukebox/bms/L9/kuso9_7.bme

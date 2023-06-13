@@ -101,9 +101,9 @@ public:
 
 private:
     mutable std::shared_mutex m;
+    std::thread::id mid;
     bool locked = false;
 
-    // to get the current list, call backtrace.front()
     std::deque<std::shared_ptr<List>> backtrace;
 
 public:
@@ -139,6 +139,8 @@ inline struct Struct_SelectData
     TimerStorage timers;
 
     SongListManager songList;
+    std::vector<DifficultyTableBMS> tables;
+
     bool draggingListSlider = 0;    // is dragging slider
 
     bool coursePlayable = false;
@@ -152,9 +154,7 @@ inline struct Struct_SelectData
     FilterKeysType filterKeys = FilterKeysType::All;
     bool optionChangePending = false;
 
-    bool panel[9] = { 0 };
-
-    std::vector<DifficultyTableBMS> tables;
+    bool panel[9] = { 0 };  // LR2 skin panel
 
     double pitchSpeed = 1.0;
 

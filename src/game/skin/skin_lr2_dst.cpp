@@ -1194,23 +1194,23 @@ void updateDstOpt()
 	{
 		switch (currentChart->difficulty)
 		{
-		case 0:
+		case 1:
 			set(500, false); 
 			set({ 505, 510 }); 
 			break;
-		case 1: 
+		case 2: 
 			set(501, false); 
 			set({ 506, 511 });  
 			break;
-		case 2: 
+		case 3: 
 			set(502, false);
 			set({ 507, 512 });  
 			break;
-		case 3: 
+		case 4: 
 			set(503, false); 
 			set({ 508, 513 }); 
 			break;
-		case 4: 
+		case 5: 
 			set(504, false);
 			set({ 509, 514 });
 			break;

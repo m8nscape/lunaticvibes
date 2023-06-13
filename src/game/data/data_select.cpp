@@ -54,14 +54,14 @@ bool SongListManager::isModifying() const
 std::shared_ptr<SongListManager::List> SongListManager::getList(size_t layer)
 {
     std::shared_lock l(m, std::defer_lock);
-    if (!locked) l.lock();
+    if (!locked || std::this_thread::get_id() != mid) l.lock();
     return layer < backtrace.size() ? backtrace[layer] : nullptr;
 }
 
 std::shared_ptr<SongListManager::List> SongListManager::getCurrentList()
 {
     std::shared_lock l(m, std::defer_lock);
-    if (!locked) l.lock();
+    if (!locked || std::this_thread::get_id() != mid) l.lock();
     return backtrace.empty() ? nullptr : backtrace.front();
 }
 
@@ -73,16 +73,16 @@ size_t SongListManager::getCurrentIndex()
 
 std::shared_ptr<SongListManager::Entry> SongListManager::getCurrentEntry()
 {
-    auto pl = getCurrentList();
     std::shared_lock l(m, std::defer_lock);
-    if (!locked) l.lock();
+    if (!locked || std::this_thread::get_id() != mid) l.lock();
+    auto pl = getCurrentList();
     return (pl && !pl->displayEntries.empty()) ? pl->displayEntries[pl->index] : nullptr;
 }
 
 size_t SongListManager::getBacktraceSize() const
 {
     std::shared_lock l(m, std::defer_lock);
-    if (!locked) l.lock();
+    if (!locked || std::this_thread::get_id() != mid) l.lock();
     return backtrace.size();
 }
 
@@ -103,6 +103,7 @@ void SongListManager::updateScore(const HashMD5& hash, std::shared_ptr<ScoreBase
 void SongListManager::loadSongList()
 {
     AutoResetBool lb(&locked);
+    mid = std::this_thread::get_id();
     std::unique_lock l(m);
 
     auto currentEntry = getCurrentEntry();
@@ -127,6 +128,7 @@ void SongListManager::loadSongList()
     }
 
     auto currentList = getCurrentList();
+    currentList->index = 0;
     currentList->displayEntries.clear();
     for (auto& p : (*currentList).dbBrowseEntries)
     {
@@ -283,26 +285,11 @@ void SongListManager::loadSongList()
         }
     }
 
-    if (currentList->ignoreFilters)
-    {
-        // change display only
-        SelectData.filterDifficulty = FilterDifficultyType::All;
-        SelectData.filterKeys = FilterKeysType::All;
-    }
-    else
-    {
-        // restore prev
-        cfg::loadFilterDifficulty();
-        cfg::loadFilterKeys();
-    }
-
     // load score
     for (size_t idx = 0; idx < currentList->displayEntries.size(); ++idx)
     {
         SelectData.updateEntryScore(idx);
     }
-
-    currentList->index = 0;
 
     // look for the exact same entry
     if (currentList->displayEntries.size() > 1)
@@ -329,7 +316,7 @@ void SongListManager::loadSongList()
             if (SelectData.filterDifficulty != FilterDifficultyType::All)
             {
                 // search from current difficulty
-                const auto& chartList = currentEntrySong->getDifficultyList(currentEntryGamemode, unsigned(SelectData.filterDifficulty));
+                const auto& chartList = currentEntrySong->getVersionList(currentEntryGamemode, unsigned(SelectData.filterDifficulty));
                 if (!chartList.empty())
                 {
                     i = findChart((*chartList.begin())->fileHash);
@@ -342,7 +329,7 @@ void SongListManager::loadSongList()
             else
             {
                 // search from the same difficulty
-                const auto& chartList = currentEntrySong->getDifficultyList(currentEntryGamemode, currentEntryDifficulty);
+                const auto& chartList = currentEntrySong->getVersionList(currentEntryGamemode, currentEntryDifficulty);
                 if (!chartList.empty())
                 {
                     i = findChart((*chartList.begin())->fileHash);
@@ -359,7 +346,7 @@ void SongListManager::loadSongList()
                 {
                     if (currentEntryDifficulty == diff) continue;
                     if (currentEntryDifficulty == unsigned(SelectData.filterDifficulty)) continue;
-                    const auto& diffList = currentEntrySong->getDifficultyList(currentEntryGamemode, diff);
+                    const auto& diffList = currentEntrySong->getVersionList(currentEntryGamemode, diff);
                     if (!diffList.empty())
                     {
                         i = findChart((*diffList.begin())->fileHash);
@@ -392,6 +379,7 @@ void SongListManager::loadSongList()
 void SongListManager::sortSongList()
 {
     AutoResetBool lb(&locked);
+    mid = std::this_thread::get_id();
     std::unique_lock l(m);
 
     auto currentList = getCurrentList();
@@ -641,8 +629,55 @@ void Struct_SelectData::setBarInfo()
 
 void Struct_SelectData::setEntryInfo()
 {
-    if (songList.getCurrentEntry() == nullptr)
+    for (int i = 0; i < 5; i++)
+    {
+        levelOfChartDifficulty[i] = 0;
+        countOfChartDifficulty[i] = 0;
+    }
+
+    auto p = songList.getCurrentEntry();
+    if (p == nullptr)
         return;
+    
+    auto chart = std::dynamic_pointer_cast<EntryChart>(p->entry);
+    if (chart == nullptr)
+        return;
+
+    auto song = chart->getSongEntry();
+    if (song != nullptr)
+    {
+        int keys[] = { 5, 7, 9, 10, 14 };
+        int difficultyFallback[5] = { INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX };
+        bool difficultySet[5] = { false };
+        for (int k : keys)
+        {
+            for (int d = 0; d < 5; d++)
+            {
+                auto versionList = song->getVersionList(k, d + 1);
+                if (!versionList.empty())
+                {
+                    countOfChartDifficulty[d] += versionList.size();
+                    for (auto v : versionList)
+                    {
+                        difficultyFallback[d] = std::min(difficultyFallback[d], versionList.front()->playLevel);
+                        if (!difficultySet[d] && v->playLevel >= chart->getChart()->playLevel)
+                        {
+                            difficultySet[d] = true;
+                            levelOfChartDifficulty[d] = v->playLevel;
+                        }
+                    }
+                }
+            }
+        }
+        for (int d = 0; d < 5; d++)
+        {
+            if (!difficultySet[d])
+                levelOfChartDifficulty[d] = difficultyFallback[d] == INT_MAX ? 0 : difficultyFallback[d];
+        }
+    }
+
+    if (chart->getChart()->difficulty > 0)
+        levelOfChartDifficulty[chart->getChart()->difficulty - 1] = chart->getChart()->playLevel;
 }
 
 void Struct_SelectData::setPlayModeInfo()
@@ -671,7 +706,7 @@ void Struct_SelectData::switchVersion(int difficulty)
             // choose next chart from song entry. They are likely be terribly scrambled
             /*
             std::shared_ptr<ChartFormatBase> pNextChart = nullptr;
-            auto& chartList = pSong->getDifficultyList(pf->gamemode, difficulty);
+            auto& chartList = pSong->getVersionList(pf->gamemode, difficulty);
             if (chartList.size() > 0)
             {
                 if (difficulty == pf->difficulty)

@@ -190,11 +190,11 @@ public:
     static int number_40() { return 999; }
     static int number_41() { return 0; }
 
-    static int number_45() { return -1; }
-    static int number_46() { return -1; }
-    static int number_47() { return -1; }
-    static int number_48() { return -1; }
-    static int number_49() { return -1; }
+    static int number_45() { return SelectData.levelOfChartDifficulty[0]; }
+    static int number_46() { return SelectData.levelOfChartDifficulty[1]; }
+    static int number_47() { return SelectData.levelOfChartDifficulty[2]; }
+    static int number_48() { return SelectData.levelOfChartDifficulty[3]; }
+    static int number_49() { return SelectData.levelOfChartDifficulty[4]; }
 
     static int number_50() { return SystemData.equalizerVal62_5hz; }
     static int number_51() { return SystemData.equalizerVal160hz; }

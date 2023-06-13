@@ -30,6 +30,23 @@ protected:
         return std::dynamic_pointer_cast<ScoreBMS>(getCurrentSelectedEntryScore());
     }
 
+    static Ratio getLevel(int level)
+    {
+        double den = 12.0;
+        switch (PlayData.mode)
+        {
+        case SkinType::PLAY5:
+        case SkinType::PLAY5_2:
+        case SkinType::PLAY10: den = 10.0; break;
+        case SkinType::PLAY7:
+        case SkinType::PLAY7_2:
+        case SkinType::PLAY14: den = 10.0; break;
+        case SkinType::PLAY9:
+        case SkinType::PLAY9_2: den = 42.0; break;
+        }
+        return double(level) / den;
+    }
+
 public:
 
     static Ratio bargraph_arena_0(int player)
@@ -70,13 +87,13 @@ public:
     static Ratio bargraph_2() { return (PlayData.loadProgressWav + PlayData.loadProgressBga) / 2.0; };
     /*
         LEVEL_BAR = 3,
-
-        LEVEL_BAR_BEGINNER = 5,
-        LEVEL_BAR_NORMAL,
-        LEVEL_BAR_HYPER,
-        LEVEL_BAR_ANOTHER,
-        LEVEL_BAR_INSANE,
     */
+    static Ratio bargraph_5() { return getLevel(SelectData.levelOfChartDifficulty[0]); }
+    static Ratio bargraph_6() { return getLevel(SelectData.levelOfChartDifficulty[1]); }
+    static Ratio bargraph_7() { return getLevel(SelectData.levelOfChartDifficulty[2]); }
+    static Ratio bargraph_8() { return getLevel(SelectData.levelOfChartDifficulty[3]); }
+    static Ratio bargraph_9() { return getLevel(SelectData.levelOfChartDifficulty[4]); }
+
     static Ratio bargraph_10()
     {
         if (ArenaData.isOnline()) return 0.0;
