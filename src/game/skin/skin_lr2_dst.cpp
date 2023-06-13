@@ -1002,12 +1002,12 @@ void updateDstOpt()
 	// (注意 例えばSTAGE3が最終ステージの場合、ステージFINALが優先され、283オン、282オフとなります。)
 	// (現在は実装していませんが、今後の拡張に備えて284-288にあたるSTAGE5-9の画像もあらかじめ作っておいた方がいいかもしれません。
 	// Note: LR2 handle single song as FINAL
-	if (PlayData.courseStage >= 0 && PlayData.courseStage < 9)
+	if (PlayData.courseStage > 0 && PlayData.courseStage < 9)
 	{
-		if (PlayData.courseStage + 1 == PlayData.courseStageData.size())
+		if (PlayData.courseStage == PlayData.courseStageData.size() + 1)
 			set(289);
 		else
-			set(PlayData.courseStage - 280);
+			set(PlayData.courseStage + 280);
 	}
 	else
 	{

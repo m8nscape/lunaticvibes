@@ -276,10 +276,10 @@ public:
         return 0;
     }
     static int number_72() {
-        auto s = getCurrentSelectedEntryScore();
+        auto s = getCurrentSelectedChartBMSMeta();
         if (s)
         {
-            return s->notes * 2;
+            return s->totalNotes * 2;
         }
         return 0;
     }
@@ -292,10 +292,10 @@ public:
         return 0;
     }
     static int number_74() {
-        auto s = getCurrentSelectedEntryScore();
+        auto s = getCurrentSelectedChart();
         if (s)
         {
-            return s->notes * 2;
+            return s->totalNotes;
         }
         return 0;
     }
