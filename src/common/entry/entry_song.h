@@ -75,24 +75,6 @@ public:
     std::shared_ptr<EntryFolderSong> getSongEntry() const { return _song; }
 };
 
-class ChartFormatBase;
-class EntryFolderRegular : public EntryFolderBase
-{
-public:
-    EntryFolderRegular() = delete;
-    EntryFolderRegular(HashMD5 md5, const Path& path, StringContentView name = "", StringContentView name2 = "") :
-        EntryFolderBase(md5, name, name2), _path(path)
-    {
-        _type = eEntryType::FOLDER;
-    }
-
-protected:
-    Path _path;
-
-public:
-    virtual Path getPath() { return _path; }
-};
-
 // entry for individual song, e.g. jukebox/bms/L9
 class EntryFolderNewSong : public EntryFolderRegular
 {

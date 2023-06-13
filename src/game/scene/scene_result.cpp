@@ -248,16 +248,7 @@ void SceneResult::updateFadeout()
             }
 
             // update entry list score
-            for (auto& frame : SelectData.backtrace)
-            {
-                for (auto& [entry, scoreOld] : frame.displayEntries)
-                {
-                    if (entry->md5 == SelectData.selectedChart.hash)
-                    {
-                        scoreOld = pScore;
-                    }
-                }
-            }
+            SelectData.songList.updateScore(SelectData.selectedChart.hash, pScore);
         }
 
         // check retry

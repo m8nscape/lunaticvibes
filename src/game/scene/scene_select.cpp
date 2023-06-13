@@ -288,22 +288,17 @@ SceneSelect::SceneSelect() : SceneBase(SkinType::MUSIC_SELECT, 250)
 
     SelectData.lastLaneEffectType1P = PlayData.player[PLAYER_SLOT_PLAYER].mods.laneEffect;
 
-    if (!SelectData.entries.empty())
+    auto p = SelectData.songList.getCurrentList();
+    if (p && !p->displayEntries.empty())
     {
         // delay sorting chart list after playing
-        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
-        SelectData.updateEntryScore(SelectData.selectedEntryIndex);
-        SelectData.setEntryInfo();
+        SelectData.updateEntryScore(p->index);
+
+        SelectData.updateSongList(false);
     }
     else
     {
-        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
-        SelectData.loadSongList();
-        SelectData.sortSongList();
-        SelectData.setBarInfo();
-        SelectData.setEntryInfo();
-
-        resetJukeboxText();
+        SelectData.updateSongList(true);
     }
 
     PlayData.isAuto = false;
@@ -403,21 +398,19 @@ void SceneSelect::_updateAsync()
         postStopPreview();
     }
 
-    if (SelectData.cursorClick != SelectData.highlightBarIndex)
+    auto p = SelectData.songList.getCurrentList();
+    if (p && !p->displayEntries.empty() && SelectData.cursorClick != SelectData.songList.highlightBarIndex)
     {
-        int idx = SelectData.selectedEntryIndex + SelectData.cursorClick - SelectData.highlightBarIndex;
+        int idx = p->index + SelectData.cursorClick - SelectData.songList.highlightBarIndex;
         if (idx < 0)
-            idx += SelectData.entries.size() * ((-idx) / SelectData.entries.size() + 1);
-        SelectData.selectedEntryIndex = idx % SelectData.entries.size();
-        SelectData.highlightBarIndex = SelectData.cursorClick;
+            idx += p->displayEntries.size() * ((-idx) / p->displayEntries.size() + 1);
+        p->index = idx % p->displayEntries.size();
+        SelectData.songList.highlightBarIndex = SelectData.cursorClick;
 
         navigateTimestamp = t;
         postStopPreview();
 
-        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
-        SelectData.setBarInfo();
-        SelectData.setEntryInfo();
-        SelectData.setDynamicTextures();
+        SelectData.updateSongList(false);
 
         SelectData.timers["list_entry_change"] = t.norm();
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
@@ -427,34 +420,37 @@ void SceneSelect::_updateAsync()
     {
         SelectData.cursorEnterPending = false;
 
-        switch (SelectData.entries[SelectData.selectedEntryIndex].first->type())
+        if (p)
         {
-        case eEntryType::FOLDER:
-        case eEntryType::CUSTOM_FOLDER:
-        case eEntryType::COURSE_FOLDER:
-        case eEntryType::NEW_SONG_FOLDER:
-        case eEntryType::ARENA_FOLDER:
-            navigateEnter(t);
-            break;
+            switch (p->displayEntries[p->index]->entry->type())
+            {
+            case eEntryType::FOLDER:
+            case eEntryType::CUSTOM_FOLDER:
+            case eEntryType::COURSE_FOLDER:
+            case eEntryType::NEW_SONG_FOLDER:
+            case eEntryType::ARENA_FOLDER:
+                navigateEnter(t);
+                break;
 
-        case eEntryType::SONG:
-        case eEntryType::CHART:
-        case eEntryType::RIVAL_SONG:
-        case eEntryType::RIVAL_CHART:
-        case eEntryType::COURSE:
-            decide();
-            break;
+            case eEntryType::SONG:
+            case eEntryType::CHART:
+            case eEntryType::RIVAL_SONG:
+            case eEntryType::RIVAL_CHART:
+            case eEntryType::COURSE:
+                decide();
+                break;
 
-        case eEntryType::ARENA_COMMAND:
-            arenaCommand();
-            break;
+            case eEntryType::ARENA_COMMAND:
+                arenaCommand();
+                break;
 
-        case eEntryType::ARENA_LOBBY:
-            // TODO enter ARENA_LOBBY
-            break;
+            case eEntryType::ARENA_LOBBY:
+                // TODO enter ARENA_LOBBY
+                break;
 
-        default:
-            break;
+            default:
+                break;
+            }
         }
     }
     if (SelectData.cursorClickScroll != 0)
@@ -483,23 +479,23 @@ void SceneSelect::_updateAsync()
     {
         SelectData.draggingListSlider = false;
 
-        size_t idx_new = (size_t)std::floor(SelectData.selectedEntryIndexRolling * SelectData.entries.size());
-        if (idx_new == SelectData.entries.size())
-            idx_new = 0;
-
-        if (SelectData.selectedEntryIndex != idx_new)
+        if (p)
         {
-            navigateTimestamp = t;
-            postStopPreview();
+            size_t idx_new = (size_t)std::floor(SelectData.songList.selectedEntryIndexRolling * p->displayEntries.size());
+            if (idx_new == p->displayEntries.size())
+                idx_new = 0;
 
-            std::unique_lock<std::shared_mutex> u(SelectData._mutex);
-            SelectData.selectedEntryIndex = idx_new;
-            SelectData.setBarInfo();
-            SelectData.setEntryInfo();
-            SelectData.setDynamicTextures();
+            if (p->index != idx_new)
+            {
+                navigateTimestamp = t;
+                postStopPreview();
 
-            SelectData.timers["list_entry_change"] = t.norm();
-            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
+                p->index = idx_new;
+                SelectData.updateSongList(false);
+
+                SelectData.timers["list_entry_change"] = t.norm();
+                SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
+            }
         }
     }
 
@@ -509,46 +505,31 @@ void SceneSelect::_updateAsync()
         imgui_arena_joinLobby = false;
         arenaJoinLobby();
     }
-    if (!ArenaData.remoteRequestedChart.empty())
+    if (p && !ArenaData.remoteRequestedChart.empty())
     {
         std::string folderName = (boost::format(i18n::c(i18nText::ARENA_REQUEST_BY)) % ArenaData.remoteRequestedPlayer).str();
-        SongListProperties prop{
-            SelectData.backtrace.front().folder,
-            {},
-            folderName,
-            {},
-            {},
-            0,
-            true
-        };
-        prop.dbBrowseEntries.push_back({ std::make_shared<EntryChart>(*g_pSongDB->findChartByHash(ArenaData.remoteRequestedChart).begin()), nullptr });
+        std::shared_ptr<SongListManager::List> prop = std::make_shared< SongListManager::List>();
+        prop->parent = p->folder;
+        prop->name = folderName;
+        prop->ignoreFilters = true;
+        auto de = std::make_shared<SongListManager::Entry>();
+        de->entry = std::make_shared<EntryChart>(*g_pSongDB->findChartByHash(ArenaData.remoteRequestedChart).begin());
+        prop->dbBrowseEntries.push_back(de);
 
-        SelectData.backtrace.front().index = SelectData.selectedEntryIndex;
-        SelectData.backtrace.front().displayEntries = SelectData.entries;
-        SelectData.backtrace.push_front(prop);
-        SelectData.entries.clear();
-        SelectData.loadSongList();
-        SelectData.sortSongList();
+        SelectData.songList.append(prop);
+        SelectData.updateSongList(true);
 
         navigateTimestamp = t;
         postStopPreview();
 
-        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
-        SelectData.selectedEntryIndex = 0;
-        SelectData.setBarInfo();
-        SelectData.setEntryInfo();
-        SelectData.setDynamicTextures();
-
-        if (!SelectData.entries.empty())
+        if (!p->displayEntries.empty())
         {
-            SelectData.selectedEntryIndexRolling = (double)SelectData.selectedEntryIndex / SelectData.entries.size();
+            SelectData.songList.selectedEntryIndexRolling = (double)p->index / p->displayEntries.size();
         }
         else
         {
-            SelectData.selectedEntryIndexRolling = 0.0;
+            SelectData.songList.selectedEntryIndexRolling = 0.0;
         }
-
-        resetJukeboxText();
 
         scrollAccumulator = 0.;
         scrollAccumulatorAddUnit = 0.;
@@ -580,7 +561,7 @@ void SceneSelect::_updateAsync()
         ArenaData.reset();
     }
 
-    if (!SelectData.entries.empty())
+    if (!p->displayEntries.empty())
     {
         if (!(isHoldingUp || isHoldingDown) && 
             (scrollAccumulator > 0 && scrollAccumulator - scrollAccumulatorAddUnit < 0 ||
@@ -592,8 +573,8 @@ void SceneSelect::_updateAsync()
 
             if (SelectData.scrollDirection != 0)
             {
-                double posOld = SelectData.selectedEntryIndexRolling;
-                double idxOld = posOld * SelectData.entries.size();
+                double posOld = SelectData.songList.selectedEntryIndexRolling;
+                double idxOld = posOld * p->displayEntries.size();
 
                 int idxNew = (int)idxOld;
                 if (SelectData.scrollDirection > 0)
@@ -622,9 +603,7 @@ void SceneSelect::_updateAsync()
 
             if (!scrollModified)
             {
-                std::unique_lock<std::shared_mutex> u(SelectData._mutex);
-
-                SelectData.selectedEntryIndexRolling = (double)SelectData.selectedEntryIndex / SelectData.entries.size();
+                SelectData.songList.selectedEntryIndexRolling = (double)p->index / p->displayEntries.size();
                 scrollAccumulator = 0.0;
                 scrollAccumulatorAddUnit = 0.0;
                 SelectData.scrollDirection = 0;
@@ -636,16 +615,15 @@ void SceneSelect::_updateAsync()
         {
             if (SelectData.scrollDirection == 0)
             {
-                std::unique_lock<std::shared_mutex> u(SelectData._mutex);
                 pSkin->start_bar_animation();
                 SelectData.timers["list_move"] = t.norm();
             }
 
-            double posOld = SelectData.selectedEntryIndexRolling;
-            double posNew = posOld + scrollAccumulatorAddUnit / SelectData.entries.size();
+            double posOld = SelectData.songList.selectedEntryIndexRolling;
+            double posNew = posOld + scrollAccumulatorAddUnit / p->displayEntries.size();
 
-            int idxOld = (int)std::round(posOld * SelectData.entries.size());
-            int idxNew = (int)std::round(posNew * SelectData.entries.size());
+            int idxOld = (int)std::round(posOld * p->displayEntries.size());
+            int idxNew = (int)std::round(posNew * p->displayEntries.size());
             if (idxOld != idxNew)
             {
                 if (idxOld < idxNew)
@@ -656,7 +634,7 @@ void SceneSelect::_updateAsync()
 
             while (posNew < 0.) posNew += 1.;
             while (posNew >= 1.) posNew -= 1.;
-            SelectData.selectedEntryIndexRolling = posNew;
+            SelectData.songList.selectedEntryIndexRolling = posNew;
 
             scrollAccumulator -= scrollAccumulatorAddUnit;
             if (scrollAccumulator < -0.000001 || scrollAccumulator > 0.000001)
@@ -891,9 +869,10 @@ void SceneSelect::updateSelect()
     else if (SelectData.isGoingToAutoPlay)
     {
         SelectData.isGoingToAutoPlay = false;
-        if (!SelectData.entries.empty())
+        auto p = SelectData.songList.getCurrentList();
+        if (p && !p->displayEntries.empty())
         {
-            switch (SelectData.entries[SelectData.selectedEntryIndex].first->type())
+            switch (p->displayEntries[p->index]->entry->type())
             {
             case eEntryType::SONG:
             case eEntryType::CHART:
@@ -909,9 +888,10 @@ void SceneSelect::updateSelect()
     else if (SelectData.isGoingToReplay)
     {
         SelectData.isGoingToReplay = false;
-        if (!SelectData.entries.empty())
+        auto p = SelectData.songList.getCurrentList();
+        if (p && !p->displayEntries.empty())
         {
-            switch (SelectData.entries[SelectData.selectedEntryIndex].first->type())
+            switch (p->displayEntries[p->index]->entry->type())
             {
             case eEntryType::SONG:
             case eEntryType::CHART:
@@ -1216,61 +1196,58 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 
         refreshingSongList = true;
 
-        if (SelectData.backtrace.size() >= 2)
+        if (SelectData.songList.getBacktraceSize() >= 2)
         {
             // only update current folder
-            const auto [hasPath, path] = g_pSongDB->getFolderPath(SelectData.backtrace.front().folder);
-            if (hasPath)
+            auto p = SelectData.songList.getCurrentList();
+            if (p)
             {
-                LOG_INFO << "[List] Refreshing folder " << path.u8string();
-                SystemData.overlayTopLeftText[0] = (boost::format(i18n::c(i18nText::REFRESH_FOLDER)) % path.u8string()).str();
-
-                g_pSongDB->resetAddSummary();
-                int count = g_pSongDB->addSubFolder(path, SelectData.backtrace.front().parent);
-                g_pSongDB->waitLoadingFinish();
-
-                LOG_INFO << "[List] Building chart hash cache...";
-                g_pSongDB->prepareCache();
-                LOG_INFO << "[List] Building chart hash cache finished.";
-
-                int added = g_pSongDB->addChartSuccess - g_pSongDB->addChartModified;
-                int updated = g_pSongDB->addChartModified;
-                int deleted = g_pSongDB->addChartDeleted;
-                if (added || updated || deleted)
+                const auto [hasPath, path] = g_pSongDB->getFolderPath(p->folder);
+                if (hasPath)
                 {
-                    createNotification((boost::format(i18n::c(i18nText::REFRESH_FOLDER_DETAIL)) % path.u8string() % added % updated % deleted).str());
+                    LOG_INFO << "[List] Refreshing folder " << path.u8string();
+                    SystemData.overlayTopLeftText[0] = (boost::format(i18n::c(i18nText::REFRESH_FOLDER)) % path.u8string()).str();
+
+                    g_pSongDB->resetAddSummary();
+                    int count = g_pSongDB->addSubFolder(path, p->parent);
+                    g_pSongDB->waitLoadingFinish();
+
+                    LOG_INFO << "[List] Building chart hash cache...";
+                    g_pSongDB->prepareCache();
+                    LOG_INFO << "[List] Building chart hash cache finished.";
+
+                    int added = g_pSongDB->addChartSuccess - g_pSongDB->addChartModified;
+                    int updated = g_pSongDB->addChartModified;
+                    int deleted = g_pSongDB->addChartDeleted;
+                    if (added || updated || deleted)
+                    {
+                        createNotification((boost::format(i18n::c(i18nText::REFRESH_FOLDER_DETAIL)) % path.u8string() % added % updated % deleted).str());
+                    }
+
+                    SystemData.overlayTopLeftText[0] = "";
+                    SystemData.overlayTopLeftText[1] = "";
                 }
 
-                SystemData.overlayTopLeftText[0] = "";
-                SystemData.overlayTopLeftText[1] = "";
-            }
+                // re-browse
+                if (!isInVersionList)
+                    selectDownTimestamp = -1;
 
-            // re-browse
-            if (!isInVersionList)
-                selectDownTimestamp = -1;
-
-            // simplified navigateBack(t)
-            {
-                std::unique_lock<std::shared_mutex> u(SelectData._mutex);
-                auto& top = SelectData.backtrace.front();
-
-                SelectData.selectedEntryIndex = 0;
-                SelectData.backtrace.pop_front();
-                auto& parent = SelectData.backtrace.front();
-                SelectData.entries = parent.displayEntries;
-                SelectData.selectedEntryIndex = parent.index;
-
-                if (parent.ignoreFilters)
+                // simplified navigateBack(t)
                 {
-                    // change display only
-                    SelectData.filterDifficulty = FilterDifficultyType::All;
-                    SelectData.filterKeys = FilterKeysType::All;
-                }
-                else
-                {
-                    // restore prev
-                    cfg::loadFilterDifficulty();
-                    cfg::loadFilterKeys();
+                    SelectData.songList.pop();
+                    auto p = SelectData.songList.getCurrentList();
+                    if (p->ignoreFilters)
+                    {
+                        // change display only
+                        SelectData.filterDifficulty = FilterDifficultyType::All;
+                        SelectData.filterKeys = FilterKeysType::All;
+                    }
+                    else
+                    {
+                        // restore prev
+                        cfg::loadFilterDifficulty();
+                        cfg::loadFilterKeys();
+                    }
                 }
             }
 
@@ -1299,19 +1276,6 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 }
                 _virtualSceneLoadSongs->loopEnd();
                 _virtualSceneLoadSongs.reset();
-            }
-
-            {
-                std::unique_lock<std::shared_mutex> u(SelectData._mutex);
-                SelectData.loadSongList();
-                SelectData.sortSongList();
-
-                SelectData.selectedEntryIndex = 0;
-                SelectData.setBarInfo();
-                SelectData.setEntryInfo();
-                SelectData.setDynamicTextures();
-
-                resetJukeboxText();
             }
 
             SelectData.timers["list_entry_change"] = t.norm();
@@ -1353,9 +1317,11 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 return;
             }
         }
-        if (selectDownTimestamp == -1 && (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT]) && !SelectData.entries.empty())
+        auto p = SelectData.songList.getCurrentList();
+        if (selectDownTimestamp == -1 && (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT]) && 
+            p && !p->displayEntries.empty())
         {
-            switch (SelectData.entries[SelectData.selectedEntryIndex].first->type())
+            switch (p->displayEntries[p->index]->entry->type())
             {
             case eEntryType::CHART:
             case eEntryType::RIVAL_CHART:
@@ -1370,11 +1336,12 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
     }
 
     // navigate
-    if (!SelectData.entries.empty())
+    auto p = SelectData.songList.getCurrentList();
+    if (p && !p->displayEntries.empty())
     {
         if (bindings9K && (input & INPUT_MASK_DECIDE_9K).any() || !bindings9K && (input & INPUT_MASK_DECIDE).any())
         {
-            switch (SelectData.entries[SelectData.selectedEntryIndex].first->type())
+            switch (p->displayEntries[p->index]->entry->type())
             {
             case eEntryType::FOLDER:
             case eEntryType::CUSTOM_FOLDER:
@@ -1479,11 +1446,8 @@ void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
             else
             {
                 // short press on song, inc version by 1
-                std::unique_lock l(SelectData._mutex);
                 SelectData.switchVersion(0);
-                SelectData.setBarInfo();
-                SelectData.setEntryInfo();
-                SelectData.setDynamicTextures();
+                SelectData.updateSongList(false);
 
                 SelectData.optionChangePending = true;
                 SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
@@ -1696,9 +1660,10 @@ void SceneSelect::inputGameReleasePanel(InputMask& input, const Time& t)
 
 void SceneSelect::decide()
 {
-    std::shared_lock<std::shared_mutex> u(SelectData._mutex);
-
-    auto [entry, score] = SelectData.getCurrentEntry();
+    auto p = SelectData.songList.getCurrentEntry();
+    if (p == nullptr)
+        return;
+    auto [entry, score] = *p;
     if (entry == nullptr)
         return;
 
@@ -2002,16 +1967,14 @@ void SceneSelect::navigateUpBy1(const Time& t)
     if (!isInVersionList)
         selectDownTimestamp = -1;
 
-    if (!SelectData.entries.empty())
+    auto p = SelectData.songList.getCurrentList();
+    if (p && !p->displayEntries.empty())
     {
         navigateTimestamp = t;
         postStopPreview();
 
-        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
-        SelectData.selectedEntryIndex = (SelectData.entries.size() + SelectData.selectedEntryIndex - 1) % SelectData.entries.size();
-        SelectData.setBarInfo();
-        SelectData.setEntryInfo();
-        SelectData.setDynamicTextures();
+        p->index = (p->displayEntries.size() + p->index - 1) % p->displayEntries.size();
+        SelectData.updateSongList(false);
 
         SelectData.timers["list_entry_change"] = t.norm();
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
@@ -2023,16 +1986,14 @@ void SceneSelect::navigateDownBy1(const Time& t)
     if (!isInVersionList)
         selectDownTimestamp = -1;
 
-    if (!SelectData.entries.empty())
+    auto p = SelectData.songList.getCurrentList();
+    if (p && !p->displayEntries.empty())
     {
         navigateTimestamp = t;
         postStopPreview();
 
-        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
-        SelectData.selectedEntryIndex = (SelectData.selectedEntryIndex + 1) % SelectData.entries.size();
-        SelectData.setBarInfo();
-        SelectData.setEntryInfo();
-        SelectData.setDynamicTextures();
+        p->index = (p->index + 1) % p->displayEntries.size();
+        SelectData.updateSongList(false);
 
         SelectData.timers["list_entry_change"] = t.norm();
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
@@ -2041,96 +2002,80 @@ void SceneSelect::navigateDownBy1(const Time& t)
 
 void SceneSelect::navigateEnter(const Time& t)
 {
-    if (!SelectData.entries.empty())
+    auto p = SelectData.songList.getCurrentList();
+    if (p && !p->displayEntries.empty())
     {
         navigateTimestamp = t;
         postStopPreview();
 
-        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
-
-        if (SelectData.entries[SelectData.selectedEntryIndex].first->type() == eEntryType::FOLDER)
+        if (p->displayEntries[p->index]->entry->type() == eEntryType::FOLDER)
         {
-            const auto& [e, s] = SelectData.entries[SelectData.selectedEntryIndex];
+            const auto& [e, s] = *p->displayEntries[p->index];
 
-            SongListProperties prop{
-                SelectData.backtrace.front().folder,
-                e->md5,
-                e->_name,
-                {},
-                {},
-                0,
-                false
-            };
+            std::shared_ptr<SongListManager::List> prop = std::make_shared<SongListManager::List>();
+            prop->parent = p->folder;
+            prop->folder = e->md5;
+            prop->name = e->_name;
+
             auto top = g_pSongDB->browse(e->md5, false);
             if (top && !top->empty())
             {
                 for (size_t i = 0; i < top->getContentsCount(); ++i)
-                    prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
+                {
+                    auto de = std::make_shared<SongListManager::Entry>();
+                    de->entry = top->getEntry(i);
+                    prop->dbBrowseEntries.push_back(de);
+                }
             }
-
-            SelectData.backtrace.front().index = SelectData.selectedEntryIndex;
-            SelectData.backtrace.front().displayEntries = SelectData.entries;
-            SelectData.backtrace.push_front(prop);
-            SelectData.entries.clear();
 
             cfg::loadFilterDifficulty();
             cfg::loadFilterKeys();
-            SelectData.loadSongList();
-            if (SelectData.entries.empty())
+            if (p->displayEntries.empty())
             {
                 SelectData.filterDifficulty = FilterDifficultyType::All;
-                SelectData.loadSongList();
             }
-            if (SelectData.entries.empty())
+            if (p->displayEntries.empty())
             {
                 SelectData.filterKeys = FilterKeysType::All;
-                SelectData.loadSongList();
             }
+
+            SelectData.songList.append(prop);
+            SelectData.updateSongList(true);
         }
-        else if (auto top = std::dynamic_pointer_cast<EntryFolderBase>(SelectData.entries[SelectData.selectedEntryIndex].first); top)
+        else if (auto top = std::dynamic_pointer_cast<EntryFolderBase>(p->displayEntries[p->index]->entry); top)
         {
-            auto folderType = SelectData.entries[SelectData.selectedEntryIndex].first->type();
-            const auto& [e, s] = SelectData.entries[SelectData.selectedEntryIndex];
+            auto folderType = p->displayEntries[p->index]->entry->type();
+            const auto& [e, s] = *p->displayEntries[p->index];
 
-            SongListProperties prop{
-                SelectData.backtrace.front().folder,
-                e->md5,
-                e->_name,
-                {},
-                {},
-                0,
-                folderType == eEntryType::CUSTOM_FOLDER || folderType == eEntryType::RIVAL
-            };
+            std::shared_ptr<SongListManager::List> prop = std::make_shared<SongListManager::List>();
+            prop->parent = p->folder;
+            prop->folder = e->md5;
+            prop->name = e->_name;
+            prop->ignoreFilters = eEntryType::CUSTOM_FOLDER || folderType == eEntryType::RIVAL;
+
             for (size_t i = 0; i < top->getContentsCount(); ++i)
-                prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
-
-            SelectData.backtrace.front().index = SelectData.selectedEntryIndex;
-            SelectData.backtrace.front().displayEntries = SelectData.entries;
-            SelectData.backtrace.push_front(prop);
-            SelectData.entries.clear();
+            {
+                auto de = std::make_shared<SongListManager::Entry>();
+                de->entry = top->getEntry(i);
+                prop->dbBrowseEntries.push_back(de);
+            }
 
             cfg::loadFilterDifficulty();
             cfg::loadFilterKeys();
-            SelectData.loadSongList();
+
+            SelectData.songList.append(prop);
+            SelectData.updateSongList(true);
         }
 
-        SelectData.sortSongList();
-        SelectData.selectedEntryIndex = 0;
-
-        SelectData.setBarInfo();
-        SelectData.setEntryInfo();
-        SelectData.setDynamicTextures();
-
-        if (!SelectData.entries.empty())
+        if (!p->displayEntries.empty())
         {
-            SelectData.selectedEntryIndexRolling = (double)SelectData.selectedEntryIndex / SelectData.entries.size();
+            SelectData.songList.selectedEntryIndexRolling = (double)p->index / p->displayEntries.size();
         }
         else
         {
-            SelectData.selectedEntryIndexRolling = 0.0;
+            SelectData.songList.selectedEntryIndexRolling = 0.0;
         }
 
-        resetJukeboxText();
 
         scrollAccumulator = 0.;
         scrollAccumulatorAddUnit = 0.;
@@ -2145,12 +2090,10 @@ void SceneSelect::navigateBack(const Time& t, bool sound)
     if (!isInVersionList)
         selectDownTimestamp = -1;
 
-    if (SelectData.backtrace.size() >= 2)
+    if (SelectData.songList.getBacktraceSize() >= 2)
     {
         navigateTimestamp = t;
         postStopPreview();
-
-        std::unique_lock<std::shared_mutex> u(SelectData._mutex);
 
         if (ArenaData.isOnline())
         {
@@ -2162,15 +2105,10 @@ void SceneSelect::navigateBack(const Time& t, bool sound)
             ArenaData.isInArenaRequest = false;
         }
 
-        auto& top = SelectData.backtrace.front();
+        SelectData.songList.pop();
 
-        SelectData.selectedEntryIndex = 0;
-        SelectData.backtrace.pop_front();
-        auto& parent = SelectData.backtrace.front();
-        SelectData.entries = parent.displayEntries;
-        SelectData.selectedEntryIndex = parent.index;
-
-        if (parent.ignoreFilters)
+        auto p = SelectData.songList.getCurrentList();
+        if (p->ignoreFilters)
         {
             // change display only
             SelectData.filterDifficulty = FilterDifficultyType::All;
@@ -2183,20 +2121,16 @@ void SceneSelect::navigateBack(const Time& t, bool sound)
             cfg::loadFilterKeys();
         }
 
-        SelectData.setBarInfo();
-        SelectData.setEntryInfo();
-        SelectData.setDynamicTextures();
+        SelectData.updateSongList(false);
 
-        if (!SelectData.entries.empty())
+        if (!p->displayEntries.empty())
         {
-            SelectData.selectedEntryIndexRolling = (double)SelectData.selectedEntryIndex / SelectData.entries.size();
+            SelectData.songList.selectedEntryIndexRolling = (double)p->index / p->displayEntries.size();
         }
         else
         {
-            SelectData.selectedEntryIndexRolling = 0.0;
+            SelectData.songList.selectedEntryIndexRolling = 0.0;
         }
-
-        resetJukeboxText();
 
         scrollAccumulator = 0.;
         scrollAccumulatorAddUnit = 0.;
@@ -2286,16 +2220,6 @@ void SceneSelect::inputGamePressTextEdit(InputMask& input, const Time& t)
 void SceneSelect::stopTextEdit(bool modify)
 {
     SceneBase::stopTextEdit(modify);
-    if (!modify)
-        resetJukeboxText();
-}
-
-void SceneSelect::resetJukeboxText()
-{
-    if (SelectData.backtrace.front().name.empty())
-        SelectData.jukeboxName = i18n::s(i18nText::SEARCH_SONG);
-    else
-        SelectData.jukeboxName = SelectData.backtrace.front().name;
 }
 
 void SceneSelect::searchSong(const std::string& text)
@@ -2309,45 +2233,31 @@ void SceneSelect::searchSong(const std::string& text)
         return;
     }
 
-    std::unique_lock<std::shared_mutex> u(SelectData._mutex);
-
     std::string name = (boost::format(i18n::c(i18nText::SEARCH_RESULT)) % text % top->getContentsCount()).str();
-    SongListProperties prop{
-        {},
-        {},
-        name,
-        {},
-        {},
-        0
-    };
+    std::shared_ptr<SongListManager::List> prop = std::make_shared<SongListManager::List>();
+    prop->name = name;
     for (size_t i = 0; i < top->getContentsCount(); ++i)
-        prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
+    {
+        auto de = std::make_shared<SongListManager::Entry>();
+        de->entry = top->getEntry(i);
+        prop->dbBrowseEntries.push_back(de);
+    }
 
-    SelectData.backtrace.front().index = SelectData.selectedEntryIndex;
-    SelectData.backtrace.front().displayEntries = SelectData.entries;
-    SelectData.backtrace.push_front(prop);
-    SelectData.entries.clear();
-    SelectData.loadSongList();
-    SelectData.sortSongList();
+    SelectData.songList.append(prop);
+    SelectData.updateSongList(true);
 
     navigateTimestamp = Time();
     postStopPreview();
 
-    SelectData.selectedEntryIndex = 0;
-    SelectData.setBarInfo();
-    SelectData.setEntryInfo();
-    SelectData.setDynamicTextures();
-
-    if (!SelectData.entries.empty())
+    auto p = SelectData.songList.getCurrentList();
+    if (p && !p->displayEntries.empty())
     {
-        SelectData.selectedEntryIndexRolling = (double)SelectData.selectedEntryIndex / SelectData.entries.size();
+        SelectData.songList.selectedEntryIndexRolling = (double)p->index / p->displayEntries.size();
     }
     else
     {
-        SelectData.selectedEntryIndexRolling = 0.0;
+        SelectData.songList.selectedEntryIndexRolling = 0.0;
     }
-
-    resetJukeboxText();
 
     scrollAccumulator = 0.;
     scrollAccumulatorAddUnit = 0.;
@@ -2357,9 +2267,6 @@ void SceneSelect::searchSong(const std::string& text)
 
 void SceneSelect::updatePreview()
 {
-    const EntryList& e = SelectData.entries;
-    if (e.empty()) return;
-
     bool previewDedicated = ConfigMgr::get('P', cfg::P_PREVIEW_DEDICATED, false);
     bool previewDirect = ConfigMgr::get('P', cfg::P_PREVIEW_DIRECT, false);
     if (!previewDedicated && !previewDirect)
@@ -2381,10 +2288,10 @@ void SceneSelect::updatePreview()
         Path previewChartPath;
         eEntryType type = eEntryType::UNKNOWN;
         {
-            std::shared_lock<std::shared_mutex> s(SelectData._mutex);
-            if (!SelectData.entries.empty())
+            auto p = SelectData.songList.getCurrentList();
+            if (p && !p->displayEntries.empty())
             {
-                const auto& entry = SelectData.entries[SelectData.selectedEntryIndex].first;
+                const auto& entry = p->displayEntries[p->index]->entry;
                 type = entry->type();
 
                 if (type == eEntryType::SONG || type == eEntryType::RIVAL_SONG)
@@ -2721,13 +2628,17 @@ void SceneSelect::postStopPreview()
 
 void SceneSelect::arenaCommand()
 {
-    if (auto p = std::dynamic_pointer_cast<EntryArenaCommand>(SelectData.entries[SelectData.selectedEntryIndex].first); p)
+    auto p = SelectData.songList.getCurrentList();
+    if (p)
     {
-        switch (p->getCmdType())
+        if (auto cmd = std::dynamic_pointer_cast<EntryArenaCommand>(p->displayEntries[p->index]->entry); cmd)
         {
-        case EntryArenaCommand::Type::HOST_LOBBY:  arenaHostLobby(); break;
-        case EntryArenaCommand::Type::LEAVE_LOBBY: arenaLeaveLobby(); break;
-        case EntryArenaCommand::Type::JOIN_LOBBY:  arenaJoinLobbyPrompt(); break;
+            switch (cmd->getCmdType())
+            {
+            case EntryArenaCommand::Type::HOST_LOBBY:  arenaHostLobby(); break;
+            case EntryArenaCommand::Type::LEAVE_LOBBY: arenaLeaveLobby(); break;
+            case EntryArenaCommand::Type::JOIN_LOBBY:  arenaJoinLobbyPrompt(); break;
+            }
         }
     }
 }

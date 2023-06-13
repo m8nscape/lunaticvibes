@@ -211,29 +211,27 @@ public:
 
     static std::shared_ptr<EntryChart> getCurrentSelectedEntryChart()
     {
-        if (SelectData.entries.empty())
+        auto p = SelectData.songList.getCurrentEntry();
+        if (!p)
             return nullptr;
-        if (SelectData.entries[SelectData.selectedEntryIndex].first->type() != eEntryType::CHART)
+        if (p->entry->type() != eEntryType::CHART)
             return nullptr;
-        return std::dynamic_pointer_cast<EntryChart>(SelectData.entries[SelectData.selectedEntryIndex].first);
+        return std::dynamic_pointer_cast<EntryChart>(p->entry);
     }
 
     static std::shared_ptr<ScoreBase> getCurrentSelectedEntryScore()
     {
-        if (SelectData.entries.empty())
+        auto p = SelectData.songList.getCurrentEntry();
+        if (!p)
             return nullptr;
-        if (SelectData.entries[SelectData.selectedEntryIndex].first->type() != eEntryType::CHART)
+        if (p->entry->type() != eEntryType::CHART)
             return nullptr;
-        return SelectData.entries[SelectData.selectedEntryIndex].second;
+        return p->score;
     }
 
     static std::shared_ptr<ChartFormatBase> getCurrentSelectedChart()
     {
-        if (SelectData.entries.empty())
-            return nullptr;
-        if (SelectData.entries[SelectData.selectedEntryIndex].first->type() != eEntryType::CHART)
-            return nullptr;
-        auto p = SelectData.entries[SelectData.selectedEntryIndex].first;
+        auto p = getCurrentSelectedEntryChart();
         if (p == nullptr)
             return nullptr;
         switch (p->type())

@@ -19,11 +19,10 @@ protected:
 
     static std::shared_ptr<ScoreBase> getCurrentSelectedEntryScore()
     {
-        if (SelectData.entries.empty())
+        auto p = SelectData.songList.getCurrentEntry();
+        if (!p)
             return nullptr;
-        if (SelectData.entries[SelectData.selectedEntryIndex].first->type() != eEntryType::CHART)
-            return nullptr;
-        return std::dynamic_pointer_cast<ScoreBase>(SelectData.entries[SelectData.selectedEntryIndex].second);
+        return p->score;
     }
 
     static std::shared_ptr<ScoreBMS> getCurrentSelectedEntryScoreBMS()

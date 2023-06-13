@@ -124,7 +124,8 @@ void panel_switch(int idx, int plus)
 // 10
 void select_difficulty_filter(int plus, int iterateCount)
 {
-    if (!SelectData.backtrace.front().ignoreFilters && iterateCount < 6)
+    auto p = SelectData.songList.getCurrentList();
+    if (p && !p->ignoreFilters && iterateCount < 6)
     {
         FilterDifficultyType val = FilterDifficultyType(((int)SelectData.filterDifficulty + 6 + plus) % 6);
         if (val == FilterDifficultyType::All && ConfigMgr::get("P", cfg::P_DISABLE_DIFFICULTY_ALL, false))
@@ -135,14 +136,8 @@ void select_difficulty_filter(int plus, int iterateCount)
 
         SelectData.filterDifficulty = val;
 
-        {
-            std::unique_lock l(SelectData._mutex);
-            SelectData.loadSongList();
-            SelectData.sortSongList();
-            SelectData.setBarInfo();
-            SelectData.setEntryInfo();
-        }
-        if (SelectData.entries.empty())
+        SelectData.updateSongList(true);
+        if (p->displayEntries.empty())
         {
             return select_difficulty_filter(plus, iterateCount + 1);
         }
@@ -155,7 +150,8 @@ void select_difficulty_filter(int plus, int iterateCount)
 // 11
 void select_keys_filter(int plus, int iterateCount)
 {
-    if (!SelectData.backtrace.front().ignoreFilters && iterateCount < 8)
+    auto p = SelectData.songList.getCurrentList();
+    if (p && !p->ignoreFilters && iterateCount < 8)
     {
         FilterKeysType val = FilterKeysType(((int)SelectData.filterKeys + 8 + plus) % 8);
         if (val == FilterKeysType::All && ConfigMgr::get("P", cfg::P_DISABLE_PLAYMODE_ALL, false))
@@ -176,23 +172,15 @@ void select_keys_filter(int plus, int iterateCount)
 
         SelectData.filterKeys = val;
 
-        {
-            std::unique_lock l(SelectData._mutex);
-            SelectData.loadSongList();
-            SelectData.sortSongList();
-            SelectData.setBarInfo();
-            SelectData.setEntryInfo();
-
-        }
-        if (!SelectData.entries.empty())
+        if (!p->displayEntries.empty())
         {
             PlayData.battleType = PlayModifierBattleType::Off;
             PlayData.player[PLAYER_SLOT_PLAYER].mods.DPFlip = false;
-
-            SelectData.setPlayModeInfo();
+            SelectData.updateSongList(true);
         }
         else
         {
+            SelectData.updateSongList(true);
             return select_keys_filter(plus, iterateCount + 1);
         }
     }
@@ -215,14 +203,7 @@ void select_sort_type(int plus)
 
     SelectData.sortType = val;
 
-    {
-        std::unique_lock l(SelectData._mutex);
-        SelectData.loadSongList();
-        SelectData.sortSongList();
-        SelectData.setBarInfo();
-        SelectData.setEntryInfo();
-    }
-
+    SelectData.updateSongList(true);
     SelectData.optionChangePending = true;
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
 }
@@ -528,7 +509,7 @@ void battle(int plus)
         if (PlayModifierBattleType(val) == PlayModifierBattleType::DoubleBattle)
             val = (plus > 0) ? int(PlayModifierBattleType::GhostBattle) : int(PlayModifierBattleType::LocalBattle);
         PlayData.battleType = PlayModifierBattleType(val);
-        SelectData.setPlayModeInfo();
+        SelectData.updateSongList(false);
         break;
     }
     case FilterKeysType::Double:
@@ -539,7 +520,7 @@ void battle(int plus)
         if (PlayModifierBattleType(val) == PlayModifierBattleType::LocalBattle)
             val = (plus > 0) ? int(PlayModifierBattleType::DoubleBattle) : int(PlayModifierBattleType::Off);
         PlayData.battleType = PlayModifierBattleType(val);
-        SelectData.setPlayModeInfo();
+        SelectData.updateSongList(false);
         break;
     }
     }
@@ -712,21 +693,13 @@ void difficulty(int diff, int plus)
 {
     if (diff == int(SelectData.filterDifficulty))
     {
-        std::unique_lock l(SelectData._mutex);
         SelectData.switchVersion(diff);
-        SelectData.setBarInfo();
-        SelectData.setEntryInfo();
+        SelectData.updateSongList(false);
     }
     else
     {
         SelectData.filterDifficulty = FilterDifficultyType(diff);
-        {
-            std::unique_lock l(SelectData._mutex);
-            SelectData.loadSongList();
-            SelectData.sortSongList();
-            SelectData.setBarInfo();
-            SelectData.setEntryInfo();
-        }
+        SelectData.updateSongList(true);
     }
 
     SelectData.optionChangePending = true;

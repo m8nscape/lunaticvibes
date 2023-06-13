@@ -20,7 +20,23 @@ public:
     virtual void pushEntry(std::shared_ptr<EntryBase> f);
     virtual size_t getContentsCount() { return entries.size(); }
     virtual bool empty() { return entries.empty(); }
+};
 
+class EntryFolderRegular : public EntryFolderBase
+{
+public:
+    EntryFolderRegular() = delete;
+    EntryFolderRegular(HashMD5 md5, const Path& path, StringContentView name = "", StringContentView name2 = "") :
+        EntryFolderBase(md5, name, name2), _path(path)
+    {
+        _type = eEntryType::FOLDER;
+    }
+
+protected:
+    Path _path;
+
+public:
+    virtual Path getPath() { return _path; }
 };
 
 }

@@ -25,7 +25,7 @@ protected:
 
 
 protected:
-    SongListProperties rootFolderProp;
+    std::shared_ptr<SongListManager::List> rootFolderProp;
     bool startedLoadSong = false;
     bool startedLoadTable = false;
     bool startedLoadCourse = false;

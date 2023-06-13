@@ -16,8 +16,9 @@ public:
     static Ratio slider_0() { return 0.0; }
     static Ratio slider_1()
     {
-        if (!SelectData.entries.empty())
-            return SelectData.selectedEntryIndexRolling / SelectData.entries.size();
+        auto p = SelectData.songList.getCurrentList();
+        if (p && !p->displayEntries.empty())
+            return SelectData.songList.selectedEntryIndexRolling / p->displayEntries.size();
         return 0.0;
     }
     static Ratio slider_2() { return PlayData.player[PLAYER_SLOT_PLAYER].hispeed / 10.0; }

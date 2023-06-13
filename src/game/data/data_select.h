@@ -46,20 +46,6 @@ struct ChartMetadata
     TextureDynamic texBanner;
 };
 
-typedef std::pair<std::shared_ptr<EntryBase>, std::shared_ptr<ScoreBase>> Entry;
-typedef std::vector<Entry> EntryList;
-
-struct SongListProperties
-{
-    HashMD5 parent;
-    HashMD5 folder;
-    std::string name;       // folder path, search query+result, etc.
-    EntryList dbBrowseEntries;
-    EntryList displayEntries;
-    size_t index;
-    bool ignoreFilters = false;
-};
-
 enum class SongListSortType
 {
     DEFAULT,    // LEVEL
@@ -93,16 +79,66 @@ enum class FilterKeysType
     Double,
 };
 
+struct Struct_SelectData;
+class SongListManager
+{
+public:
+    struct Entry
+    {
+        std::shared_ptr<EntryBase> entry;
+        std::shared_ptr<ScoreBase> score;
+    };
+    struct List
+    {
+        HashMD5 parent;
+        HashMD5 folder;
+        std::string name;       // folder path, search query+result, etc.
+        std::vector<std::shared_ptr<Entry>> dbBrowseEntries;
+        std::vector<std::shared_ptr<Entry>> displayEntries;
+        size_t index;
+        bool ignoreFilters = false;
+    };
+
+private:
+    mutable std::shared_mutex m;
+    bool locked = false;
+
+    // to get the current list, call backtrace.front()
+    std::deque<std::shared_ptr<List>> backtrace;
+
+public:
+    // used for scrolling animation interp
+    double selectedEntryIndexRolling = 0.0;
+
+    // hghlighted bar index (0~31).
+    // We only have 32 bar instances internally
+    size_t highlightBarIndex = 0;
+
+public:
+    void initialize();
+    void append(std::shared_ptr<List>);
+    void pop();
+
+    bool isModifying() const;
+    std::shared_ptr<List> getList(size_t layer);
+    std::shared_ptr<List> getCurrentList();
+    size_t getCurrentIndex();
+    std::shared_ptr<Entry> getCurrentEntry();
+    size_t getBacktraceSize() const;
+
+    void updateScore(const HashMD5& hash, std::shared_ptr<ScoreBase> score);
+
+private:
+    friend struct Struct_SelectData;
+    void loadSongList();
+    void sortSongList();
+};
+
 inline struct Struct_SelectData
 {
     TimerStorage timers;
 
-    std::shared_mutex _mutex;
-    std::list<SongListProperties> backtrace;
-    EntryList entries;
-    size_t selectedEntryIndex = 0;     // current selected entry index
-    double selectedEntryIndexRolling = 0.0;
-    size_t highlightBarIndex = 0;  // highlighted bar index
+    SongListManager songList;
     bool draggingListSlider = 0;    // is dragging slider
 
     bool coursePlayable = false;
@@ -144,15 +180,16 @@ inline struct Struct_SelectData
 
     ChartMetadata selectedChart;
 
-    Entry getCurrentEntry();
-    void loadSongList();
     void updateEntryScore(size_t idx);
-    void sortSongList();
+    void updateSongList(bool full);
+    void switchVersion(int difficulty);
+
+private:
     void setBarInfo();
     void setEntryInfo();
     void setPlayModeInfo();
-    void switchVersion(int difficulty);
     void setDynamicTextures();
+    void resetJukeboxText();
 
 } SelectData;
 

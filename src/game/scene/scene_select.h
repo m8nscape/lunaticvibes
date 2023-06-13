@@ -132,7 +132,6 @@ protected:
     virtual bool checkAndStartTextEdit() override;
     void inputGamePressTextEdit(InputMask&, const Time&);
     virtual void stopTextEdit(bool modify) override;
-    void resetJukeboxText();
     void searchSong(const std::string& text);
 
 protected:

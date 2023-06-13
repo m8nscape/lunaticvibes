@@ -54,9 +54,10 @@ private:
 
     static std::shared_ptr<EntryBase> getCurrentSelectedEntry()
     {
-        if (SelectData.entries.empty())
+        auto p = SelectData.songList.getCurrentEntry();
+        if (!p)
             return nullptr;
-        return SelectData.entries[SelectData.selectedEntryIndex].first;
+        return p->entry;
     }
 
     static std::shared_ptr<ChartFormatBase> getCurrentSelectedChart()

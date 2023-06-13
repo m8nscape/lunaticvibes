@@ -83,11 +83,10 @@ void updateDstOpt()
 
 	auto getCurrentSelectedEntry = []() -> std::shared_ptr<EntryBase>
 	{
-		if (SelectData.entries.empty())
+		auto p = SelectData.songList.getCurrentEntry();
+		if (!p)
 			return nullptr;
-		if (SelectData.entries[SelectData.selectedEntryIndex].first->type() != eEntryType::CHART)
-			return nullptr;
-		return SelectData.entries[SelectData.selectedEntryIndex].first;
+		return p->entry;
 	};
 	auto currentEntry = getCurrentSelectedEntry();
 
@@ -95,7 +94,10 @@ void updateDstOpt()
 	{
 		if (!currentEntry)
 			return nullptr;
-		return SelectData.entries[SelectData.selectedEntryIndex].second;
+		auto p = SelectData.songList.getCurrentEntry();
+		if (!p)
+			return nullptr;
+		return p->score;
 	};
 	auto currentScore = getCurrentSelectedScore();
 

@@ -34,7 +34,10 @@ TimerStorage::ValueT& TimerStorage::operator[](std::string_view s)
 }
 TimerStorage::ValueT& TimerStorage::operator[](TimerStorage::KeyT key)
 {
-    if (timers.find(key) == timers.end())
+    std::shared_lock l1(sm);
+    bool found = timers.find(key) == timers.end();
+    l1.unlock();
+    if (found)
     {
         std::unique_lock l(sm);
         timers[key] = TIMER_NEVER;

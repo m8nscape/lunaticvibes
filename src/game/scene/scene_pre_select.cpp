@@ -19,14 +19,8 @@ ScenePreSelect::ScenePreSelect() : SceneBase(SkinType::PRE_SELECT, 240)
 {
     _updateCallback = std::bind(&ScenePreSelect::updateLoadSongs, this);
 
-    rootFolderProp = SongListProperties{
-        {},
-        ROOT_FOLDER_HASH,
-        "",
-        {},
-        {},
-        0
-    };
+    rootFolderProp = std::make_shared<SongListManager::List>();
+    rootFolderProp->folder = ROOT_FOLDER_HASH;
 
     graphics_set_maxfps(30);
 
@@ -46,9 +40,7 @@ ScenePreSelect::ScenePreSelect() : SceneBase(SkinType::PRE_SELECT, 240)
         if (!fs::exists(dbPath)) fs::create_directories(dbPath);
         g_pSongDB = std::make_shared<SongDB>(dbPath / "song.db");
 
-        std::unique_lock l(SelectData._mutex);
-        SelectData.entries.clear();
-        SelectData.backtrace.clear();
+        SelectData.songList.initialize();
 
         textHint = i18n::s(i18nText::INITIALIZING);
     }
@@ -133,11 +125,13 @@ void ScenePreSelect::updateLoadSongs()
                     if (!deleted)
                     {
                         g_pSongDB->browse(entry->md5, true);
-                        rootFolderProp.dbBrowseEntries.push_back({ entry, nullptr });
+                        auto e = std::make_shared<SongListManager::Entry>();
+                        e->entry = entry;
+                        rootFolderProp->dbBrowseEntries.push_back(e);
                     }
                 }
             }
-            LOG_INFO << "[List] Added " << rootFolderProp.dbBrowseEntries.size() << " root folders";
+            LOG_INFO << "[List] Added " << rootFolderProp->dbBrowseEntries.size() << " root folders";
 
             g_pSongDB->optimize();
 
@@ -156,13 +150,13 @@ void ScenePreSelect::updateLoadSongs()
                     //entry->pushEntry(f);
                     entry->pushEntry(std::make_shared<EntryFolderSong>(c));
                 }
-                rootFolderProp.dbBrowseEntries.insert(rootFolderProp.dbBrowseEntries.begin(), { entry, nullptr });
+                rootFolderProp->dbBrowseEntries.insert(rootFolderProp->dbBrowseEntries.begin(), { entry, nullptr });
             }
             LOG_INFO << "[List] NEW SONG folder has " << newSongList.size() << " entries";
 
             // ARENA
             LOG_INFO << "[List] Generating ARENA folder...";
-            if (!rootFolderProp.dbBrowseEntries.empty())
+            if (!rootFolderProp->dbBrowseEntries.empty())
             {
                 std::shared_ptr<EntryFolderArena> entry = std::make_shared<EntryFolderArena>(i18n::s(i18nText::ARENA_FOLDER_TITLE), i18n::s(i18nText::ARENA_FOLDER_SUBTITLE));
 
@@ -172,7 +166,9 @@ void ScenePreSelect::updateLoadSongs()
 
                 // TODO load lobby list from file
 
-                rootFolderProp.dbBrowseEntries.push_back({ entry, nullptr });
+                auto de = std::make_shared<SongListManager::Entry>();
+                de->entry = entry;
+                rootFolderProp->dbBrowseEntries.push_back(de);
             }
             LOG_INFO << "[List] ARENA has " << 0 << " known hosts (placeholder)";
 
@@ -272,7 +268,9 @@ void ScenePreSelect::updateLoadTables()
                 {
                     // TODO should re-download the table if outdated
                     LOG_INFO << "[List] Local table file found: " << t.getFolderPath().u8string();
-                    rootFolderProp.dbBrowseEntries.push_back({ convertTable(t), nullptr });
+                    auto de = std::make_shared<SongListManager::Entry>();
+                    de->entry = convertTable(t);
+                    rootFolderProp->dbBrowseEntries.push_back(de);
                 }
                 else
                 {
@@ -284,7 +282,9 @@ void ScenePreSelect::updateLoadTables()
                             if (result == DifficultyTable::UpdateResult::OK)
                             {
                                 LOG_INFO << "[List] Table file download complete: " << t.getFolderPath().u8string();
-                                rootFolderProp.dbBrowseEntries.push_back({ convertTable(t), nullptr });
+                                auto de = std::make_shared<SongListManager::Entry>();
+                                de->entry = convertTable(t);
+                                rootFolderProp->dbBrowseEntries.push_back(de);
                             }
                             else
                             {
@@ -382,7 +382,9 @@ void ScenePreSelect::updateLoadCourses()
                     LOG_INFO << "[List] Add course: " << c->_name;
                     folder->pushEntry(c);
                 }
-                rootFolderProp.dbBrowseEntries.push_back({ folder, nullptr });
+                auto de = std::make_shared<SongListManager::Entry>();
+                de->entry = folder;
+                rootFolderProp->dbBrowseEntries.push_back(de);
             }
 
             });
@@ -402,11 +404,10 @@ void ScenePreSelect::loadFinished()
 {
     if (!loadingFinished)
     {
-        while (!SelectData.backtrace.empty())
-            SelectData.backtrace.pop_front();
-        SelectData.backtrace.push_front(rootFolderProp);
+        SelectData.songList.initialize();
+        SelectData.songList.append(rootFolderProp);
 
-        if (rootFolderProp.dbBrowseEntries.empty())
+        if (rootFolderProp->dbBrowseEntries.empty())
         {
             createNotification(i18n::s(i18nText::BMS_NOT_FOUND));
             createNotification(i18n::s(i18nText::BMS_NOT_FOUND_HINT));

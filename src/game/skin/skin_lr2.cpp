@@ -3903,7 +3903,7 @@ void SkinLR2::postLoad()
 
         if (loadMode == 0)
         {
-            SelectData.highlightBarIndex = barCenter;
+            SelectData.songList.highlightBarIndex = barCenter;
             SelectData.cursorClick = barCenter;
         }
     }
@@ -4537,44 +4537,50 @@ void SkinLR2::update()
         });
 
     // update songlist bar
-    std::shared_lock<std::shared_mutex> u(SelectData._mutex, std::try_to_lock); // read lock
-    if (u.owns_lock())
+    if (!SelectData.songList.isModifying())
     {
-        for (auto& s : barSprites) s->update(t);
+        for (auto& s : barSprites) 
+            s->update(t);
 
-        // update songlist position
-        if (hasBarMotionInterpOrigin && SelectData.scrollDirection != 0 && !SelectData.entries.empty())
+        auto p = SelectData.songList.getCurrentList();
+        if (p)
         {
-            for (size_t i = 1; i + 1 < barSprites.size(); ++i)
+            size_t listSize = p->displayEntries.size();
+
+            // update songlist position
+            if (hasBarMotionInterpOrigin && SelectData.scrollDirection != 0 && listSize != 0)
             {
-                if (!barSpriteAvailable[i]) continue;
-
-                double posNow = SelectData.selectedEntryIndexRolling * SelectData.entries.size();
-
-                double decimal = posNow - (int)posNow;
-                if (decimal <= 0.5 && barSprites[i - 1]->isDraw())
+                for (size_t i = 1; i + 1 < barSprites.size(); ++i)
                 {
-                    double factor = decimal;
-                    auto& rectStored = barMotionInterpOrigin[i - 1];
-                    auto& rectSprite = barSprites[i]->_current.rect;
-                    Rect dr{
-                        static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
-                        static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
-                        0, 0
-                    };
-                    barSprites[i]->setRectOffsetAnim(dr.x, dr.y);
-                }
-                else if (barSprites[i + 1]->isDraw())
-                {
-                    double factor = -decimal + 1.0;
-                    auto& rectStored = barMotionInterpOrigin[i + 1];
-                    auto& rectSprite = barSprites[i]->_current.rect;
-                    Rect dr{
-                        static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
-                        static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
-                        0, 0
-                    };
-                    barSprites[i]->setRectOffsetAnim(dr.x, dr.y);
+                    if (!barSpriteAvailable[i]) continue;
+
+                    double posNow = SelectData.songList.selectedEntryIndexRolling * listSize;
+
+                    double decimal = posNow - (int)posNow;
+                    if (decimal <= 0.5 && barSprites[i - 1]->isDraw())
+                    {
+                        double factor = decimal;
+                        auto& rectStored = barMotionInterpOrigin[i - 1];
+                        auto& rectSprite = barSprites[i]->_current.rect;
+                        Rect dr{
+                            static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
+                            static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
+                            0, 0
+                        };
+                        barSprites[i]->setRectOffsetAnim(dr.x, dr.y);
+                    }
+                    else if (barSprites[i + 1]->isDraw())
+                    {
+                        double factor = -decimal + 1.0;
+                        auto& rectStored = barMotionInterpOrigin[i + 1];
+                        auto& rectSprite = barSprites[i]->_current.rect;
+                        Rect dr{
+                            static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
+                            static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
+                            0, 0
+                        };
+                        barSprites[i]->setRectOffsetAnim(dr.x, dr.y);
+                    }
                 }
             }
         }

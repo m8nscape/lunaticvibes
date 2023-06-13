@@ -15,31 +15,110 @@ namespace lunaticvibes
 extern std::shared_ptr<SongDB> g_pSongDB;
 extern std::shared_ptr<ScoreDB> g_pScoreDB;
 
-Entry Struct_SelectData::getCurrentEntry()
+class AutoResetBool
 {
-	if (selectedEntryIndex >= entries.size())
-		return {};
+private:
+    bool* p = nullptr;
+public:
+    AutoResetBool(bool* p) : p(p) { *p = true; }
+    ~AutoResetBool() { *p = false; }
+};
 
-	return entries[selectedEntryIndex];
+void SongListManager::initialize()
+{
+    AutoResetBool lb(&locked);
+    std::unique_lock l(m);
+    backtrace.clear();
 }
 
-
-
-void Struct_SelectData::loadSongList()
+void SongListManager::append(std::shared_ptr<List> l)
 {
+    AutoResetBool lb(&locked);
+    std::unique_lock lock(m);
+    backtrace.push_front(l);
+}
+
+void SongListManager::pop()
+{
+    AutoResetBool lb(&locked);
+    std::unique_lock l(m);
+    if (!backtrace.empty())
+        backtrace.pop_front();
+}
+
+bool SongListManager::isModifying() const
+{
+    return locked;
+}
+
+std::shared_ptr<SongListManager::List> SongListManager::getList(size_t layer)
+{
+    std::shared_lock l(m, std::defer_lock);
+    if (!locked) l.lock();
+    return layer < backtrace.size() ? backtrace[layer] : nullptr;
+}
+
+std::shared_ptr<SongListManager::List> SongListManager::getCurrentList()
+{
+    std::shared_lock l(m, std::defer_lock);
+    if (!locked) l.lock();
+    return backtrace.empty() ? nullptr : backtrace.front();
+}
+
+size_t SongListManager::getCurrentIndex()
+{
+    auto pl = getCurrentList();
+    return pl ? pl->index : 0;
+}
+
+std::shared_ptr<SongListManager::Entry> SongListManager::getCurrentEntry()
+{
+    auto pl = getCurrentList();
+    std::shared_lock l(m, std::defer_lock);
+    if (!locked) l.lock();
+    return (pl && !pl->displayEntries.empty()) ? pl->displayEntries[pl->index] : nullptr;
+}
+
+size_t SongListManager::getBacktraceSize() const
+{
+    std::shared_lock l(m, std::defer_lock);
+    if (!locked) l.lock();
+    return backtrace.size();
+}
+
+void SongListManager::updateScore(const HashMD5& hash, std::shared_ptr<ScoreBase> score)
+{
+    for (auto& frame : backtrace)
+    {
+        for (auto& e : frame->displayEntries)
+        {
+            if (e->entry->md5 == SelectData.selectedChart.hash)
+            {
+                e->score = score;
+            }
+        }
+    }
+}
+
+void SongListManager::loadSongList()
+{
+    AutoResetBool lb(&locked);
+    std::unique_lock l(m);
+
+    auto currentEntry = getCurrentEntry();
     HashMD5 currentEntryHash;
     std::shared_ptr<EntryFolderSong> currentEntrySong;
     int currentEntryGamemode = 0;
     int currentEntryDifficulty = 0;
-    if (!entries.empty())
-    {
-        currentEntryHash = entries.at(selectedEntryIndex).first->md5;
 
-        if (entries[selectedEntryIndex].first->type() == eEntryType::CHART ||
-            entries[selectedEntryIndex].first->type() == eEntryType::RIVAL_CHART)
+    if (currentEntry != nullptr)
+    {
+        currentEntryHash = currentEntry->entry->md5;
+
+        if (currentEntry->entry->type() == eEntryType::CHART ||
+            currentEntry->entry->type() == eEntryType::RIVAL_CHART)
         {
-            auto& en = entries[selectedEntryIndex].first;
-            auto ps = std::reinterpret_pointer_cast<EntryChart>(en);
+            auto ps = std::reinterpret_pointer_cast<EntryChart>(currentEntry->entry);
             auto pf = std::reinterpret_pointer_cast<ChartFormatBase>(ps->_file);
             currentEntrySong = ps->getSongEntry();
             currentEntryGamemode = pf->gamemode;
@@ -47,9 +126,17 @@ void Struct_SelectData::loadSongList()
         }
     }
 
-    entries.clear();
-    for (auto& [e, s] : backtrace.front().dbBrowseEntries)
+    auto currentList = getCurrentList();
+    currentList->displayEntries.clear();
+    for (auto& p : (*currentList).dbBrowseEntries)
     {
+        if (p == nullptr)
+            continue;
+
+        auto& [e, s] = *p;
+        if (e == nullptr)
+            continue;
+
         // TODO replace name/name2 by tag.db
 
         // apply filter
@@ -67,7 +154,7 @@ void Struct_SelectData::loadSongList()
             if (PlayData.battleType != PlayModifierBattleType::DoubleBattle)
             {
                 // not DB, filter as usual
-                switch (filterKeys)
+                switch (SelectData.filterKeys)
                 {
                 case FilterKeysType::All: return true;
                 case FilterKeysType::_5: return keys == 5;
@@ -83,7 +170,7 @@ void Struct_SelectData::loadSongList()
             else
             {
                 // DB, only display SP charts
-                switch (filterKeys)
+                switch (SelectData.filterKeys)
                 {
                 case FilterKeysType::All:
                 case FilterKeysType::_5: return keys == 5;
@@ -99,8 +186,8 @@ void Struct_SelectData::loadSongList()
         };
         auto checkFilterDifficulty = [this](int difficulty)
         {
-            if (filterDifficulty == FilterDifficultyType::All) return true;
-            switch (filterDifficulty)
+            if (SelectData.filterDifficulty == FilterDifficultyType::All) return true;
+            switch (SelectData.filterDifficulty)
             {
                 case FilterDifficultyType::All: return true;
                 case FilterDifficultyType::B: return difficulty == 1;
@@ -140,7 +227,7 @@ void Struct_SelectData::loadSongList()
                     if (pBase->gamemode == 5 && have7k) continue;
                     if (pBase->gamemode == 10 && have14k) continue;
                 }
-                if (!backtrace.front().ignoreFilters)
+                if (!currentList->ignoreFilters)
                 {
                     if (!checkFilterDifficulty(pBase->difficulty)) continue;
                     if (!checkFilterKeys(pBase->gamemode)) continue;
@@ -153,7 +240,9 @@ void Struct_SelectData::loadSongList()
                     auto p = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(f->getChart(idx));
 
                     // add all charts as individual entries into list.
-                    entries.push_back({ std::make_shared<EntryChart>(p, f), nullptr });
+                    auto de = std::make_shared<SongListManager::Entry>();
+                    de->entry = std::make_shared<EntryChart>(p, f);
+                    currentList->displayEntries.push_back(de);
                 }
                 break;
 
@@ -171,26 +260,30 @@ void Struct_SelectData::loadSongList()
             {
                 auto p = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(f);
 
-                if (!backtrace.front().ignoreFilters)
+                if (!currentList->ignoreFilters)
                 {
                     if (!checkFilterDifficulty(p->difficulty)) continue;
                     if (!checkFilterKeys(p->gamemode)) continue;
                 }
 
                 // filters are matched
-                entries.push_back({ e, nullptr });
+                auto de = std::make_shared<SongListManager::Entry>();
+                de->entry = e;
+                currentList->displayEntries.push_back(de);
                 break;
             }
             break;
         }
 
         default:
-            entries.push_back({ e, nullptr });
+            auto de = std::make_shared<SongListManager::Entry>();
+            de->entry = e;
+            currentList->displayEntries.push_back(de);
             break;
         }
     }
 
-    if (backtrace.front().ignoreFilters)
+    if (currentList->ignoreFilters)
     {
         // change display only
         SelectData.filterDifficulty = FilterDifficultyType::All;
@@ -204,21 +297,21 @@ void Struct_SelectData::loadSongList()
     }
 
     // load score
-    for (size_t idx = 0; idx < entries.size(); ++idx)
+    for (size_t idx = 0; idx < currentList->displayEntries.size(); ++idx)
     {
-        updateEntryScore(idx);
+        SelectData.updateEntryScore(idx);
     }
 
-    selectedEntryIndex = 0;
+    currentList->index = 0;
 
     // look for the exact same entry
-    if (backtrace.size() > 1)
+    if (currentList->displayEntries.size() > 1)
     {
         auto findChart = [&](const HashMD5& hash)
         {
-            for (size_t idx = 0; idx < entries.size(); ++idx)
+            for (size_t idx = 0; idx < currentList->displayEntries.size(); ++idx)
             {
-                if (hash == entries.at(idx).first->md5)
+                if (hash == currentList->displayEntries.at(idx)->entry->md5)
                 {
                     return idx;
                 }
@@ -229,14 +322,14 @@ void Struct_SelectData::loadSongList()
         size_t i = findChart(currentEntryHash);
         if (i != (size_t)-1)
         {
-            selectedEntryIndex = i;
+            currentList->index = i;
         }
         else if (currentEntrySong)
         {
-            if (filterDifficulty != FilterDifficultyType::All)
+            if (SelectData.filterDifficulty != FilterDifficultyType::All)
             {
                 // search from current difficulty
-                const auto& chartList = currentEntrySong->getDifficultyList(currentEntryGamemode, unsigned(filterDifficulty));
+                const auto& chartList = currentEntrySong->getDifficultyList(currentEntryGamemode, unsigned(SelectData.filterDifficulty));
                 if (!chartList.empty())
                 {
                     i = findChart((*chartList.begin())->fileHash);
@@ -244,7 +337,7 @@ void Struct_SelectData::loadSongList()
             }
             if (i != (size_t)-1)
             {
-                selectedEntryIndex = i;
+                currentList->index = i;
             }
             else
             {
@@ -257,7 +350,7 @@ void Struct_SelectData::loadSongList()
             }
             if (i != (size_t)-1)
             {
-                selectedEntryIndex = i;
+                currentList->index = i;
             }
             else
             {
@@ -265,7 +358,7 @@ void Struct_SelectData::loadSongList()
                 for (size_t diff = 1; diff <= 5; ++diff)
                 {
                     if (currentEntryDifficulty == diff) continue;
-                    if (currentEntryDifficulty == unsigned(filterDifficulty)) continue;
+                    if (currentEntryDifficulty == unsigned(SelectData.filterDifficulty)) continue;
                     const auto& diffList = currentEntrySong->getDifficultyList(currentEntryGamemode, diff);
                     if (!diffList.empty())
                     {
@@ -275,7 +368,7 @@ void Struct_SelectData::loadSongList()
             }
             if (i != (size_t)-1)
             {
-                selectedEntryIndex = i;
+                currentList->index = i;
             }
             else
             {
@@ -287,17 +380,132 @@ void Struct_SelectData::loadSongList()
             }
             if (i != (size_t)-1)
             {
-                selectedEntryIndex = i;
+                currentList->index = i;
             }
         }
     }
 
-    SelectData.selectedEntryIndexRolling = entries.empty() ? 0.0 : ((double)selectedEntryIndex / entries.size());
+    selectedEntryIndexRolling = 
+        currentList->displayEntries.empty() ? 0.0 : ((double)currentList->index / currentList->displayEntries.size());
+}
+
+void SongListManager::sortSongList()
+{
+    AutoResetBool lb(&locked);
+    std::unique_lock l(m);
+
+    auto currentList = getCurrentList();
+    if (currentList == nullptr)
+        return;
+
+    HashMD5 currentEntryHash;
+    if (!currentList->displayEntries.empty())
+        currentEntryHash = currentList->displayEntries.at(currentList->index)->entry->md5;
+
+    std::sort(currentList->displayEntries.begin(), currentList->displayEntries.end(), 
+        [this](const std::shared_ptr<SongListManager::Entry>& entry1, const std::shared_ptr<SongListManager::Entry>& entry2)
+        {
+            auto& lhs = entry1->entry;
+            auto& rhs = entry2->entry;
+            if (lhs->type() != rhs->type())
+            {
+                return lhs->type() < rhs->type();
+            }
+            else if (lhs->type() == eEntryType::CUSTOM_FOLDER)
+            {
+                return lhs->md5 < rhs->md5;
+            }
+            else
+            {
+                std::shared_ptr<ChartFormatBase> l, r;
+                if (lhs->type() == eEntryType::SONG || lhs->type() == eEntryType::RIVAL_SONG)
+                {
+                    l = std::reinterpret_pointer_cast<EntryFolderSong>(lhs)->getChart(0);
+                    r = std::reinterpret_pointer_cast<EntryFolderSong>(rhs)->getChart(0);
+                }
+                else if (lhs->type() == eEntryType::CHART || lhs->type() == eEntryType::RIVAL_CHART)
+                {
+                    l = std::reinterpret_pointer_cast<const EntryChart>(lhs)->_file;
+                    r = std::reinterpret_pointer_cast<const EntryChart>(rhs)->_file;
+                }
+                if (l && r)
+                {
+                    switch (SelectData.sortType)
+                    {
+                    case SongListSortType::DEFAULT:
+                        if (l->folderHash != r->folderHash) return l->folderHash < r->folderHash;
+                        if (l->levelEstimated != r->levelEstimated) return l->levelEstimated < r->levelEstimated;
+                        if (l->title != r->title) return l->title < r->title;
+                        if (l->title2 != r->title2) return l->title2 < r->title2;
+                        if (l->version != r->version) return l->version < r->version;
+                        break;
+                    case SongListSortType::TITLE:
+                        if (l->title != r->title) return l->title < r->title;
+                        if (l->title2 != r->title2) return l->title2 < r->title2;
+                        if (l->version != r->version) return l->version < r->version;
+                        break;
+                    case SongListSortType::LEVEL:
+                        if (l->levelEstimated != r->levelEstimated) return l->levelEstimated < r->levelEstimated;
+                        if (l->title != r->title) return l->title < r->title;
+                        if (l->title2 != r->title2) return l->title2 < r->title2;
+                        if (l->version != r->version) return l->version < r->version;
+                        break;
+                    case SongListSortType::CLEAR:
+                    {
+                        auto l_lamp = std::dynamic_pointer_cast<ScoreBMS>(entry1->score) ? std::reinterpret_pointer_cast<ScoreBMS>(entry1->score)->lamp : LampType::NOPLAY;
+                        auto r_lamp = std::dynamic_pointer_cast<ScoreBMS>(entry2->score) ? std::reinterpret_pointer_cast<ScoreBMS>(entry2->score)->lamp : LampType::NOPLAY;
+                        if (l_lamp != r_lamp) return l_lamp < r_lamp;
+                        if (l->title != r->title) return l->title < r->title;
+                        if (l->title2 != r->title2) return l->title2 < r->title2;
+                        if (l->version != r->version) return l->version < r->version;
+                        break;
+                    }
+                    case SongListSortType::RATE:
+                    {
+                        auto l_rate = std::dynamic_pointer_cast<ScoreBMS>(entry1->score) ? std::reinterpret_pointer_cast<ScoreBMS>(entry1->score)->rate : 0.;
+                        auto r_rate = std::dynamic_pointer_cast<ScoreBMS>(entry2->score) ? std::reinterpret_pointer_cast<ScoreBMS>(entry2->score)->rate : 0.;
+                        if (l_rate != r_rate) return l_rate < r_rate;
+                        if (l->title != r->title) return l->title < r->title;
+                        if (l->title2 != r->title2) return l->title2 < r->title2;
+                        if (l->version != r->version) return l->version < r->version;
+                        break;
+                    }
+                    }
+                }
+                else
+                {
+                    if (lhs->_name != rhs->_name) return lhs->_name < rhs->_name;
+                    if (lhs->_name2 != rhs->_name2) return lhs->_name2 < rhs->_name2;
+                    if (lhs->md5 != rhs->md5) return lhs->md5 < rhs->md5;
+                }
+                return false;
+            }
+        });
+
+    for (size_t idx = 0; idx < currentList->displayEntries.size(); ++idx)
+    {
+        if (currentEntryHash == currentList->displayEntries.at(idx)->entry->md5)
+        {
+            currentList->index = idx;
+            break;
+        }
+    }
+    if (currentList->index >= currentList->displayEntries.size())
+    {
+        currentList->index = 0;
+    }
+    selectedEntryIndexRolling =
+        currentList->displayEntries.empty() ? 0.0 : ((double)currentList->index / currentList->displayEntries.size());
 }
 
 void Struct_SelectData::updateEntryScore(size_t idx)
 {
-    auto& [entry, score] = entries[idx];
+    auto p = songList.getCurrentEntry();
+    if (p == nullptr)
+        return;
+
+    auto& entry = p->entry;
+    auto& score = p->score;
 
     std::shared_ptr<ChartFormatBase> pf;
     switch (entry->type())
@@ -335,119 +543,37 @@ void Struct_SelectData::updateEntryScore(size_t idx)
     }
 }
 
-void Struct_SelectData::sortSongList()
+void Struct_SelectData::updateSongList(bool full)
 {
-    HashMD5 currentEntryHash;
-    if (!entries.empty())
-        currentEntryHash = entries.at(selectedEntryIndex).first->md5;
-
-    std::sort(entries.begin(), entries.end(), [this](const Entry& entry1, const Entry& entry2)
-        {
-            auto& lhs = entry1.first;
-            auto& rhs = entry2.first;
-            if (lhs->type() != rhs->type())
-            {
-                return lhs->type() < rhs->type();
-            }
-            else if (lhs->type() == eEntryType::CUSTOM_FOLDER)
-            {
-                return entry1.first->md5 < entry2.first->md5;
-            }
-            else
-            {
-                std::shared_ptr<ChartFormatBase> l, r;
-                if (lhs->type() == eEntryType::SONG || lhs->type() == eEntryType::RIVAL_SONG)
-                {
-                    l = std::reinterpret_pointer_cast<EntryFolderSong>(lhs)->getChart(0);
-                    r = std::reinterpret_pointer_cast<EntryFolderSong>(rhs)->getChart(0);
-                }
-                else if (lhs->type() == eEntryType::CHART || lhs->type() == eEntryType::RIVAL_CHART)
-                {
-                    l = std::reinterpret_pointer_cast<const EntryChart>(lhs)->_file;
-                    r = std::reinterpret_pointer_cast<const EntryChart>(rhs)->_file;
-                }
-                if (l && r)
-                {
-                    switch (sortType)
-                    {
-                    case SongListSortType::DEFAULT:
-                        if (l->folderHash != r->folderHash) return l->folderHash < r->folderHash;
-                        if (l->levelEstimated != r->levelEstimated) return l->levelEstimated < r->levelEstimated;
-                        if (l->title != r->title) return l->title < r->title;
-                        if (l->title2 != r->title2) return l->title2 < r->title2;
-                        if (l->version != r->version) return l->version < r->version;
-                        break;
-                    case SongListSortType::TITLE:
-                        if (l->title != r->title) return l->title < r->title;
-                        if (l->title2 != r->title2) return l->title2 < r->title2;
-                        if (l->version != r->version) return l->version < r->version;
-                        break;
-                    case SongListSortType::LEVEL:
-                        if (l->levelEstimated != r->levelEstimated) return l->levelEstimated < r->levelEstimated;
-                        if (l->title != r->title) return l->title < r->title;
-                        if (l->title2 != r->title2) return l->title2 < r->title2;
-                        if (l->version != r->version) return l->version < r->version;
-                        break;
-                    case SongListSortType::CLEAR:
-                    {
-                        auto l_lamp = std::dynamic_pointer_cast<ScoreBMS>(entry1.second) ? std::reinterpret_pointer_cast<ScoreBMS>(entry1.second)->lamp : LampType::NOPLAY;
-                        auto r_lamp = std::dynamic_pointer_cast<ScoreBMS>(entry2.second) ? std::reinterpret_pointer_cast<ScoreBMS>(entry2.second)->lamp : LampType::NOPLAY;
-                        if (l_lamp != r_lamp) return l_lamp < r_lamp;
-                        if (l->title != r->title) return l->title < r->title;
-                        if (l->title2 != r->title2) return l->title2 < r->title2;
-                        if (l->version != r->version) return l->version < r->version;
-                        break;
-                    }
-                    case SongListSortType::RATE:
-                    {
-                        auto l_rate = std::dynamic_pointer_cast<ScoreBMS>(entry1.second) ? std::reinterpret_pointer_cast<ScoreBMS>(entry1.second)->rate : 0.;
-                        auto r_rate = std::dynamic_pointer_cast<ScoreBMS>(entry2.second) ? std::reinterpret_pointer_cast<ScoreBMS>(entry2.second)->rate : 0.;
-                        if (l_rate != r_rate) return l_rate < r_rate;
-                        if (l->title != r->title) return l->title < r->title;
-                        if (l->title2 != r->title2) return l->title2 < r->title2;
-                        if (l->version != r->version) return l->version < r->version;
-                        break;
-                    }
-                    }
-                }
-                else
-                {
-                    if (lhs->_name != rhs->_name) return lhs->_name < rhs->_name;
-                    if (lhs->_name2 != rhs->_name2) return lhs->_name2 < rhs->_name2;
-                    if (lhs->md5 != rhs->md5) return lhs->md5 < rhs->md5;
-                }
-                return false;
-            }
-        });
-
-    for (size_t idx = 0; idx < entries.size(); ++idx)
+    if (full)
     {
-        if (currentEntryHash == entries.at(idx).first->md5)
-        {
-            selectedEntryIndex = idx;
-            break;
-        }
+        songList.loadSongList();
+        songList.sortSongList();
     }
-    if (selectedEntryIndex >= entries.size())
-    {
-        selectedEntryIndex = 0;
-    }
-    SelectData.selectedEntryIndexRolling = entries.empty() ? 0.0 : ((double)selectedEntryIndex / entries.size());
+
+    setBarInfo();
+    setEntryInfo();
+    setPlayModeInfo();
+    resetJukeboxText();
 }
 
 void Struct_SelectData::setBarInfo()
 {
-    const EntryList& e = entries;
-    if (e.empty()) return;
+    auto p = songList.getCurrentList();
+    if (p == nullptr)
+        return;
+    const auto& e = p->displayEntries;
+    if (e.empty())
+        return;
 
-    const size_t idx = selectedEntryIndex;
-    const size_t cursor = highlightBarIndex;
+    const size_t idx = p->index;
+    const size_t cursor = songList.highlightBarIndex;
     const size_t count = 32;
     const bool subtitle = !ConfigMgr::get('P', cfg::P_ONLY_DISPLAY_MAIN_TITLE_ON_BARS, false);
 
     auto setSingleBarInfo = [&](size_t list_idx, size_t bar_index)
     {
-        auto entry = e[list_idx].first;
+        auto entry = e[list_idx]->entry;
         std::shared_ptr<ChartFormatBase> pf = nullptr;
         switch (entry->type())
         {
@@ -515,10 +641,8 @@ void Struct_SelectData::setBarInfo()
 
 void Struct_SelectData::setEntryInfo()
 {
-    const EntryList& e = entries;
-    if (e.empty()) return;
-
-    setPlayModeInfo();
+    if (songList.getCurrentEntry() == nullptr)
+        return;
 }
 
 void Struct_SelectData::setPlayModeInfo()
@@ -527,16 +651,19 @@ void Struct_SelectData::setPlayModeInfo()
 
 void Struct_SelectData::switchVersion(int difficulty)
 {
-    const EntryList& e = entries;
+    auto p = songList.getCurrentList();
+    if (p == nullptr)
+        return;
+    const auto& e = p->displayEntries;
     if (e.empty()) return;
 
-    const size_t idx = selectedEntryIndex;
-    const size_t cursor = highlightBarIndex;
+    const size_t idx = p->index;
+    const size_t cursor = songList.highlightBarIndex;
 
     // chart parameters
-    if (e[idx].first->type() == eEntryType::CHART || e[idx].first->type() == eEntryType::RIVAL_CHART)
+    if (e[idx]->entry->type() == eEntryType::CHART || e[idx]->entry->type() == eEntryType::RIVAL_CHART)
     {
-        auto ps = std::reinterpret_pointer_cast<EntryChart>(e[idx].first);
+        auto ps = std::reinterpret_pointer_cast<EntryChart>(e[idx]->entry);
         auto pf = std::reinterpret_pointer_cast<ChartFormatBase>(ps->_file);
         auto pSong = ps->getSongEntry();
         if (pSong)
@@ -583,7 +710,7 @@ void Struct_SelectData::switchVersion(int difficulty)
                         }
                     }
                 }
-                SelectData.selectedEntryIndexRolling = entries.empty() ? 0.0 : ((double)selectedEntryIndex / entries.size());
+                songList.selectedEntryIndexRolling = entries->empty() ? 0.0 : ((double)selectedEntryIndex / entries->size());
             }
             */
 
@@ -593,9 +720,9 @@ void Struct_SelectData::switchVersion(int difficulty)
             bool currentFound = false;
             for (size_t nextIdx = 0; nextIdx < e.size(); ++nextIdx)
             {
-                if (e[nextIdx].first->type() == eEntryType::CHART || e[nextIdx].first->type() == eEntryType::RIVAL_CHART)
+                if (e[nextIdx]->entry->type() == eEntryType::CHART || e[nextIdx]->entry->type() == eEntryType::RIVAL_CHART)
                 {
-                    auto pns = std::reinterpret_pointer_cast<EntryChart>(e[nextIdx].first);
+                    auto pns = std::reinterpret_pointer_cast<EntryChart>(e[nextIdx]->entry);
                     if (pns->getSongEntry() == ps->getSongEntry())
                     {
                         if (pFirstChart == nullptr)
@@ -610,8 +737,8 @@ void Struct_SelectData::switchVersion(int difficulty)
                         }
                         else if (currentFound && pns->_file->gamemode == pf->gamemode && (difficulty == 0 || pns->_file->difficulty == difficulty))
                         {
-                            selectedEntryIndex = nextIdx;
-                            SelectData.selectedEntryIndexRolling = entries.empty() ? 0.0 : ((double)selectedEntryIndex / entries.size());
+                            p->index = nextIdx;
+                            songList.selectedEntryIndexRolling = e.empty() ? 0.0 : ((double)p->index / e.size());
                             return;
                         }
                     }
@@ -622,15 +749,15 @@ void Struct_SelectData::switchVersion(int difficulty)
             {
                 for (size_t nextIdx = 0; nextIdx < e.size(); ++nextIdx)
                 {
-                    if (e[nextIdx].first->type() == eEntryType::CHART || e[nextIdx].first->type() == eEntryType::RIVAL_CHART)
+                    if (e[nextIdx]->entry->type() == eEntryType::CHART || e[nextIdx]->entry->type() == eEntryType::RIVAL_CHART)
                     {
-                        auto pns = std::reinterpret_pointer_cast<EntryChart>(e[nextIdx].first);
+                        auto pns = std::reinterpret_pointer_cast<EntryChart>(e[nextIdx]->entry);
                         if (pns->getSongEntry() == ps->getSongEntry())
                         {
                             if (pns->_file != pf && pns->_file->gamemode == pf->gamemode && (difficulty == 0 || pns->_file->difficulty == difficulty))
                             {
-                                selectedEntryIndex = nextIdx;
-                                SelectData.selectedEntryIndexRolling = entries.empty() ? 0.0 : ((double)selectedEntryIndex / entries.size());
+                                p->index = nextIdx;
+                                songList.selectedEntryIndexRolling = e.empty() ? 0.0 : ((double)p->index / e.size());
                                 return;
                             }
                         }
@@ -638,8 +765,8 @@ void Struct_SelectData::switchVersion(int difficulty)
                 }
 
                 // fallback to first entry
-                selectedEntryIndex = firstIdx;
-                SelectData.selectedEntryIndexRolling = entries.empty() ? 0.0 : ((double)selectedEntryIndex / entries.size());
+                p->index = firstIdx;
+                songList.selectedEntryIndexRolling = e.empty() ? 0.0 : ((double)p->index / e.size());
             }
         }
     }
@@ -651,14 +778,17 @@ void Struct_SelectData::setDynamicTextures()
     selectedChart.texBackbmp.setPath("");
     selectedChart.texBanner.setPath("");
 
-    const EntryList& e = entries;
+    auto p = songList.getCurrentList();
+    if (p == nullptr)
+        return;
+    const auto& e = p->displayEntries;
     if (e.empty()) return;
 
-    const size_t idx = selectedEntryIndex;
-    const size_t cursor = highlightBarIndex;
+    const size_t idx = p->index;
+    const size_t cursor = songList.highlightBarIndex;
 
     // chart parameters
-    auto entry = e[idx].first;
+    auto entry = e[idx]->entry;
     switch (entry->type())
     {
     case eEntryType::SONG:
@@ -692,6 +822,15 @@ void Struct_SelectData::setDynamicTextures()
     }
     break;
     }
+}
+
+void Struct_SelectData::resetJukeboxText()
+{
+    auto p = songList.getCurrentList();
+    if (!p || p->name.empty())
+        jukeboxName = i18n::s(i18nText::SEARCH_SONG);
+    else
+        jukeboxName = p->name;
 }
 
 

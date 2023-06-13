@@ -16,14 +16,15 @@ namespace lr2skin::slider
 
 #pragma region slider type callbacks
 
-void select_pos(double p)
+void select_pos(double pos)
 {
-    if (SelectData.entries.empty()) return;
+    auto p = SelectData.songList.getCurrentList();
+    if (!p || p->displayEntries.empty()) return;
 
-    size_t idx_new = (size_t)std::floor(p * SelectData.entries.size());
-    if (idx_new != SelectData.selectedEntryIndex)
+    size_t idx_new = (size_t)std::floor(pos * p->displayEntries.size());
+    if (idx_new != p->index)
     {
-        SelectData.selectedEntryIndexRolling = (double)idx_new / SelectData.entries.size();
+        SelectData.songList.selectedEntryIndexRolling = (double)idx_new / p->displayEntries.size();
         SelectData.draggingListSlider = true;
     }
 }

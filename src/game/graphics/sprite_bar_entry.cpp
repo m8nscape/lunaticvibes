@@ -168,13 +168,16 @@ bool SpriteBarEntry::update(Time time)
     for (auto& s : sRivalLampRival) if (s) s->setHideInternal(true);
     if (sFlash) sFlash->setHideInternal(true);
 
-    auto& list = SelectData.entries;
+    auto p = SelectData.songList.getCurrentList();
+    if (p == nullptr)
+        return false;
+    auto& list = p->displayEntries;
     if (!list.empty())
     {
-        size_t listidx = SelectData.selectedEntryIndex + index;
-        if (listidx < SelectData.highlightBarIndex)
-            listidx += list.size() * ((SelectData.highlightBarIndex - listidx) / list.size() + 1);
-        listidx -= SelectData.highlightBarIndex;
+        size_t listidx = p->index + index;
+        if (listidx < SelectData.songList.highlightBarIndex)
+            listidx += list.size() * ((SelectData.songList.highlightBarIndex - listidx) / list.size() + 1);
+        listidx -= SelectData.songList.highlightBarIndex;
         listidx %= list.size();
 
         _draw = true;
@@ -194,8 +197,8 @@ bool SpriteBarEntry::update(Time time)
         drawRivalLampSelfType = 0;
         drawRivalLampRivalType = 0;
 
-        auto [pEntry, pScore] = list[listidx];
-        drawBodyOn = (index == SelectData.highlightBarIndex);
+        auto [pEntry, pScore] = *list[listidx];
+        drawBodyOn = (index == SelectData.songList.highlightBarIndex);
 
         // check new song
         bool isNewEntry = false;
@@ -277,7 +280,7 @@ bool SpriteBarEntry::update(Time time)
             drawTitle = true;
         }
 
-        drawFlash = SelectData.highlightBarIndex == index;
+        drawFlash = SelectData.songList.highlightBarIndex == index;
         if (drawFlash && sFlash)
         {
             sFlash->update(time);
@@ -578,7 +581,7 @@ bool SpriteBarEntry::OnClick(int x, int y)
     if (_current.rect.x <= x && x < _current.rect.x + _current.rect.w &&
         _current.rect.y <= y && y < _current.rect.y + _current.rect.h)
     {
-        if (SelectData.highlightBarIndex == index)
+        if (SelectData.songList.highlightBarIndex == index)
         {
             SelectData.cursorEnterPending = true;
         }
@@ -590,10 +593,10 @@ bool SpriteBarEntry::OnClick(int x, int y)
             }
             else
             {
-                if (SelectData.highlightBarIndex > index)
-                    SelectData.cursorClickScroll = (SelectData.highlightBarIndex - index);
+                if (SelectData.songList.highlightBarIndex > index)
+                    SelectData.cursorClickScroll = (SelectData.songList.highlightBarIndex - index);
                 else
-                    SelectData.cursorClickScroll = -(index - SelectData.highlightBarIndex);
+                    SelectData.cursorClickScroll = -(index - SelectData.songList.highlightBarIndex);
             }
         }
         return true;
