@@ -12,6 +12,18 @@ std::map<std::string, std::shared_ptr<Texture>> SkinBase::textureNameMap;
 
 SkinBase::SkinBase()
 {
+    static std::shared_ptr<boost::asio::thread_pool> _pool = nullptr;
+    if (_pool == nullptr)
+    {
+        int threads = std::thread::hardware_concurrency();
+        if (threads >= 8)
+            threads = threads - 2;
+        else if (threads >= 3)
+            threads = threads - 1;
+        _pool = std::make_shared<boost::asio::thread_pool>(threads);
+    }
+    updatePool = _pool;
+
     _version = SkinVersion::UNDEF;
     if (preDefinedTextures.empty())
     {
@@ -57,11 +69,8 @@ void SkinBase::update()
         s->update(t);
     };
 
-#ifdef _DEBUG
-    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
-#else
-    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
-#endif
+    for (auto& s : _sprites)
+        boost::asio::post(*updatePool, std::bind(updateSpriteLambda, s));
 
     for (auto& s : _sprites)
     {
@@ -81,18 +90,18 @@ void SkinBase::update_mouse(int x, int y)
         y = -99999999;  // LUL
     }
 
-    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), 
-        [x, y](const std::shared_ptr<SpriteBase>& s)
-        {
-            if (s->isDraw() && !s->isHidden())
+    for (auto& s : _sprites)
+        boost::asio::post(*updatePool, std::bind([x, y](const std::shared_ptr<SpriteBase>& s)
             {
-                auto pS = std::dynamic_pointer_cast<iSpriteMouse>(s);
-                if (pS != nullptr)
+                if (s->isDraw() && !s->isHidden())
                 {
-                    pS->OnMouseMove(x, y);
+                    auto pS = std::dynamic_pointer_cast<iSpriteMouse>(s);
+                    if (pS != nullptr)
+                    {
+                        pS->OnMouseMove(x, y);
+                    }
                 }
-            }
-        });
+            }, s));
 }
 
 void SkinBase::update_mouse_click(int x, int y)

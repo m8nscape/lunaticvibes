@@ -19,6 +19,7 @@ class SkinBase
 {
 protected:
     static std::map<std::string, std::shared_ptr<Texture>> preDefinedTextures;
+    std::shared_ptr<boost::asio::thread_pool> updatePool;
 
 protected:
     SkinVersion _version;
