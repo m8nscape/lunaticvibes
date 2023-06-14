@@ -99,11 +99,41 @@ public:
         bool ignoreFilters = false;
     };
 
-private:
-    mutable std::shared_mutex m;
-    std::thread::id mid;
-    bool locked = false;
+protected:
+    // typical std::shared_mutex will cause write lock starvation in our use case
+    class Lock
+    {
+    private:
+        std::atomic<bool> lockedForWrite = false;
+        std::atomic<int> lockedForRead = 0;
+        std::thread::id mid;
+        std::shared_mutex lockMutex;
+    public:
+        Lock() = default;
+        ~Lock();
+        void lockForWrite();
+        void lockForRead();
+        void unlock();
+        bool isLocked() const;
+    } mutable lock;
+    class LockReadGuard
+    {
+    private:
+        Lock* l;
+    public:
+        LockReadGuard(Lock* l) : l(l) { l->lockForRead(); }
+        ~LockReadGuard() { l->unlock(); }
+    };
+    class LockWriteGuard
+    {
+    private:
+        Lock* l;
+    public:
+        LockWriteGuard(Lock* l) : l(l) { l->lockForWrite(); }
+        ~LockWriteGuard() { l->unlock(); }
+    };
 
+private:
     std::deque<std::shared_ptr<List>> backtrace;
 
 public:
@@ -119,7 +149,7 @@ public:
     void append(std::shared_ptr<List>);
     void pop();
 
-    bool isModifying() const;
+    bool isModifying() const { return lock.isLocked(); }
     std::shared_ptr<List> getList(size_t layer);
     std::shared_ptr<List> getCurrentList();
     size_t getCurrentIndex();

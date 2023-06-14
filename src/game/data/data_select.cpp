@@ -15,53 +15,105 @@ namespace lunaticvibes
 extern std::shared_ptr<SongDB> g_pSongDB;
 extern std::shared_ptr<ScoreDB> g_pScoreDB;
 
+template <typename Ty>
 class AutoResetBool
 {
 private:
-    bool* p = nullptr;
+    Ty* p = nullptr;
 public:
-    AutoResetBool(bool* p) : p(p) { *p = true; }
+    AutoResetBool(Ty* p) : p(p) { *p = true; }
     ~AutoResetBool() { *p = false; }
 };
 
+SongListManager::Lock::~Lock()
+{
+    std::unique_lock l(lockMutex);
+    while (lockedForWrite || lockedForRead > 0)
+    {
+        unlock();
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(1ms);
+    }
+}
+
+void SongListManager::Lock::lockForWrite()
+{
+    if (lockedForWrite)
+    {
+        std::shared_lock l(lockMutex);
+        if (mid == std::this_thread::get_id())
+            return;
+    }
+    {
+        std::unique_lock l(lockMutex);
+        lockedForWrite = true;
+        mid = std::this_thread::get_id();
+    }
+    while (lockedForRead > 0)
+    {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(1ms);
+    }
+}
+
+void SongListManager::Lock::lockForRead()
+{
+    std::shared_lock l(lockMutex);
+    bool b = lockedForWrite && mid != std::this_thread::get_id();
+    l.unlock();
+    if (b)
+    {
+        while (lockedForWrite)
+        {
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(1ms);
+        }
+    }
+    lockedForRead++;
+}
+
+void SongListManager::Lock::unlock()
+{
+    // these codes are dumb and unprotected
+    if (lockedForRead > 0)
+        lockedForRead--;
+    else
+        lockedForWrite = false;
+}
+
+bool SongListManager::Lock::isLocked() const
+{
+    return lockedForWrite;
+}
+
 void SongListManager::initialize()
 {
-    AutoResetBool lb(&locked);
-    std::unique_lock l(m);
+    LockWriteGuard l(&lock);
     backtrace.clear();
 }
 
-void SongListManager::append(std::shared_ptr<List> l)
+void SongListManager::append(std::shared_ptr<List> list)
 {
-    AutoResetBool lb(&locked);
-    std::unique_lock lock(m);
-    backtrace.push_front(l);
+    LockWriteGuard l(&lock);
+    backtrace.push_front(list);
 }
 
 void SongListManager::pop()
 {
-    AutoResetBool lb(&locked);
-    std::unique_lock l(m);
+    LockWriteGuard l(&lock);
     if (!backtrace.empty())
         backtrace.pop_front();
 }
 
-bool SongListManager::isModifying() const
-{
-    return locked;
-}
-
 std::shared_ptr<SongListManager::List> SongListManager::getList(size_t layer)
 {
-    std::shared_lock l(m, std::defer_lock);
-    if (!locked || std::this_thread::get_id() != mid) l.lock();
+    LockReadGuard l(&lock);
     return layer < backtrace.size() ? backtrace[layer] : nullptr;
 }
 
 std::shared_ptr<SongListManager::List> SongListManager::getCurrentList()
 {
-    std::shared_lock l(m, std::defer_lock);
-    if (!locked || std::this_thread::get_id() != mid) l.lock();
+    LockReadGuard l(&lock);
     return backtrace.empty() ? nullptr : backtrace.front();
 }
 
@@ -73,16 +125,14 @@ size_t SongListManager::getCurrentIndex()
 
 std::shared_ptr<SongListManager::Entry> SongListManager::getCurrentEntry()
 {
-    std::shared_lock l(m, std::defer_lock);
-    if (!locked || std::this_thread::get_id() != mid) l.lock();
+    LockReadGuard l(&lock);
     auto pl = getCurrentList();
     return (pl && !pl->displayEntries.empty()) ? pl->displayEntries[pl->index] : nullptr;
 }
 
 size_t SongListManager::getBacktraceSize() const
 {
-    std::shared_lock l(m, std::defer_lock);
-    if (!locked || std::this_thread::get_id() != mid) l.lock();
+    LockReadGuard l(&lock);
     return backtrace.size();
 }
 
@@ -102,9 +152,7 @@ void SongListManager::updateScore(const HashMD5& hash, std::shared_ptr<ScoreBase
 
 void SongListManager::loadSongList()
 {
-    AutoResetBool lb(&locked);
-    mid = std::this_thread::get_id();
-    std::unique_lock l(m);
+    LockWriteGuard l(&lock);
 
     auto currentEntry = getCurrentEntry();
     HashMD5 currentEntryHash;
@@ -378,9 +426,7 @@ void SongListManager::loadSongList()
 
 void SongListManager::sortSongList()
 {
-    AutoResetBool lb(&locked);
-    mid = std::this_thread::get_id();
-    std::unique_lock l(m);
+    LockWriteGuard l(&lock);
 
     auto currentList = getCurrentList();
     if (currentList == nullptr)
