@@ -48,7 +48,7 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     // Sprite elements
 protected:
-    std::list<std::shared_ptr<SpriteBase>> _sprites;                    // Push instance on parsing
+    std::vector<std::shared_ptr<SpriteBase>> _sprites;                    // Push instance on parsing
 
     // functional support
 protected:
