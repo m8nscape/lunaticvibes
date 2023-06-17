@@ -149,6 +149,8 @@ ScenePlay::ScenePlay(): SceneBase(PlayData.mode, 1000, true)
     _inputAvailable = INPUT_MASK_FUNC;
     _inputAvailable |= INPUT_MASK_1P | INPUT_MASK_2P;
 
+    PlayData.loadHasFinished = false;
+
     // which lanes should we use for 5K, 1-5 or 3-7? 
     PlayData.shift1PNotes5KFor7KSkin = false;
     PlayData.shift2PNotes5KFor7KSkin = false;
@@ -185,7 +187,6 @@ ScenePlay::ScenePlay(): SceneBase(PlayData.mode, 1000, true)
             }
             SystemData.freqVal = PlayData.replay->pitchValue;
         }
-        // TODO update soundsystem
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -1419,35 +1420,37 @@ void ScenePlay::updateAsyncAbsoluteAxis(const Time& t)
             {
                 if (slot == PLAYER_SLOT_PLAYER)
                 {
-                    PlayData.timers["key_on_s_1p"] = t.norm();
-                    PlayData.timers["key_off_s_1p"] = TIMER_NEVER;
-                    PlayData.timers["key_on_sr_1p"] = t.norm();
-                    PlayData.timers["key_off_sr_1p"] = TIMER_NEVER;
+                    SystemData.timers["key_on_s_1p"] = t.norm();
+                    SystemData.timers["key_off_s_1p"] = TIMER_NEVER;
+                    SystemData.timers["key_on_sr_1p"] = t.norm();
+                    SystemData.timers["key_off_sr_1p"] = TIMER_NEVER;
                 }
                 else
                 {
-                    PlayData.timers["key_on_s_2p"] = t.norm();
-                    PlayData.timers["key_off_s_2p"] = TIMER_NEVER;
-                    PlayData.timers["key_on_sr_2p"] = t.norm();
-                    PlayData.timers["key_off_sr_2p"] = TIMER_NEVER;
+                    SystemData.timers["key_on_s_2p"] = t.norm();
+                    SystemData.timers["key_off_s_2p"] = TIMER_NEVER;
+                    SystemData.timers["key_on_sr_2p"] = t.norm();
+                    SystemData.timers["key_off_sr_2p"] = TIMER_NEVER;
                 }
+                playerState[slot].scratchLastUpdate = t.norm();
             }
             else if (axisDir == AxisDir::AXIS_UP)
             {
                 if (slot == PLAYER_SLOT_PLAYER)
                 {
-                    PlayData.timers["key_on_s_1p"] = t.norm();
-                    PlayData.timers["key_off_s_1p"] = TIMER_NEVER;
-                    PlayData.timers["key_on_sl_1p"] = t.norm();
-                    PlayData.timers["key_off_sl_1p"] = TIMER_NEVER;
+                    SystemData.timers["key_on_s_1p"] = t.norm();
+                    SystemData.timers["key_off_s_1p"] = TIMER_NEVER;
+                    SystemData.timers["key_on_sl_1p"] = t.norm();
+                    SystemData.timers["key_off_sl_1p"] = TIMER_NEVER;
                 }
                 else
                 {
-                    PlayData.timers["key_on_s_2p"] = t.norm();
-                    PlayData.timers["key_off_s_2p"] = TIMER_NEVER;
-                    PlayData.timers["key_on_sl_2p"] = t.norm();
-                    PlayData.timers["key_off_sl_2p"] = TIMER_NEVER;
+                    SystemData.timers["key_on_s_2p"] = t.norm();
+                    SystemData.timers["key_off_s_2p"] = TIMER_NEVER;
+                    SystemData.timers["key_on_sl_2p"] = t.norm();
+                    SystemData.timers["key_off_sl_2p"] = TIMER_NEVER;
                 }
+                playerState[slot].scratchLastUpdate = t.norm();
             }
         }
 
@@ -1540,21 +1543,21 @@ void ScenePlay::updateAsyncAbsoluteAxis(const Time& t)
             {
                 if (slot == PLAYER_SLOT_PLAYER)
                 {
-                    PlayData.timers["key_on_s_1p"] = TIMER_NEVER;
-                    PlayData.timers["key_off_s_1p"] = t.norm();
-                    PlayData.timers["key_on_sl_1p"] = TIMER_NEVER;
-                    PlayData.timers["key_off_sl_1p"] = t.norm();
-                    PlayData.timers["key_on_sr_1p"] = TIMER_NEVER;
-                    PlayData.timers["key_off_sr_1p"] = t.norm();
+                    SystemData.timers["key_on_s_1p"] = TIMER_NEVER;
+                    SystemData.timers["key_off_s_1p"] = t.norm();
+                    SystemData.timers["key_on_sl_1p"] = TIMER_NEVER;
+                    SystemData.timers["key_off_sl_1p"] = t.norm();
+                    SystemData.timers["key_on_sr_1p"] = TIMER_NEVER;
+                    SystemData.timers["key_off_sr_1p"] = t.norm();
                 }
                 else
                 {
-                    PlayData.timers["key_on_s_2p"] = TIMER_NEVER;
-                    PlayData.timers["key_off_s_2p"] = t.norm();
-                    PlayData.timers["key_on_sl_2p"] = TIMER_NEVER;
-                    PlayData.timers["key_off_sl_2p"] = t.norm();
-                    PlayData.timers["key_on_sr_2p"] = TIMER_NEVER;
-                    PlayData.timers["key_off_sr_2p"] = t.norm();
+                    SystemData.timers["key_on_s_2p"] = TIMER_NEVER;
+                    SystemData.timers["key_off_s_2p"] = t.norm();
+                    SystemData.timers["key_on_sl_2p"] = TIMER_NEVER;
+                    SystemData.timers["key_off_sl_2p"] = t.norm();
+                    SystemData.timers["key_on_sr_2p"] = TIMER_NEVER;
+                    SystemData.timers["key_off_sr_2p"] = t.norm();
                 }
             }
 
@@ -1593,7 +1596,7 @@ void ScenePlay::updateLoading()
     if (chartObjLoaded && 
         rulesetLoaded &&
         SelectData.selectedChart.isSampleLoaded && 
-        ((PlayData.panelStyle & PANEL_STYLE_BGA_OFF) != PANEL_STYLE_BGA_OFF || SelectData.selectedChart.isBgaLoaded) &&
+        ((PlayData.panelStyle & PANEL_STYLE_BGA_OFF) == PANEL_STYLE_BGA_OFF || SelectData.selectedChart.isBgaLoaded) &&
         (t - delayedReadyTime) > 1000 &&
 		rt > pSkin->info.timeMinimumLoad)
     {
@@ -1616,6 +1619,7 @@ void ScenePlay::updateLoading()
         if (trans)
         {
             if (PlayData.bgaTexture) PlayData.bgaTexture->reset();
+            PlayData.loadHasFinished = true;
             PlayData.timers["ready"] = t.norm();
             state = ePlayState::LOAD_END;
             LOG_DEBUG << "[Play] State changed to READY";
@@ -2793,18 +2797,20 @@ void ScenePlay::inputGamePressTimer(InputMask& input, const Time& t)
     {
         if (input[S1L] || input[S1R])
         {
+            playerState[PLAYER_SLOT_PLAYER].scratchLastUpdate = t.norm();
             playerState[PLAYER_SLOT_PLAYER].scratchDirection = input[S1L] ? AxisDir::AXIS_UP : AxisDir::AXIS_DOWN;
-            PlayData.timers["key_on_s_1p"] = t.norm();
-            PlayData.timers["key_off_s_1p"] = TIMER_NEVER;
+            SystemData.timers["key_on_s_1p"] = t.norm();
+            SystemData.timers["key_off_s_1p"] = TIMER_NEVER;
         }
     }
     if (isBattle() || isPlaymodeDP())
     {
         if (input[S2L] || input[S2R])
         {
+            playerState[PLAYER_SLOT_TARGET].scratchLastUpdate = t.norm();
             playerState[PLAYER_SLOT_TARGET].scratchDirection = input[S2L] ? AxisDir::AXIS_UP : AxisDir::AXIS_DOWN;
-            PlayData.timers["key_on_s_2p"] = t.norm();
-            PlayData.timers["key_off_s_2p"] = TIMER_NEVER;
+            SystemData.timers["key_on_s_2p"] = t.norm();
+            SystemData.timers["key_off_s_2p"] = TIMER_NEVER;
         }
     }
 }
@@ -2832,8 +2838,8 @@ void ScenePlay::inputGamePressPlayKeysounds(InputMask inputSample, const Time& t
         }
         if (inputSample[i])
         {
-            PlayData.timers[InputGamePressMap.at(Input::Pad(i))] = t.norm();
-            PlayData.timers[InputGameReleaseMap.at(Input::Pad(i))] = TIMER_NEVER;
+            SystemData.timers[InputGamePressMap.at(Input::Pad(i))] = t.norm();
+            SystemData.timers[InputGameReleaseMap.at(Input::Pad(i))] = TIMER_NEVER;
         }
     }
     SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, sampleCount, (size_t*)&_keySampleIdxBuf[0]);
@@ -2864,6 +2870,7 @@ void ScenePlay::inputGameHold(InputMask& m, const Time& t)
 
         // turntable spin
         playerState[slot].turntableAngleAdd += val * 0.25;
+        playerState[slot].scratchLastUpdate = t.norm();
 
         if (lanecover && fnLanecover)
         {
@@ -2935,8 +2942,8 @@ void ScenePlay::inputGameReleaseTimer(InputMask& input, const Time& t)
     for (size_t i = Input::S1L; i < Input::LANE_COUNT; ++i)
         if (input[i])
         {
-            PlayData.timers[InputGamePressMap.at(Input::Pad(i))] = TIMER_NEVER;
-            PlayData.timers[InputGameReleaseMap.at(Input::Pad(i))] = t.norm();
+            SystemData.timers[InputGamePressMap.at(Input::Pad(i))] = TIMER_NEVER;
+            SystemData.timers[InputGameReleaseMap.at(Input::Pad(i))] = t.norm();
 
             // TODO stop sample playing while release in LN notes
         }
@@ -2948,8 +2955,8 @@ void ScenePlay::inputGameReleaseTimer(InputMask& input, const Time& t)
             if ((input[S1L] && playerState[PLAYER_SLOT_PLAYER].scratchDirection == AxisDir::AXIS_UP) ||
                 (input[S1R] && playerState[PLAYER_SLOT_PLAYER].scratchDirection == AxisDir::AXIS_DOWN))
             {
-                PlayData.timers["key_on_s_1p"] = TIMER_NEVER;
-                PlayData.timers["key_off_s_1p"] = t.norm();
+                SystemData.timers["key_on_s_1p"] = TIMER_NEVER;
+                SystemData.timers["key_off_s_1p"] = t.norm();
                 playerState[PLAYER_SLOT_PLAYER].scratchDirection = AxisDir::AXIS_NONE;
             }
         }
@@ -2961,8 +2968,8 @@ void ScenePlay::inputGameReleaseTimer(InputMask& input, const Time& t)
             if ((input[S2L] && playerState[PLAYER_SLOT_TARGET].scratchDirection == AxisDir::AXIS_UP) ||
                 (input[S2R] && playerState[PLAYER_SLOT_TARGET].scratchDirection == AxisDir::AXIS_DOWN))
             {
-                PlayData.timers["key_on_s_2p"] = TIMER_NEVER;
-                PlayData.timers["key_off_s_2p"] = t.norm();
+                SystemData.timers["key_on_s_2p"] = TIMER_NEVER;
+                SystemData.timers["key_off_s_2p"] = t.norm();
                 playerState[PLAYER_SLOT_TARGET].scratchDirection = AxisDir::AXIS_NONE;
             }
         }

@@ -146,8 +146,8 @@ void SceneKeyConfig::inputGamePress(InputMask& m, const Time& t)
     {
         if (m[i])
         {
-            PlayData.timers[InputGamePressMap.at(Input::Pad(i))] = t.norm();
-            PlayData.timers[InputGameReleaseMap.at(Input::Pad(i))] = TIMER_NEVER;
+            SystemData.timers[InputGamePressMap.at(Input::Pad(i))] = t.norm();
+            SystemData.timers[InputGameReleaseMap.at(Input::Pad(i))] = TIMER_NEVER;
         }
     }
 }

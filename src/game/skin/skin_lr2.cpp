@@ -1759,7 +1759,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE(size_t idx)
     return ParseRet::OK;
 }
 
-ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
+ParseRet SkinLR2::SRC_NOWCOMBO(int slot, size_t idx)
 {
     if (idx >= SPRITE_GLOBAL_MAX)
     {
@@ -1787,10 +1787,10 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
     builder.textureSheetCols = d.div_x;
     builder.align = (NumberAlign)d.align;
     builder.maxDigits = d.keta;
-    builder.numberCallback = lr2skin::convertNumberIndex(d.num);
+    builder.numberCallback = lr2skin::convertNumberIndex(slot == PLAYER_SLOT_PLAYER ? 104 : 124);
     builder.hideLeadingZeros = true;
     builder.lr2SpriteData.animTimer = d.timer;
-    builder.lr2SpriteData.type = d.num;
+    builder.lr2SpriteData.type = d._null;
     gSprites[idx] = builder.build();
 
     return ParseRet::OK;
@@ -1892,7 +1892,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO1()
     if (bufJudge1PSlot >= 0 && bufJudge1PSlot < 6)
     {
         size_t idx = GLOBAL_SPRITE_IDX_1PJUDGENUM + bufJudge1PSlot;
-        auto ret = SRC_NOWCOMBO(idx);
+        auto ret = SRC_NOWCOMBO(PLAYER_SLOT_PLAYER, idx);
         if (ret == ParseRet::OK)
         {
             _sprites.push_back(std::make_shared<SpriteGlobal>(idx, csvLineNumber));
@@ -1918,7 +1918,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
     if (bufJudge2PSlot >= 0 && bufJudge2PSlot < 6)
     {
         size_t idx = GLOBAL_SPRITE_IDX_2PJUDGENUM + bufJudge2PSlot;
-        auto ret = SRC_NOWCOMBO(idx);
+        auto ret = SRC_NOWCOMBO(PLAYER_SLOT_TARGET, idx);
         if (ret == ParseRet::OK)
         {
             _sprites.push_back(std::make_shared<SpriteGlobal>(idx, csvLineNumber));
@@ -2650,7 +2650,7 @@ bool SkinLR2::DST()
 
         if (e->isMotionKeyFramesEmpty())
         {
-            std::string_view timer;
+            std::string timer = lr2skin::timer(d.timer);
             if (flipSide)
             {
                 switch (type)
@@ -2659,12 +2659,12 @@ bool SkinLR2::DST()
                 case DefType::NOWJUDGE_2P:
                     switch (bufJudge1PSlot)
                     {
-                    case 0: timer = "play.judge_1p_pg"; break;
-                    case 1: timer = "play.judge_1p_gr"; break;
-                    case 2: timer = "play.judge_1p_gd"; break;
-                    case 3: timer = "play.judge_1p_bd"; break;
-                    case 4: timer = "play.judge_1p_pr"; break;
-                    case 5: timer = "play.judge_1p_kp"; break;
+                    case 5: timer = "play.judge_1p_pg"; break;
+                    case 4: timer = "play.judge_1p_gr"; break;
+                    case 3: timer = "play.judge_1p_gd"; break;
+                    case 2: timer = "play.judge_1p_bd"; break;
+                    case 1: timer = "play.judge_1p_pr"; break;
+                    case 0: timer = "play.judge_1p_kp"; break;
                     default: break;
                     }
                     break;
@@ -2673,12 +2673,12 @@ bool SkinLR2::DST()
                 case DefType::NOWJUDGE_1P:
                     switch (bufJudge2PSlot)
                     {
-                    case 0: timer = "play.judge_2p_pg"; break;
-                    case 1: timer = "play.judge_2p_gr"; break;
-                    case 2: timer = "play.judge_2p_gd"; break;
-                    case 3: timer = "play.judge_2p_bd"; break;
-                    case 4: timer = "play.judge_2p_pr"; break;
-                    case 5: timer = "play.judge_2p_kp"; break;
+                    case 5: timer = "play.judge_2p_pg"; break;
+                    case 4: timer = "play.judge_2p_gr"; break;
+                    case 3: timer = "play.judge_2p_gd"; break;
+                    case 2: timer = "play.judge_2p_bd"; break;
+                    case 1: timer = "play.judge_2p_pr"; break;
+                    case 0: timer = "play.judge_2p_kp"; break;
                     default: break;
                     }
                     break;
@@ -2692,12 +2692,12 @@ bool SkinLR2::DST()
                 case DefType::NOWJUDGE_1P:
                     switch (bufJudge1PSlot)
                     {
-                    case 0: timer = "play.judge_2p_pg"; break;
-                    case 1: timer = "play.judge_2p_gr"; break;
-                    case 2: timer = "play.judge_2p_gd"; break;
-                    case 3: timer = "play.judge_2p_bd"; break;
-                    case 4: timer = "play.judge_2p_pr"; break;
-                    case 5: timer = "play.judge_2p_kp"; break;
+                    case 5: timer = "play.judge_1p_pg"; break;
+                    case 4: timer = "play.judge_1p_gr"; break;
+                    case 3: timer = "play.judge_1p_gd"; break;
+                    case 2: timer = "play.judge_1p_bd"; break;
+                    case 1: timer = "play.judge_1p_pr"; break;
+                    case 0: timer = "play.judge_1p_kp"; break;
                     default: break;
                     }
                     break;
@@ -2706,12 +2706,12 @@ bool SkinLR2::DST()
                 case DefType::NOWJUDGE_2P:
                     switch (bufJudge2PSlot)
                     {
-                    case 0: timer = "play.judge_1p_pg"; break;
-                    case 1: timer = "play.judge_1p_gr"; break;
-                    case 2: timer = "play.judge_1p_gd"; break;
-                    case 3: timer = "play.judge_1p_bd"; break;
-                    case 4: timer = "play.judge_1p_pr"; break;
-                    case 5: timer = "play.judge_1p_kp"; break;
+                    case 5: timer = "play.judge_2p_pg"; break;
+                    case 4: timer = "play.judge_2p_gr"; break;
+                    case 3: timer = "play.judge_2p_gd"; break;
+                    case 2: timer = "play.judge_2p_bd"; break;
+                    case 1: timer = "play.judge_2p_pr"; break;
+                    case 0: timer = "play.judge_2p_kp"; break;
                     default: break;
                     }
                     break;
@@ -2733,7 +2733,7 @@ bool SkinLR2::DST()
             drawQueue.push_back({ e, d.op[0], d.op[1], d.op[2], d.op[3], opEx });
 
             e->setMotionLoopTo(d.loop);
-            e->setMotionStartTimer(lr2skin::timer(d.timer));
+            e->setMotionStartTimer(timer);
         }
 
         e->appendMotionKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),

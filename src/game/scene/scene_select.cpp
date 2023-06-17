@@ -1064,8 +1064,8 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
         {
             if (input[k])
             {
-                PlayData.timers[InputGamePressMap.at(Input::Pad(k))] = t.norm();
-                PlayData.timers[InputGameReleaseMap.at(Input::Pad(k))] = TIMER_NEVER;
+                SystemData.timers[InputGamePressMap.at(Input::Pad(k))] = t.norm();
+                SystemData.timers[InputGameReleaseMap.at(Input::Pad(k))] = TIMER_NEVER;
             }
         }
         for (size_t k = Pad::K21; k <= Pad::K29; ++k)
@@ -1074,13 +1074,13 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
             {
                 if (PlayData.battleType == PlayModifierBattleType::LocalBattle)
                 {
-                    PlayData.timers[InputGamePressMap.at(Input::Pad(k))] = t.norm();
-                    PlayData.timers[InputGameReleaseMap.at(Input::Pad(k))] = TIMER_NEVER;
+                    SystemData.timers[InputGamePressMap.at(Input::Pad(k))] = t.norm();
+                    SystemData.timers[InputGameReleaseMap.at(Input::Pad(k))] = TIMER_NEVER;
                 }
                 else
                 {
-                    PlayData.timers[InputGamePressMap.at(Input::Pad(k - Pad::K21 + Pad::K11))] = t.norm();
-                    PlayData.timers[InputGameReleaseMap.at(Input::Pad(k - Pad::K21 + Pad::K11))] = TIMER_NEVER;
+                    SystemData.timers[InputGamePressMap.at(Input::Pad(k - Pad::K21 + Pad::K11))] = t.norm();
+                    SystemData.timers[InputGameReleaseMap.at(Input::Pad(k - Pad::K21 + Pad::K11))] = TIMER_NEVER;
                 }
             }
         }
@@ -1162,8 +1162,8 @@ void SceneSelect::inputGameRelease(InputMask& m, const Time& t)
         {
             if (input[k])
             {
-                PlayData.timers[InputGamePressMap.at(Input::Pad(k))] = TIMER_NEVER;
-                PlayData.timers[InputGameReleaseMap.at(Input::Pad(k))] = t.norm();
+                SystemData.timers[InputGamePressMap.at(Input::Pad(k))] = TIMER_NEVER;
+                SystemData.timers[InputGameReleaseMap.at(Input::Pad(k))] = t.norm();
             }
         }
         for (size_t k = Pad::K21; k <= Pad::K29; ++k)
@@ -1172,13 +1172,13 @@ void SceneSelect::inputGameRelease(InputMask& m, const Time& t)
             {
                 if (PlayData.battleType == PlayModifierBattleType::LocalBattle)
                 {
-                    PlayData.timers[InputGamePressMap.at(Input::Pad(k))] = TIMER_NEVER;
-                    PlayData.timers[InputGameReleaseMap.at(Input::Pad(k))] = t.norm();
+                    SystemData.timers[InputGamePressMap.at(Input::Pad(k))] = TIMER_NEVER;
+                    SystemData.timers[InputGameReleaseMap.at(Input::Pad(k))] = t.norm();
                 }
                 else
                 {
-                    PlayData.timers[InputGamePressMap.at(Input::Pad(k - Pad::K21 + Pad::K11))] = TIMER_NEVER;
-                    PlayData.timers[InputGameReleaseMap.at(Input::Pad(k - Pad::K21 + Pad::K11))] = t.norm();
+                    SystemData.timers[InputGamePressMap.at(Input::Pad(k - Pad::K21 + Pad::K11))] = TIMER_NEVER;
+                    SystemData.timers[InputGameReleaseMap.at(Input::Pad(k - Pad::K21 + Pad::K11))] = t.norm();
                 }
             }
         }

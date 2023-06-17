@@ -315,8 +315,8 @@ void updateDstOpt()
 
 	// 32 autoplay off
 	// 33 autoplay on
-	set(32, PlayData.isAuto);
-	set(33, !PlayData.isAuto);
+	set(32, !PlayData.isAuto);
+	set(33, PlayData.isAuto);
 
 	// 34 ghost off
 	// 35 ghost typeA
@@ -626,14 +626,17 @@ void updateDstOpt()
 	// 150 difficulty0 (未設定)
 	if (get(5))
 	{
-		switch (SelectData.filterDifficulty)
+		if (currentChart)
 		{
-		case FilterDifficultyType::All: set(150); break;
-		case FilterDifficultyType::B: set(151); break;
-		case FilterDifficultyType::N: set(152); break;
-		case FilterDifficultyType::H: set(153); break;
-		case FilterDifficultyType::A: set(154); break;
-		case FilterDifficultyType::I: set(155); break;
+			switch (currentChart->difficulty)
+			{
+			case 0: set(150); break;
+			case 1: set(151); break;
+			case 2: set(152); break;
+			case 3: set(153); break;
+			case 4: set(154); break;
+			case 5: set(155); break;
+			}
 		}
 	}
 
@@ -1061,7 +1064,7 @@ void updateDstOpt()
 				updatedBP = rbms->getJudgeCountEx(RulesetBMS::JudgeIndex::JUDGE_BP) < (sbms ? sbms->bp : UINT_MAX);
 			}
 		}
-		if (currentScore)
+		if (currentScore && ruleset)
 		{
 			updatedRank = getRankType(ruleset) > getScoreRankType(currentScore);
 			updatedMaxCombo = ruleset->getData().maxCombo > currentScore->maxcombo;

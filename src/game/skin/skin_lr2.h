@@ -331,7 +331,7 @@ private:
     ParseRet SRC_GROOVEGAUGE();
     ParseRet SRC_NOTE(DefType type);
     ParseRet SRC_NOWJUDGE(size_t idx);
-    ParseRet SRC_NOWCOMBO(size_t idx);
+    ParseRet SRC_NOWCOMBO(int slot, size_t idx);
     ParseRet SRC_NOWJUDGE1();
     ParseRet SRC_NOWJUDGE2();
     ParseRet SRC_NOWCOMBO1();

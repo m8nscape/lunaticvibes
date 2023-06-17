@@ -818,7 +818,10 @@ public:
         if (c)
         {
             auto score = g_pScoreDB->getChartScoreBMS(c->getFileHash());
-            return score->exscore;
+            if (score)
+            {
+                return score->exscore;
+            }
         }
         return 0;
     }
@@ -846,7 +849,10 @@ public:
         if (c)
         {
             auto score = g_pScoreDB->getChartScoreBMS(c->getFileHash());
-            return int(score->maxcombo);
+            if (score)
+            {
+                return int(score->maxcombo);
+            }
         }
         return 0;
     }
@@ -874,7 +880,10 @@ public:
         if (c)
         {
             auto score = g_pScoreDB->getChartScoreBMS(c->getFileHash());
-            return score->bp;
+            if (score)
+            {
+                return score->bp;
+            }
         }
         return 0;
     }
@@ -909,7 +918,10 @@ public:
         if (c)
         {
             auto score = g_pScoreDB->getChartScoreBMS(c->getFileHash());
-            return (int)score->rate;
+            if (score)
+            {
+                return (int)score->rate;
+            }
         }
         return 0;
     }
@@ -918,7 +930,10 @@ public:
         if (c)
         {
             auto score = g_pScoreDB->getChartScoreBMS(c->getFileHash());
-            return int(score->rate * 100) % 100;
+            if (score)
+            {
+                return int(score->rate * 100) % 100;
+            }
         }
         return 0;
     }
