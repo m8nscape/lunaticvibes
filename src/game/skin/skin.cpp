@@ -12,13 +12,6 @@ std::map<std::string, std::shared_ptr<Texture>> SkinBase::textureNameMap;
 
 SkinBase::SkinBase()
 {
-    int threads = std::thread::hardware_concurrency();
-    if (threads >= 8)
-        threads = threads - 2;
-    else if (threads >= 3)
-        threads = threads - 1;
-    updatePool = std::make_shared<boost::asio::thread_pool>(threads);
-
     _version = SkinVersion::UNDEF;
     if (preDefinedTextures.empty())
     {
@@ -38,7 +31,6 @@ SkinBase::SkinBase()
 
 SkinBase::~SkinBase()
 {
-    updatePool->stop();
     if (pSpriteTextEditing)
     {
         pSpriteTextEditing->stopEditing(false);
@@ -65,17 +57,11 @@ void SkinBase::update()
         s->update(t);
     };
 
-    std::atomic<int> count = 0;
-    for (size_t i = 0; i < _sprites.size(); i++)
-    {
-        count++;
-        boost::asio::post(*updatePool, [&, i]()
-            {
-                updateSpriteLambda(_sprites[i]);
-                count--;
-            });
-    }
-    while (count); // spinlock
+#ifdef _DEBUG
+    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
+#else
+    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
+#endif
 
     for (auto& s : _sprites)
     {
@@ -95,24 +81,18 @@ void SkinBase::update_mouse(int x, int y)
         y = -99999999;  // LUL
     }
 
-    std::atomic<int> count = 0;
-    for (auto& s : _sprites)
-    {
-        count++;
-        boost::asio::post(*updatePool, [&]()
+    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), 
+        [x, y](const std::shared_ptr<SpriteBase>& s)
+        {
+            if (s->isDraw() && !s->isHidden())
             {
-                if (s->isDraw() && !s->isHidden())
+                auto pS = std::dynamic_pointer_cast<iSpriteMouse>(s);
+                if (pS != nullptr)
                 {
-                    auto pS = std::dynamic_pointer_cast<iSpriteMouse>(s);
-                    if (pS != nullptr)
-                    {
-                        pS->OnMouseMove(x, y);
-                    }
+                    pS->OnMouseMove(x, y);
                 }
-                count--;
-            });
-    }
-    while (count);  // spinlock
+            }
+        });
 }
 
 void SkinBase::update_mouse_click(int x, int y)

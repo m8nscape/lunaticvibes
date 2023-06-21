@@ -4286,36 +4286,28 @@ void SkinLR2::update()
     Time t;
 
     // update turntables
-    std::atomic<int> count1 = 0;
-    for (size_t i = 0; i < drawQueue.size(); i++)
-    {
-        count1++;
-        boost::asio::post(*updatePool, [&, i]()
+    std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [&](SkinLR2::element& e)
+        {
+            bool hide = false;
+            if (!(getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3)))
+                hide = true;
+            for (auto op : e.opEx)
             {
-                auto& e = drawQueue[i];
-                bool hide = false;
-                if (!(getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3)))
+                if (!getDstOpt(op))
+                {
                     hide = true;
-                for (auto op : e.opEx)
-                {
-                    if (!getDstOpt(op))
-                    {
-                        hide = true;
-                        break;
-                    }
+                    break;
                 }
-                e.ps->setHideExternal(hide);
+            }
+            e.ps->setHideExternal(hide);
 
-                switch (e.op4)
-                {
-                case 1: e.ps->_current.angle += SystemData.scratchAxisValue[0]; break;
-                case 2: e.ps->_current.angle += SystemData.scratchAxisValue[1]; break;
-                default: break;
-                }
-                count1--;
-            });
-    }
-    while (count1); // spinlock
+            switch (e.op4)
+            {
+            case 1: e.ps->_current.angle += SystemData.scratchAxisValue[0]; break;
+            case 2: e.ps->_current.angle += SystemData.scratchAxisValue[1]; break;
+            default: break;
+            }
+        });
 
     // update nowjudge/nowcombo
     // 0-5:   NOWJUDGE 1P
@@ -4513,42 +4505,35 @@ void SkinLR2::update()
 
     // note scale
     std::atomic<int> count = 0;
-    for (size_t i = 0; i < drawQueue.size(); i++)
-    {
-        count++;
-        boost::asio::post(*updatePool, [&, i]()
+    std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [&](SkinLR2::element& e)
+        {
+            auto pS = std::dynamic_pointer_cast<SpriteLaneVertical>(e.ps);
+            if (pS != nullptr)
             {
-                auto& e = drawQueue[i];
-                auto pS = std::dynamic_pointer_cast<SpriteLaneVertical>(e.ps);
-                if (pS != nullptr)
+                if (pS->getLane().first == chart::NoteLaneCategory::EXTRA)
                 {
-                    if (pS->getLane().first == chart::NoteLaneCategory::EXTRA)
+                    if (pS->getLane().second == chart::NoteLaneExtra::EXTRA_BARLINE_1P)
                     {
-                        if (pS->getLane().second == chart::NoteLaneExtra::EXTRA_BARLINE_1P)
-                        {
-                            pS->adjustAfterUpdate(move1PX, move1PY, adjustPlayNote1PW, 0);
-                        }
-                        else
-                        {
-                            pS->adjustAfterUpdate(move2PX, move2PY, adjustPlayNote2PW, 0);
-                        }
+                        pS->adjustAfterUpdate(move1PX, move1PY, adjustPlayNote1PW, 0);
                     }
                     else
                     {
-                        if (pS->slot == PLAYER_SLOT_PLAYER)
-                        {
-                            pS->adjustAfterUpdate(move1PX, move1PY, adjustPlayNote1PW, -adjustPlayNote1PH);
-                        }
-                        else if (pS->slot == PLAYER_SLOT_TARGET)
-                        {
-                            pS->adjustAfterUpdate(move2PX, move2PY, adjustPlayNote2PW, -adjustPlayNote2PH);
-                        }
+                        pS->adjustAfterUpdate(move2PX, move2PY, adjustPlayNote2PW, 0);
                     }
                 }
-                count--;
-            });
-    }
-    while (count); // spinlock
+                else
+                {
+                    if (pS->slot == PLAYER_SLOT_PLAYER)
+                    {
+                        pS->adjustAfterUpdate(move1PX, move1PY, adjustPlayNote1PW, -adjustPlayNote1PH);
+                    }
+                    else if (pS->slot == PLAYER_SLOT_TARGET)
+                    {
+                        pS->adjustAfterUpdate(move2PX, move2PY, adjustPlayNote2PW, -adjustPlayNote2PH);
+                    }
+                }
+            }
+        });
 
     // update songlist bar
     if (!SelectData.songList.isModifying())
