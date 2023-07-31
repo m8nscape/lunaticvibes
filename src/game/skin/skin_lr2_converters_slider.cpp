@@ -14,13 +14,7 @@ class SliderConverter
 {
 public:
     static Ratio slider_0() { return 0.0; }
-    static Ratio slider_1()
-    {
-        auto p = SelectData.songList.getCurrentList();
-        if (p && !p->displayEntries.empty())
-            return SelectData.songList.selectedEntryIndexRolling / p->displayEntries.size();
-        return 0.0;
-    }
+    static Ratio slider_1() { return SelectData.songList.selectedEntryIndexRolling; }
     static Ratio slider_2() { return PlayData.player[PLAYER_SLOT_PLAYER].hispeed / 10.0; }
     static Ratio slider_3() { return PlayData.player[PLAYER_SLOT_TARGET].lanecoverTop / 1000.0; }
     static Ratio slider_4() { return PlayData.player[PLAYER_SLOT_PLAYER].hispeed / 10.0; }

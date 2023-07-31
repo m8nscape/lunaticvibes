@@ -2,6 +2,8 @@
 #include "skin_lr2_debug.h"
 #include "imgui.h"
 #include "game/data/data_types.h"
+#include "game/scene/scene_mgr.h"
+#include "game/scene/scene_select.h"
 
 namespace lunaticvibes
 {
@@ -66,8 +68,97 @@ void imguiMonitorText()
 	assert(IsMainThread());
 	if (!imguiShowMonitorText) return;
 
-	if (ImGui::Begin("Text (F6)", NULL, ImGuiWindowFlags_NoCollapse))
+	if (ImGui::Begin("SelectData (F6)", NULL, ImGuiWindowFlags_NoCollapse))
 	{
+		ImGui::Text("%s: %lf", "songList.selectedEntryIndexRolling", SelectData.songList.selectedEntryIndexRolling);
+		ImGui::Text("%s: %llu", "songList.highlightBarIndex", SelectData.songList.highlightBarIndex);
+		ImGui::Text("%s: %d", "draggingListSlider", SelectData.draggingListSlider);
+		ImGui::Text("%s: %d", "coursePlayable", SelectData.coursePlayable);
+		ImGui::Text("%s: %llu", "cursorClick", SelectData.cursorClick);
+		ImGui::Text("%s: %d", "cursorClickScroll", SelectData.cursorClickScroll);
+		ImGui::Text("%s: %d", "cursorEnterPending", SelectData.cursorEnterPending);
+		ImGui::Text("%s: %d", "sortType", SelectData.sortType);
+		ImGui::Text("%s: %d", "filterDifficulty", SelectData.filterDifficulty);
+		ImGui::Text("%s: %d", "filterKeys", SelectData.filterKeys);
+		ImGui::Text("%s: %d", "optionChangePending", SelectData.optionChangePending);
+		ImGui::Text("%s: %d", "panel", SelectData.panel);
+		ImGui::Text("%s: %lf", "pitchSpeed", SelectData.pitchSpeed);
+		ImGui::Text("%s: %d", "levelOfChartDifficulty[0]", SelectData.levelOfChartDifficulty[0]);
+		ImGui::Text("%s: %d", "levelOfChartDifficulty[1]", SelectData.levelOfChartDifficulty[1]);
+		ImGui::Text("%s: %d", "levelOfChartDifficulty[2]", SelectData.levelOfChartDifficulty[2]);
+		ImGui::Text("%s: %d", "levelOfChartDifficulty[3]", SelectData.levelOfChartDifficulty[3]);
+		ImGui::Text("%s: %d", "levelOfChartDifficulty[4]", SelectData.levelOfChartDifficulty[4]);
+		ImGui::Text("%s: %d", "countOfChartDifficulty[0]", SelectData.countOfChartDifficulty[0]);
+		ImGui::Text("%s: %d", "countOfChartDifficulty[1]", SelectData.countOfChartDifficulty[1]);
+		ImGui::Text("%s: %d", "countOfChartDifficulty[2]", SelectData.countOfChartDifficulty[2]);
+		ImGui::Text("%s: %d", "countOfChartDifficulty[3]", SelectData.countOfChartDifficulty[3]);
+		ImGui::Text("%s: %d", "countOfChartDifficulty[4]", SelectData.countOfChartDifficulty[4]);
+		if (ImGui::BeginTable("bar", 3))
+		{
+			for (int i = 0; i < 32; i++)
+			{
+				ImGui::TableNextColumn();
+				ImGui::Text("%d", i);
+				ImGui::TableNextColumn();
+				ImGui::Text("[%d]", SelectData.barLevel[i]);
+				ImGui::TableNextColumn();
+				ImGui::Text("%s", SelectData.barTitle[i].c_str());
+			}
+			ImGui::EndTable();
+		}
+		ImGui::Text("%s: %d", "newEntrySeconds", SelectData.newEntrySeconds);
+		ImGui::Text("%s: %d", "lastLaneEffectType1P", SelectData.lastLaneEffectType1P);
+		ImGui::Text("%s: %u", "scrollTimeLength", SelectData.scrollTimeLength);
+		ImGui::Text("%s: %d", "scrollDirection", SelectData.scrollDirection);
+		ImGui::Text("%s: %s", "jukeboxName", SelectData.jukeboxName.c_str());
+		ImGui::Text("%s: %d", "isGoingToSkinSelect", SelectData.isGoingToSkinSelect);
+		ImGui::Text("%s: %d", "isGoingToKeyConfig", SelectData.isGoingToKeyConfig);
+		ImGui::Text("%s: %d", "isGoingToAutoPlay", SelectData.isGoingToAutoPlay);
+		ImGui::Text("%s: %d", "isGoingToReplay", SelectData.isGoingToReplay);
+		ImGui::Text("%s: %d", "isGoingToReboot", SelectData.isGoingToReboot);
+		ImGui::Text("%s: %d", "c.path", SelectData.selectedChart.path.c_str());
+		ImGui::Text("%s: %s", "c.hash", SelectData.selectedChart.hash.hexdigest().c_str());
+		ImGui::Text("%s: %d", "c.isSampleLoaded", SelectData.selectedChart.isSampleLoaded);
+		ImGui::Text("%s: %s", "c.sampleLoadedHash", SelectData.selectedChart.sampleLoadedHash.hexdigest().c_str());
+		ImGui::Text("%s: %d", "c.isBgaLoaded", SelectData.selectedChart.isBgaLoaded);
+		ImGui::Text("%s: %s", "c.bgaLoadedHash", SelectData.selectedChart.bgaLoadedHash.hexdigest().c_str());
+		ImGui::Text("%s: %d", "c.started", SelectData.selectedChart.started);
+		ImGui::Text("%s: %d", "c.isDoubleBattle", SelectData.selectedChart.isDoubleBattle);
+		ImGui::Text("%s: %s", "c.title", SelectData.selectedChart.title.c_str());
+		ImGui::Text("%s: %s", "c.title2", SelectData.selectedChart.title2.c_str());
+		ImGui::Text("%s: %s", "c.artist", SelectData.selectedChart.artist.c_str());
+		ImGui::Text("%s: %s", "c.artist2", SelectData.selectedChart.artist2.c_str());
+		ImGui::Text("%s: %s", "c.genre", SelectData.selectedChart.genre.c_str());
+		ImGui::Text("%s: %lf", "c.minBPM", SelectData.selectedChart.minBPM);
+		ImGui::Text("%s: %lf", "c.maxBPM", SelectData.selectedChart.maxBPM);
+		ImGui::Text("%s: %lf", "c.startBPM", SelectData.selectedChart.startBPM);
+
+		auto ps = SceneMgr::current();
+		if (std::dynamic_pointer_cast<SceneSelect>(ps) != nullptr)
+		{
+			auto s = std::dynamic_pointer_cast<SceneSelect>(ps);
+
+			ImGui::Text("%s: %d", "s.isHoldingUp", s->isHoldingUp);
+			ImGui::Text("%s: %d", "s.isHoldingDown", s->isHoldingDown);
+			ImGui::Text("%s: %d", "s.isScrollingByAxis", s->isScrollingByAxis);
+			ImGui::Text("%s: %lld", "s.navigateTimestamp", s->navigateTimestamp.norm());
+			ImGui::Text("%s: %d", "s.isInVersionList", s->isInVersionList);
+			ImGui::Text("%s: %lld", "s.selectDownTimestamp", s->selectDownTimestamp.norm());
+			ImGui::Text("%s: %d", "s.previewStandalone", s->previewStandalone);
+			ImGui::Text("%s: %lld", "s.previewStandaloneLength", s->previewStandaloneLength);
+			ImGui::Text("%s: %lld", "s.scrollButtonTimestamp", s->scrollButtonTimestamp.norm());
+			ImGui::Text("%s: %lf", "s.scrollAccumulator", s->scrollAccumulator);
+			ImGui::Text("%s: %lf", "s.scrollAccumulatorAddUnit", s->scrollAccumulatorAddUnit);
+			ImGui::Text("%s: %d", "s.refreshingSongList", s->refreshingSongList);
+			ImGui::Text("%s: %d", "s.isHoldingK15", s->isHoldingK15);
+			ImGui::Text("%s: %d", "s.isHoldingK16", s->isHoldingK16);
+			ImGui::Text("%s: %d", "s.isHoldingK17", s->isHoldingK17);
+			ImGui::Text("%s: %d", "s.isHoldingK25", s->isHoldingK25);
+			ImGui::Text("%s: %d", "s.isHoldingK26", s->isHoldingK26);
+			ImGui::Text("%s: %d", "s.isHoldingK27", s->isHoldingK27);
+			ImGui::Text("%s: %d", "s.bindings9K", s->bindings9K);
+		}
+
 		ImGui::End();
 	}
 }
@@ -77,8 +168,44 @@ void imguiMonitorBargraph()
 	assert(IsMainThread());
 	if (!imguiShowMonitorBargraph) return;
 
-	if (ImGui::Begin("Bar graphs (F7)", NULL, ImGuiWindowFlags_NoCollapse))
+	if (ImGui::Begin("SystemData (F7)", NULL, ImGuiWindowFlags_NoCollapse))
 	{
+		ImGui::Text("%s: %d", "isAppExiting", SystemData.isAppExiting);
+		ImGui::Text("%s: %d", "quitOnFinish", SystemData.quitOnFinish);
+		ImGui::Text("%s: %d", "gNextScene", SystemData.gNextScene);
+		ImGui::Text("%s: %d", "windowMode", SystemData.windowMode);
+		ImGui::Text("%s: %d", "vsyncMode", SystemData.vsyncMode);
+		ImGui::Text("%s: %u", "currentRenderFPS", SystemData.currentRenderFPS);
+		ImGui::Text("%s: %u", "currentInputFPS", SystemData.currentInputFPS);
+		ImGui::Text("%s: %u", "currentUpdateFPS", SystemData.currentUpdateFPS);
+		ImGui::Text("%s: %u", "dateYear", SystemData.dateYear);
+		ImGui::Text("%s: %u", "dateMonthOfYear", SystemData.dateMonthOfYear);
+		ImGui::Text("%s: %u", "dateDayOfMonth", SystemData.dateDayOfMonth);
+		ImGui::Text("%s: %u", "timeHour", SystemData.timeHour);
+		ImGui::Text("%s: %u", "timeMin", SystemData.timeMin);
+		ImGui::Text("%s: %u", "timeSec", SystemData.timeSec);
+		ImGui::Text("%s: %lf", "volumeMaster", SystemData.volumeMaster);
+		ImGui::Text("%s: %lf", "volumeKey", SystemData.volumeKey);
+		ImGui::Text("%s: %lf", "volumeBgm", SystemData.volumeBgm);
+		ImGui::Text("%s: %d", "equalizerEnabled", SystemData.equalizerEnabled);
+		ImGui::Text("%s: %d", "equalizerVal62_5hz", SystemData.equalizerVal62_5hz);
+		ImGui::Text("%s: %d", "equalizerVal160hz", SystemData.equalizerVal160hz);
+		ImGui::Text("%s: %d", "equalizerVal400hz", SystemData.equalizerVal400hz);
+		ImGui::Text("%s: %d", "equalizerVal1khz", SystemData.equalizerVal1khz);
+		ImGui::Text("%s: %d", "equalizerVal2_5khz", SystemData.equalizerVal2_5khz);
+		ImGui::Text("%s: %d", "equalizerVal6_25khz", SystemData.equalizerVal6_25khz);
+		ImGui::Text("%s: %d", "equalizerVal16khz", SystemData.equalizerVal16khz);
+		ImGui::Text("%s: %d", "fxType", SystemData.fxType);
+		ImGui::Text("%s: %d", "fxVal", SystemData.fxVal);
+		ImGui::Text("%s: %d", "freqType", SystemData.freqType);
+		ImGui::Text("%s: %d", "freqVal", SystemData.freqVal);
+		ImGui::Text("%s: %lf", "pitchSpeed", SystemData.pitchSpeed);
+		ImGui::Text("%s: %d", "IROnline", SystemData.IROnline);
+		ImGui::Text("%s: %s", "playerName", SystemData.playerName.c_str());
+		ImGui::Text("%s: %d", "scratchAxisValue[0]", SystemData.scratchAxisValue[0]);
+		ImGui::Text("%s: %d", "scratchAxisValue[1]", SystemData.scratchAxisValue[1]);
+		ImGui::Text("%s: %lf", "isEditingText", SystemData.isEditingText);
+
 		ImGui::End();
 	}
 }

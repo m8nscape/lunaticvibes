@@ -42,9 +42,9 @@ private:
 			SystemData.dateYear = d->tm_year + 1900;
 			SystemData.dateMonthOfYear = d->tm_mon + 1;
 			SystemData.dateDayOfMonth = d->tm_mday;
-			SystemData.timeHour, d->tm_hour;
-			SystemData.timeMin, d->tm_min;
-			SystemData.timeSec, d->tm_sec;
+			SystemData.timeHour = d->tm_hour;
+			SystemData.timeMin = d->tm_min;
+			SystemData.timeSec = d->tm_sec;
 		}
 
 		//createNotification(std::to_string(t));

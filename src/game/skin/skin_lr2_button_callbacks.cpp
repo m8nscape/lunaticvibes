@@ -60,9 +60,9 @@ void number_change(T &val, T plus)
 }
 
 template <typename T>
-void number_change_clamp(T& val, T min, T max, T plus)
+void number_change_clamp(T* val, T min, T max, T plus)
 {
-    val = std::clamp(val + plus, min, max);
+    *val = std::clamp(*val + plus, min, max);
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
@@ -550,10 +550,10 @@ void hs(int player, int plus)
     switch (player)
     {
     case 0: 
-        number_change_clamp(PlayData.player[PLAYER_SLOT_PLAYER].hispeed, 0.5, 10.0, dplus);
+        number_change_clamp(&PlayData.player[PLAYER_SLOT_PLAYER].hispeed, 0.5, 10.0, dplus);
         break;
     case 1: 
-        number_change_clamp(PlayData.player[PLAYER_SLOT_TARGET].hispeed, 0.5, 10.0, dplus);
+        number_change_clamp(&PlayData.player[PLAYER_SLOT_TARGET].hispeed, 0.5, 10.0, dplus);
         break;
     default: break;
     }
@@ -566,10 +566,10 @@ void lock_speed_value(int player, int plus)
     switch (player)
     {
     case 0:
-        number_change_clamp(PlayData.player[PLAYER_SLOT_PLAYER].greenNumber, 0., 2000., dplus);
+        number_change_clamp(&PlayData.player[PLAYER_SLOT_PLAYER].greenNumber, 0., 2000., dplus);
         break;
     case 1:
-        number_change_clamp(PlayData.player[PLAYER_SLOT_TARGET].greenNumber, 0., 2000., dplus);
+        number_change_clamp(&PlayData.player[PLAYER_SLOT_TARGET].greenNumber, 0., 2000., dplus);
         break;
     default: break;
     }
@@ -641,7 +641,7 @@ void judge_auto_adjust(int plus)
 // 76
 void default_target_rate(int plus)
 {
-    number_change_clamp(PlayData.targetRate, 0, 100, plus);
+    number_change_clamp(&PlayData.targetRate, 0, 100, plus);
 }
 
 // 77
@@ -894,7 +894,7 @@ std::function<void(int)> getButtonCallback(int type)
         return std::bind(bga_size, _1);
 
     case 74:
-        return std::bind(number_change_clamp<int>, PlayData.player[PLAYER_SLOT_PLAYER].offsetVisual, -99, 99, _1);
+        return std::bind(number_change_clamp<int>, &PlayData.player[PLAYER_SLOT_PLAYER].offsetVisual, -99, 99, _1);
 
     case 75:
         return std::bind(judge_auto_adjust, _1);

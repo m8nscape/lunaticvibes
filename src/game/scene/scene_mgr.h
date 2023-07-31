@@ -10,6 +10,7 @@ class SceneMgr
 {
 private:
     static SceneMgr _inst;
+    pScene currentScene;
 private:
     SceneMgr() = default;
     ~SceneMgr() = default;
@@ -18,6 +19,7 @@ private:
 
 public:
     static pScene get(SceneType);
+    static pScene current();
     static void clean();
 };
 

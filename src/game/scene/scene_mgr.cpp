@@ -113,7 +113,13 @@ pScene SceneMgr::get(SceneType e)
         return nullptr;
     }
 
+    _inst.currentScene = ps;
     return ps;
+}
+
+pScene SceneMgr::current()
+{
+    return _inst.currentScene;
 }
 
 void SceneMgr::clean()

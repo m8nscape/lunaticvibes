@@ -207,7 +207,7 @@ public:
     static int number_58() { return int(SystemData.volumeKey * 100); }
     static int number_59() { return int(SystemData.volumeBgm * 100); }
     static int number_60() { return int(SystemData.fxVal * 100); }
-    static int number_66() { return int(SystemData.freqVal * 100); }
+    static int number_66() { return SystemData.freqVal; }
 
     static std::shared_ptr<EntryChart> getCurrentSelectedEntryChart()
     {

@@ -1910,7 +1910,7 @@ void ScenePlay::updatePlaying()
             {
                 PlayData.timers[slot == PLAYER_SLOT_PLAYER ? "last_note_1p" : "last_note_2p"] = t.norm();
 
-                if (fullCombo)
+                if (fullCombo && !isManuallyRequestedExit && !isReplayRequestedExit)
                 {
                     PlayData.timers[slot == PLAYER_SLOT_PLAYER ? "fullcombo_1p" : "fullcombo_2p"] = t.norm();
                 }
@@ -1928,7 +1928,8 @@ void ScenePlay::updatePlaying()
     {
         PlayData.timers["last_note_2p"] = t.norm();
 
-        if (PlayData.player[PLAYER_SLOT_PLAYER].ruleset->getData().combo == PlayData.player[PLAYER_SLOT_PLAYER].ruleset->getMaxCombo())
+        bool fullCombo = PlayData.player[PLAYER_SLOT_PLAYER].ruleset->getData().combo == PlayData.player[PLAYER_SLOT_PLAYER].ruleset->getMaxCombo();
+        if (fullCombo && !isManuallyRequestedExit && !isReplayRequestedExit)
         {
             PlayData.timers["fullcombo_2p"] = t.norm();
         }

@@ -20,6 +20,8 @@ class RulesetBase;
 class SceneCustomize;
 class SceneSelect : public SceneBase
 {
+    friend void imguiMonitorText();
+
 private:
     eSelectState state;
     InputMask _inputAvailable;
