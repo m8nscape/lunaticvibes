@@ -33,7 +33,8 @@ private:
         {
             std::unique_lock l(m);
             data = s;
-            dataFallbackLength = std::max(4095ull, s.length());
+            dataFallbackLength = std::max(
+                static_cast<std::string_view::size_type>(4095u), s.length());
             strncpy(dataFallback, s.data(), dataFallbackLength);
             return *this;
         }
