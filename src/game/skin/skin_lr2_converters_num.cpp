@@ -476,7 +476,7 @@ public:
         auto r = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
         if (r)
         {
-            auto& d = r->getData();
+            const auto& d = r->getData();
             return (int)d.combo + d.comboEx;
         }
         return 0;
@@ -620,7 +620,7 @@ public:
         auto r = PlayData.player[PLAYER_SLOT_TARGET].ruleset;
         if (r)
         {
-            auto& d = r->getData();
+            const auto& d = r->getData();
             return (int)d.combo + d.comboEx;
         }
         return 0;

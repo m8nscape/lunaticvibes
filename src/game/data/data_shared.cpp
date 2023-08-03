@@ -93,9 +93,6 @@ void loadConfigs()
 
     SelectData.newEntrySeconds = ConfigMgr::get('P', P_NEW_SONG_DURATION, 0) * 60 * 60;
 
-    using namespace cfg;
-    using std::string;
-
     // bga
     PlayData.panelStyle = ConfigMgr::get('P', P_PANEL_STYLE, 0);
 

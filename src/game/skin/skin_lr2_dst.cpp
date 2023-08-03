@@ -1312,7 +1312,7 @@ void updateDstOpt()
 		// 705 コースstage1 difficulty5
 		if (PlayData.courseStageData.size() >= 1)
 		{
-			auto& d = PlayData.courseStageData[0];
+			const auto& d = PlayData.courseStageData[0];
             set(700, d.difficulty == 0);
             set(701, d.difficulty == 1);
             set(702, d.difficulty == 2);
@@ -1330,7 +1330,7 @@ void updateDstOpt()
         // 715 コースstage2 difficulty5
         if (PlayData.courseStageData.size() >= 2)
         {
-            auto& d = PlayData.courseStageData[1];
+            const auto& d = PlayData.courseStageData[1];
             set(710, d.difficulty == 0);
             set(711, d.difficulty == 1);
             set(712, d.difficulty == 2);
@@ -1348,7 +1348,7 @@ void updateDstOpt()
         // 725 コースstage3 difficulty5
         if (PlayData.courseStageData.size() >= 3)
         {
-            auto& d = PlayData.courseStageData[2];
+            const auto& d = PlayData.courseStageData[2];
             set(720, d.difficulty == 0);
             set(721, d.difficulty == 1);
             set(722, d.difficulty == 2);
@@ -1379,7 +1379,7 @@ void updateDstOpt()
         // 735 コースstage4 difficulty5
         if (PlayData.courseStageData.size() >= 4)
         {
-            auto& d = PlayData.courseStageData[3];
+            const auto& d = PlayData.courseStageData[3];
             set(730, d.difficulty == 0);
             set(731, d.difficulty == 1);
             set(732, d.difficulty == 2);
@@ -1397,7 +1397,7 @@ void updateDstOpt()
         // 745 コースstage5 difficulty5
         if (PlayData.courseStageData.size() >= 5)
         {
-            auto& d = PlayData.courseStageData[4];
+            const auto& d = PlayData.courseStageData[4];
             set(740, d.difficulty == 0);
             set(741, d.difficulty == 1);
             set(742, d.difficulty == 2);
