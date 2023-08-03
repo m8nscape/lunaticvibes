@@ -855,8 +855,9 @@ void SceneSelect::updateSelect()
                 }
             }
         }
-        while (line <= sizeof(SystemData.overlayTopLeftText) / sizeof(SystemData.overlayTopLeftText[0]))
-            SystemData.overlayTopLeftText[line++] = "";
+        for (auto &line : SystemData.overlayTopLeftText) {
+            line = "";
+        }
     }
 
     if (SelectData.isGoingToKeyConfig || SelectData.isGoingToSkinSelect || SelectData.isGoingToReboot)
