@@ -1,3 +1,11 @@
+```
+Project is basically dead because codebase is somehow in a mess and having no time ;;
+Maybe I will come back with a new other project. Stay tuned
+
+go play lr2oraja
+```
+
+
 # Lunatic Vibes
 
 Lunatic Vibes is a rhythm game that plays community-made charts in BMS format.
