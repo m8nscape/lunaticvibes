@@ -456,6 +456,16 @@ void sortSongList()
             }
             else if (lhs->type() == eEntryType::CUSTOM_FOLDER)
             {
+                {
+                    const auto lhs_table = std::reinterpret_pointer_cast<EntryFolderTable>(lhs);
+                    const auto rhs_table = std::reinterpret_pointer_cast<EntryFolderTable>(rhs);
+
+                    if (lhs_table && rhs_table)
+                    {
+                        return lhs_table->getIndex() < rhs_table->getIndex();
+                    }
+                }
+
                 return entry1.first->md5 < entry2.first->md5;
             }
             else

@@ -422,6 +422,25 @@ void DifficultyTableBMS::parseHeader(const std::string& content)
 		catch (std::bad_variant_access& e)
 		{
 		}
+		try
+		{
+			const auto& levelOrder = header["level_order"].get_array();
+			int levelIndex = 0;
+			for (const auto& level : levelOrder)
+			{
+				try
+				{
+					_levelOrder[level.get_string()] = levelIndex;
+				}
+				catch (const std::bad_variant_access& e)
+				{
+				}
+				levelIndex += 1;
+			}
+		}
+		catch (const std::bad_variant_access& e)
+		{
+		}
 	}
 	catch (std::exception& e)
 	{
