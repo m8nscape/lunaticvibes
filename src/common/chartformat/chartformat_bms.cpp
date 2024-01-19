@@ -60,7 +60,6 @@ int ChartFormatBMS::initWithFile(const Path& filePath, uint64_t randomSeed)
 
     fileName = filePath.filename();
     absolutePath = std::filesystem::absolute(filePath);
-    LOG_DEBUG << "[BMS] " << absolutePath.u8string();
     std::ifstream ifsFile(absolutePath.c_str());
     if (ifsFile.fail())
     {
@@ -77,6 +76,8 @@ int ChartFormatBMS::initWithFile(const Path& filePath, uint64_t randomSeed)
     ifsFile.close();
 
     auto encoding = getFileEncoding(bmsFile);
+
+    LOG_DEBUG << "[BMS] File (" << getFileEncodingName(encoding) << "): " << absolutePath.u8string();
 
     if (toLower(filePath.extension().u8string()) == ".pms")
     {
@@ -805,7 +806,7 @@ int ChartFormatBMS::initWithFile(const Path& filePath, uint64_t randomSeed)
     }
 
     fileHash = md5file(absolutePath);
-    LOG_INFO << "[BMS] " << absolutePath.u8string() << " MD5: " << fileHash.hexdigest();
+    LOG_INFO << "[BMS] File (" << getFileEncodingName(encoding) << "): " << absolutePath.u8string() << " MD5: " << fileHash.hexdigest();
 
     loaded = true;
 
